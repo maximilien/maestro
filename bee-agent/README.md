@@ -3,7 +3,7 @@
 > All feedback is welcomed
 
 <p align="center">
-    <img alt="Bee Framework logo" src="docs/assets//Bee_Dark.svg" height="128">
+    <img alt="Bee Framework logo" src="../docs/assets/Bee_Dark.svg" height="128">
     <h1 align="center">Bee Agent Framework Python</h1>
 </p>
 
