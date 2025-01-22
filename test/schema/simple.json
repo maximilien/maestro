@@ -1,0 +1,48 @@
+{
+  "apiVersion": "beehive/v1",
+  "kind": "Workflow",
+  "metadata": {
+    "name": "beehive-deployment",
+    "labels": {
+      "app": "example2"
+    }
+  },
+  "spec":{
+    "strategy": {
+      "type": "sequence"
+    },
+    "template": {
+      "metadata": {
+        "name": "beehive-deployment",
+        "labels": {
+          "app": "example",
+          "use-case": "test"
+        }
+      }
+    },  
+    "agents": [
+        "agent1",
+        "agent2",
+        "agent3"
+    ],
+    "exception": "step4",
+    "steps": [
+       "step1",
+       "step2",
+       "step3",
+       "step4"
+    ],
+    "step1": {
+       "agent": "agent1"
+    },
+    "step2": {
+       "agent": "agent2"
+    },
+    "step3": {
+       "agent": "agent1"
+    },
+    "step4": {
+       "agent": "agent3"
+    }
+  }
+}

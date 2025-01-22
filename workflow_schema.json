@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/i-am-bee/bee-hive/workflow_schema.json",
+  "title": "Bee Hive Workflow Schema",
+  "description": "A JSON schema for defining Bee Hive workflows in YAML or JSON",
+  "type": "object",
+  "properties": {
+    "apiVersion": "string",
+    "kind": "string",
+    "metadata": {
+      "name": "string",
+      "labels": "object"
+    },
+    "spec": {
+      "strategy": {
+        "type": "sequence"
+      },
+      "template": {
+        "metadata": {
+          "name": "string",
+          "labels": "object"
+        }
+      }
+    },
+    "agents": [],
+    "exception": "string",
+    "steps": []
+  }
+}
