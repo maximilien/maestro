@@ -1,0 +1,25 @@
+apiVersion: beehive/v1
+kind: Workflow
+metadata:
+  name: beehive-deployment
+  labels:
+    app: example2
+spec:
+  strategy:
+    type: sequence
+  template:
+    metadata:
+      name: beehive-deployment
+      labels:
+        app: example
+        use-case: test
+  agents:
+    - agent1
+    - agent2
+    - agent3
+  exception: step4
+  steps:
+    step1: agent1
+    step2: agent2
+    step3: agent1
+    step4: agent3
