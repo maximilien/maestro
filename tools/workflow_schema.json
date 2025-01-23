@@ -33,9 +33,16 @@
         "type": "object",
         "description": "workflow labels, key: value pairs"
       }
-    },
-    "agents": [],
-    "exception": "string",
-    "steps": []
-  }
+    }
+  },
+  "agents": {
+    "type": "array",
+    "items": {
+      "type": "string"
+    }
+  },
+  "steps": {
+    "type": "object"
+  },
+  "exception": "string"
 }
