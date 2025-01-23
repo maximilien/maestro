@@ -7,7 +7,7 @@
       "app": "example2"
     }
   },
-  "spec":{
+  "spec": {
     "strategy": {
       "type": "sequence"
     },
@@ -19,30 +19,18 @@
           "use-case": "test"
         }
       }
-    },  
+    },
     "agents": [
-        "agent1",
-        "agent2",
-        "agent3"
+      "agent1",
+      "agent2",
+      "agent3"
     ],
     "exception": "step4",
-    "steps": [
-       "step1",
-       "step2",
-       "step3",
-       "step4"
-    ],
-    "step1": {
-       "agent": "agent1"
-    },
-    "step2": {
-       "agent": "agent2"
-    },
-    "step3": {
-       "agent": "agent1"
-    },
-    "step4": {
-       "agent": "agent3"
+    "steps": {
+      "step1": "agent1",
+      "step2": "agent2",
+      "step3": "agent1",
+      "step4": "agent3"
     }
   }
 }
