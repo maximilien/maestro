@@ -40,7 +40,14 @@
       "instruction": {
         "type": "string",
         "description": "The instruction (context) to pass to this agent"
-      }
+      },
+      "code": {
+        "type": "string",
+        "description": "The (optional) code defintion for the agent"
+      },
+      "required": [
+        "model"
+      ]
     }
   }
 }
