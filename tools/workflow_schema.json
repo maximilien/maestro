@@ -41,11 +41,40 @@
       "type": "string"
     }
   },
+  "exception": "string",
   "steps": {
     "type": "array",
     "items": {
-      "type": "string"
+      "type": "object",
+      "properties": {
+        "required": [
+          "name",
+          "agent"
+        ],
+        "name": {
+          "type": "string",
+          "description": "step name"
+        },
+        "agent": {
+          "type": "string",
+          "description": "the agent for this step"
+        },
+        "condition": {
+          "type": "array",
+          "description": "if/then/else or case/do/default condition",
+          "items": {
+            "type": "object",
+            "properties": {
+              "if": "string",
+              "then": "string",
+              "else": "string",
+              "case": "string",
+              "do": "string",
+              "default": "string"
+            }
+          }
+        }
+      }
     }
-  },
-  "exception": "string"
+  }
 }
