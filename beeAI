@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python3 ./tools/cli/cli.py $@
+python3 ./tools/cli/beeAI.py $@
