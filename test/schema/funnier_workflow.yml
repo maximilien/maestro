@@ -26,6 +26,6 @@ spec:
       - name: colleague
         agent: colleague
         condition:
-		- if: { input.find('funnier') != -1 }
-          	then: expert
-          	else: end
+        - if: (input.find('funnier') != -1)
+          then: expert
+          else: end

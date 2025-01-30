@@ -25,7 +25,9 @@
           "description": "workflow labels, key: value pairs"
         }
       },
-      "required": ["name"]
+      "required": [
+        "name"
+      ]
     },
     "spec": {
       "type": "object",
@@ -110,7 +112,10 @@
                 }
               }
             },
-            "required": ["name", "agent"]
+            "required": [
+              "name",
+              "agent"
+            ]
           }
         }
       }
