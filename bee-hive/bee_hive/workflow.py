@@ -58,18 +58,23 @@ class Workflow:
             return self._condition()
         else:
             print("not supported yet")
-
+            
     def _sequence(self):
-        prompt = self.workflow["spec"]["prompt"]
-        for agent in self.agents.values():
-            if (
-                self.workflow["spec"]["strategy"]["output"]
-                and self.workflow["spec"]["strategy"]["output"] == "verbose"
-            ):
-                prompt = agent.run_streaming(prompt)
-            else:
-                prompt = agent.run(prompt)
-        return prompt
+        prompt = self.workflow["spec"].get("prompt", "")
+        steps = self.workflow["spec"].get("steps", [])
+        if not steps:
+            raise ValueError("Workflow is missing required 'steps' key in 'spec'")
+        step_results = {}
+        for i, step in enumerate(steps):
+            agent_name = step["agent"]
+            agent_instance = self.agents.get(agent_name)
+            if not agent_instance:
+                raise ValueError(f"Agent {agent_name} not found for step {step['name']}")
+            step_results[f"step_{i}"] = prompt
+            response = agent_instance.run(prompt)
+            prompt = response if isinstance(response, str) else response.get("prompt", prompt)
+        step_results["final_prompt"] = prompt
+        return step_results
 
     def _condition(self):
         prompt = self.workflow["spec"]["prompt"]
