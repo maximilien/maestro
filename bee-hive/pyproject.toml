@@ -16,6 +16,9 @@ jsonschema = "^4.23.0"
 
 
 [tool.poetry.group.dev.dependencies]
+
+[tool.poetry.group.test.dependencies]
+pytest-mock = "^3.14.0"
 pytest = "^8.3.4"
 
 [build-system]

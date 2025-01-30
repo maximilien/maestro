@@ -1,0 +1,20 @@
+apiVersion: beehive/v1alpha1
+kind: Workflow
+metadata:
+  name: beetest-deployment
+  labels:
+    app: testapp
+spec:
+  strategy:
+    type: sequence
+    output: nonal
+  template:
+    metadata:
+      labels:
+        app: testapp
+    agents:
+      - name: beetest
+  prompt: Welcome
+  steps:
+    - name: begin
+      agent: beetest
