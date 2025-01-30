@@ -14,6 +14,42 @@
 
 import io, sys, yaml, json, jsonschema
 
+from common import Console
+
+# Base class for all commands
+class Command:
+    def __init__(self, args):
+        self.args = args
+    
+    def println(self, msg):
+        self.print(msg + "\n")
+
+    def print(self, msg):
+        Console.print(msg)
+
+    def warn(self, msg):
+        Console.warn(msg)
+
+    def verbose(self):
+        return self.args['--verbose']
+    
+    def execute(self):
+        func = self.dispatch()
+        rc = func()
+        if rc == None:
+            return 0
+        else:
+            if isinstance(rc, int):
+                return rc
+            else:
+                return 1
+
+    def dispatch(self):
+        if self.args['validate']:
+            return self.validate
+        else:
+            raise Exception("Invalid subcommand")
+
 # validate command group
 class Validate(Command):
     def __init__(self, args):
@@ -30,10 +66,10 @@ class Validate(Command):
       return "validate"
 
     def validate(self):
-        Console.print("validate {yaml_file} with schema {schema_file}".format(yaml_file=self.YAML_FILE, schema_file=self.SCHEMA_FILE))
-        with open(self.SCHEMA_FILE, 'r') as f:
+        Console.print("validate {yaml_file} with schema {schema_file}".format(yaml_file=self.YAML_FILE(), schema_file=self.SCHEMA_FILE()))
+        with open(self.SCHEMA_FILE(), 'r') as f:
             schema = json.load(f)
-        with open(self.YAML_FILE, 'r') as f:
+        with open(self.YAML_FILE(), 'r') as f:
             yamls = yaml.safe_load_all(f)
             for yaml_data in yamls:
                 json_data = json.dumps(yaml_data, indent=4)

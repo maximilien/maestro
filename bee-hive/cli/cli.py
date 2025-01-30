@@ -14,6 +14,7 @@
 
 import io, sys
 
+from commands import *
 from common import *
 
 class CLI:
@@ -27,37 +28,3 @@ class CLI:
             return Validate(self.args)
         else:
             raise Exception("Invalid command")
-
-class Command:
-    def __init__(self, args, credentials, client):
-        self.__init_empty_options(args)
-        self.args = args
-    
-    def println(self, msg):
-        self.print(msg + "\n")
-
-    def print(self, msg):
-        Console.print(msg)
-
-    def warn(self, msg):
-        Console.warn(msg)
-
-    def verbose(self):
-        return self.args['--verbose']
-    
-    def execute(self):
-        func = self.dispatch()
-        rc = func()
-        if rc == None:
-            return 0
-        else:
-            if isinstance(rc, int):
-                return rc
-            else:
-                return 1
-
-    def dispatch(self):
-        if self.args['validate']:
-            return self.validate
-        else:
-            raise Exception("Invalid subcommand")
