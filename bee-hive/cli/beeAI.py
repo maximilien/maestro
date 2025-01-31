@@ -18,6 +18,8 @@
 
 Usage:
   beeAI validate SCHEMA_FILE YAML_FILE [options]
+  beeAI run AGENTS_FILE WORKFLOW_FILE [options]
+  beeAI deploy AGENTS_FILE WORKFLOW_FILE [options]
 
   beeAI (-h | --help)
   beeAI (-v | --version)
@@ -32,12 +34,18 @@ Options:
 import os, sys, traceback
 
 from docopt import docopt
+
 from cli import *
 
 if __name__ == '__main__':
-    args = docopt(__doc__, version='beeAI CLI v0.0.0')
+    args = docopt(__doc__, version='beeAI CLI v0.0.1')
     command = CLI(args).command()
-    rc = command.execute()
-    if rc != 0:
-        Console.error("executing command: {rc}".format(rc=rc))
-        sys.exit(rc)
+    try:
+        rc = command.execute()
+        if rc != 0:
+            Console.error("executing command: {rc}".format(rc=rc))
+            sys.exit(rc)
+    except Exception as e:
+        Console.error(str(e))
+        sys.exit(1)
+        

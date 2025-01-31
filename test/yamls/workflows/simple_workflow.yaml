@@ -19,7 +19,9 @@ spec:
     - agent3
   exception: step4
   steps:
-    step1: agent1
-    step2: agent2
-    step3: agent1
-    step4: agent3
+    - name: step1
+      agent: agent1
+    - name: step2
+      agent: agent2
+    - name: step3
+      agent: agent3

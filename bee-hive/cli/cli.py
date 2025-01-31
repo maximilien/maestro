@@ -26,5 +26,9 @@ class CLI:
     def command(self):
         if self.args.get('validate') and self.args['validate']:
             return Validate(self.args)
+        elif self.args.get('run') and self.args['run']:
+            return Run(self.args)
+        elif self.args.get('deploy') and self.args['deploy']:
+            return Deploy(self.args)
         else:
             raise Exception("Invalid command")
