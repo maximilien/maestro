@@ -48,6 +48,8 @@ class Command:
     def dispatch(self):
         if self.args['validate']:
             return self.validate
+        elif self.args['create']:
+            return self.create
         elif self.args['run']:
             return self.run
         elif self.args['deploy']:
@@ -85,6 +87,21 @@ class Validate(Command):
                     Console.error("YAML file is NOT valid:\n {error_message}".format(error_message=str(ve.message)))
                     return 1
         return 0
+
+# Create command group
+class Create(Command):
+    def __init__(self, args):
+        self.args = args
+        super().__init__(self.args)
+
+    def AGENTS_FILE(self):
+        return self.args['AGENTS_FILE']
+
+    def name(self):
+      return "create"
+
+    def create(self):
+        Console.ok("create: {agents_file}: OK.".format(agents_file=self.AGENTS_FILE()))
 
 # Run command group
 class Run(Command):
