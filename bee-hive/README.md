@@ -95,14 +95,24 @@ python run_workflow workflow.yaml
 
 * Configure environmental variables: `cp example.env .env`
 
-### Run workflow in local environment with container runtime (e.g. podman)
+### Run workflow in local environment with container runtime (e.g. podman) or kubernetes cluster
 
-* Run a local instance of the [Bee Stack](https://github.com/i-am-bee/bee-stack)
+* Prepare required environments
+  * Run a local instance of the [Bee Stack](https://github.com/i-am-bee/bee-stack)
+  * `curl` is required for `run` command
+  * for Kubernetes, `kubectl` and `sed` are required
+  * set CONTAINER_CMD, TARGET_IP and BUILD_FLAGS environment variables to adjust bee-hive.sh script
+    * CONTAINER_CMD: docker, podman. nerdctl, etc..
+    * TARGET_IP: 127.0.0.1:"NodePort of the bee-hive service" for kubernetes deployment
+    * BUILD_FLAGS: image build command extra flag (e.g. "--namespace k8s.io" for nerdctl)
 
-* Build bee-hive container image: `./bee-hive.sh build` in	bee-hive/bee-hive directory
+* Build bee-hive container image: `./bee-hive.sh build` in bee-hive/bee-hive directory
+  * The built bee-hive:latest image need to be pushed/placed in the local retistry for kubernetes deployment
+
+* Deploy bee-hive: `./bee-hive.sh deploy BEE_API=http://xxx.xxx.xxx.xxx:4000 BEE_API_KEY=sk-proj-testkey`
+  * To deploy to kubernetes cluster, user `deploy-k` instead `deploy` as the first argument
+  * The required environment variables can be provided at the end of command arguments (e.g. `BEE_API=http://192.168.86.45:4000`).
 
 * Prepare agent and workflow definition yaml files in the current directory (e.g. agent.yaml, workflow.yaml)
 
-* Run workflow: `./bee-hive.sh run $PWD agents.yaml workflow.yaml BEE_API=http://xxx.xxx.xxx.xxx:4000 BEE_API_KEY=sk-proj-testkey`
-  * The required environment variables can be provided at the end of command argunets (e.g.  `BEE_API=http://192.168.86.45:4000`).  
-  
+* Run workflow: `./bee-hive.sh run agents.yaml workflow.yaml
