@@ -26,6 +26,7 @@ Usage:
 
 Options:
   --verbose                      Show all output.
+  --dry-run                      Mocks agents and other parts of workflow execution.
 
   -h --help                      Show this screen.
   -v --version                   Show version.
@@ -37,15 +38,18 @@ from docopt import docopt
 
 from cli import *
 
-if __name__ == '__main__':
-    args = docopt(__doc__, version='beeAI CLI v0.0.1')
-    command = CLI(args).command()
+def execute(command):
     try:
         rc = command.execute()
         if rc != 0:
             Console.error("executing command: {rc}".format(rc=rc))
-            sys.exit(rc)
+        return rc
     except Exception as e:
         Console.error(str(e))
-        sys.exit(1)
-        
+        return 1
+
+if __name__ == '__main__':
+    args = docopt(__doc__, version='beeAI CLI v0.0.1')
+    command = CLI(args).command()
+    rc = execute(command)
+    sys.exit(rc)

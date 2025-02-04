@@ -21,6 +21,7 @@ from common import Console
 class Command:
     def __init__(self, args):
         self.args = args
+        self.__dry_run = False
     
     def println(self, msg):
         self.print(msg + "\n")
@@ -34,6 +35,11 @@ class Command:
     def verbose(self):
         return self.args['--verbose']
     
+    def dry_run(self):
+        if self.args.get('--dry-run') and self.args['--dry-run']:
+            self.__dry_run = True
+        return self.__dry_run
+
     def execute(self):
         func = self.dispatch()
         rc = func()
@@ -102,6 +108,8 @@ class Run(Command):
       return "run"
 
     def run(self):
+        if self.dry_run():
+            self.println("run: --dry-run set") 
         Console.ok("run: {agents_file} {workflow_file}: OK.".format(agents_file=self.AGENTS_FILE(), workflow_file=self.WORKFLOW_FILE()))
 
 # Deploy command group
