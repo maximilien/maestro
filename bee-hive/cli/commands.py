@@ -14,8 +14,9 @@
 
 import io, sys, yaml, json, jsonschema
 
+import common
 from jsonschema.exceptions import ValidationError
-from common import Console
+from bee_hive import create_agents
 
 # Base class for all commands
 class Command:
@@ -27,10 +28,10 @@ class Command:
         self.print(msg + "\n")
 
     def print(self, msg):
-        Console.print(msg)
+        common.Console.print(msg)
 
     def warn(self, msg):
-        Console.warn(msg)
+        common.Console.warn(msg)
 
     def verbose(self):
         return self.args['--verbose']
@@ -79,7 +80,7 @@ class Validate(Command):
       return "validate"
 
     def validate(self):
-        Console.print("validating {yaml_file} with schema {schema_file}".format(yaml_file=self.YAML_FILE(), schema_file=self.SCHEMA_FILE()))
+        common.Console.print("validating {yaml_file} with schema {schema_file}".format(yaml_file=self.YAML_FILE(), schema_file=self.SCHEMA_FILE()))
         with open(self.SCHEMA_FILE(), 'r') as f:
             schema = json.load(f)
         with open(self.YAML_FILE(), 'r') as f:
@@ -88,9 +89,9 @@ class Validate(Command):
                 json_data = json.dumps(yaml_data, indent=4)
                 try:
                     jsonschema.validate(yaml_data, schema)
-                    Console.ok("YAML file is valid.")
+                    common.Console.ok("YAML file is valid.")
                 except ValidationError as ve:
-                    Console.error("YAML file is NOT valid:\n {error_message}".format(error_message=str(ve.message)))
+                    common.Console.error("YAML file is NOT valid:\n {error_message}".format(error_message=str(ve.message)))
                     return 1
         return 0
 
@@ -107,7 +108,12 @@ class Create(Command):
       return "create"
 
     def create(self):
-        Console.ok("create: {agents_file}: OK.".format(agents_file=self.AGENTS_FILE()))
+        file_path = self.AGENTS_FILE()
+        agents_yaml = common.parse_yaml(file_path)
+        try:
+            bee_hive.create_agents(agents_yaml)
+        except Exception as e:
+            raise RuntimeError("Unable to create agents: {message}".format(message=str(e))) from e
 
 # Run command group
 class Run(Command):
@@ -127,7 +133,7 @@ class Run(Command):
     def run(self):
         if self.dry_run():
             self.println("run: --dry-run set") 
-        Console.ok("run: {agents_file} {workflow_file}: OK.".format(agents_file=self.AGENTS_FILE(), workflow_file=self.WORKFLOW_FILE()))
+        common.Console.ok("run: {agents_file} {workflow_file}: OK.".format(agents_file=self.AGENTS_FILE(), workflow_file=self.WORKFLOW_FILE()))
 
 # Deploy command group
 class Deploy(Command):
@@ -145,4 +151,4 @@ class Deploy(Command):
       return "deploy"
 
     def deploy(self):
-        Console.ok("deploy: {agents_file} {workflow_file}: OK.".format(agents_file=self.AGENTS_FILE(), workflow_file=self.WORKFLOW_FILE()))
+        common.Console.ok("deploy: {agents_file} {workflow_file}: OK.".format(agents_file=self.AGENTS_FILE(), workflow_file=self.WORKFLOW_FILE()))
