@@ -18,6 +18,7 @@
 
 Usage:
   beeAI validate SCHEMA_FILE YAML_FILE [options]
+  beeAI create AGENTS_FILE [options]
   beeAI run AGENTS_FILE WORKFLOW_FILE [options]
   beeAI deploy AGENTS_FILE WORKFLOW_FILE [options]
 
