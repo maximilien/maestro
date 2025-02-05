@@ -16,7 +16,7 @@ import io, sys, yaml, json, jsonschema
 
 import common
 from jsonschema.exceptions import ValidationError
-from bee_hive import create_agents
+from create_agents import create_agents
 
 # Base class for all commands
 class Command:
@@ -111,7 +111,7 @@ class Create(Command):
         file_path = self.AGENTS_FILE()
         agents_yaml = common.parse_yaml(file_path)
         try:
-            bee_hive.create_agents(agents_yaml)
+            create_agents(agents_yaml)
         except Exception as e:
             raise RuntimeError("Unable to create agents: {message}".format(message=str(e))) from e
 
