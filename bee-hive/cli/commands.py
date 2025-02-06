@@ -12,7 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os, yaml, json, jsonschema
+import os, yaml, json, dotenv, jsonschema
+
+from openai import OpenAI
+from bee_hive.workflow import Workflow
+
+dotenv.load_dotenv()
 
 from jsonschema.exceptions import ValidationError
 from common import Console, parse_yaml
@@ -129,8 +134,12 @@ class Run(Command):
         super().__init__(self.args)
 
     def __run_agents_workflow(self, agents_yaml, workflow_yaml):
-        return 0 #TODO
-
+        try:
+            workflow = Workflow(agents_yaml, workflow_yaml[0])
+            return workflow.run()
+        except Exception as e:
+            raise RuntimeError("Unable to run workflow: {message}".format(message=str(e)))
+    
     def AGENTS_FILE(self):
         return self.args['AGENTS_FILE']
 
@@ -148,7 +157,6 @@ class Run(Command):
         except Exception as e:
             raise RuntimeError("Unable to run workflow: {message}".format(message=str(e))) from e        
         
-
 # Deploy command group
 #  maestro deploy AGENTS_FILE WORKFLOW_FILE [options]
 class Deploy(Command):
