@@ -1,2 +1,8 @@
 #! /bin/bash
-# TODO break down the hive shell script into two pieces - commands required to set up the demo go here
+cp example.env .env
+cp .env ./../common/src
+cd ../../../bee-hive
+poetry env activate
+poetry install
+cd -
+./../common/src/create_agents.py ./agents.yaml

@@ -1,39 +1,83 @@
-# Steps to Replicate Summary.ai:
+# Summary.ai Example
 
-(1) Set up environmental variables
+A multi-agent workflow using Bee-Hive: Allows an user to specify a topic from Arxiv they want to look at, choose a number of potential papers to summarize.
 
-(2) Start an instance of the bee-stack to run in the background
+## Getting Started
 
-(3) Create agents.yaml, defining your agents (currently, just have one defined)
+* Run a local instance of the [bee-stack](https://github.com/i-am-bee/bee-stack/blob/main/README.md)
 
-NOTE: If you don't want to use hive, follow steps 4a - 7a
+* Verify a valid llm is available to bee-stack
 
-(4a) Create the agents: `python create_agents.py agents.yaml`
-    - go to the agents.yaml file, copy the code portions to create custom tools to use (in the UI)
+* Install [bee-hive](https://github.com/i-am-bee/bee-hive) dependencies: `cd ../../../bee-hive/bee-hive && poetry shell && poetry install && cd -`
 
-(5a) Go to the UI, and make sure the necessary tools are enabled, prompts, and code for tools
+* Configure environmental variables: `cp example.env .env`
 
-(6a) Define workflow.yaml (right now is a sequential execution strat, with the other agents commented out)
-    - you could change the prompt here based on what topic you are looking for
+* Copy `.env` to common directory: `cp .env ./../common/src`
 
-(7a) Execute the workflow `python run_workflow.py workflow.yaml`
+* Set up the demo and create the agents: `./setup.sh`
 
-Using hive script (still requires that you have defined the agents and workflow, but now you don't have to run it separately)
-(8b) Run `./hive run workflow.yaml`
-    - if agents exist in the agent store, it skips creation otherwise it creates for you: Can also run `./hive create agents.yaml`
-    - Note: you must enable tools inside the UI, also create the tools manually for now (copy the code inside the agent defintion to create tool)
+* Run the workflow: `./run.sh` (to run for a different topic, change the `prompt` field in `workflow.yaml`)
 
+### NOTE: Custom Tools Required for this Demo:
 
-## What are the agents in this example?
+Go into the UI and make 2 tools for this demo:
 
-1st agent: search arxiv agent:
-given a topic, search for it in arxiv, get top k results
+1) Fetch tool:
 
-2nd agent: selector agent:
-given output results, select the top n results
+Name: Fetch
 
-3rd agents: summary agent:
-passing in the top n results, generate a summary for each
+Code:
+```
+import urllib.request
 
+def fetch_arxiv_titles(topic: str, k: int = 10):
+  """Fetches the k most recent article titles from arXiv on a given topic."""
+  url = f"http://export.arxiv.org/api/query?search_query=all:{topic}&sortBy=submittedDate&sortOrder=descending&max_results={k}"
 
-** Note: all agents are fully implemented except for the summary agent. This needs to be tweaked, currently we are passing a portion of entire research paper into the agent to summarize to prevent PDF reading issues, as well as token limits.
+  with urllib.request.urlopen(url) as response:
+      data = response.read().decode()
+
+  titles = [line.split("<title>")[1].split("</title>")[0] for line in data.split("\n") if "<title>" in line][1:k+1]
+  return titles
+```
+
+2) Filtering tool:
+
+Name: Filter
+
+Code:
+```
+import urllib.request
+import urllib.parse
+import re
+
+def fetch_valid_arxiv_titles(titles: list):
+    """
+    Fetches titles that have an available abstract on ArXiv.
+
+    Args:
+        titles (list): List of paper titles.
+
+    Returns:
+        list: Titles that have an abstract.
+    """
+    base_url = "http://export.arxiv.org/api/query?search_query="
+    valid_titles = []
+
+    for title in titles:
+        search_query = f'all:"{urllib.parse.quote(title)}"'
+        url = f"{base_url}{search_query}&max_results=1"
+        try:
+            with urllib.request.urlopen(url) as response:
+                data = response.read().decode()
+        except Exception as e:
+            continue
+
+        abstract_match = re.search(r"<summary>(.*?)</summary>", data, re.DOTALL)
+
+        if abstract_match:
+            valid_titles.append(title)
+        else:
+            print(f"❌ No abstract found: {title}")
+    return valid_titles
+```
