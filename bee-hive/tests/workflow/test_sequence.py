@@ -29,6 +29,7 @@ def test_sequence_method(mocker):
     mock_agents = {"agent1": mock_agent1, "agent2": mock_agent2}
     mocker.patch.object(BeeAgent, "__new__", side_effect=lambda name: mock_agents[name])
     workflow_yaml = parse_yaml("tests/workflow/workflow.yaml")
+    workflow_yaml[0]["spec"]["template"]["agents"] = []
     try:
         workflow = Workflow(agent_defs=[], workflow=workflow_yaml[0])
         workflow.agents = mock_agents 
