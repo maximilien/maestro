@@ -28,9 +28,13 @@ class Colors:
     UNDERLINE = '\033[4m'
 
 def parse_yaml(file_path):
-    with open(file_path, "r") as file:
-        yaml_data = list(yaml.safe_load_all(file))
-    return yaml_data
+    yaml_data = "--"
+    try:
+        with open(file_path, "r") as file:
+            yaml_data = list(yaml.safe_load_all(file))
+        return yaml_data
+    except Exception as e:
+        Console.error("Could not parse YAML file: {file_path}")
 
 class Console:
     def verbose(msg):

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import yaml, json, jsonschema
+import os, yaml, json, jsonschema
 
 from jsonschema.exceptions import ValidationError
 from common import Console, parse_yaml
@@ -21,7 +21,12 @@ from common import Console, parse_yaml
 class Command:
     def __init__(self, args):
         self.args = args
-        self.__dry_run = False
+        self.__init_dry_run()
+        
+    def __init_dry_run(self):
+        if self.args.get('--dry-run') and self.args['--dry-run']:
+            self.__dry_run = True
+            os.environ["DRY_RUN"] = "True"        
     
     def println(self, msg):
         self.print(msg + "\n")
@@ -36,8 +41,6 @@ class Command:
         return self.args['--verbose']
     
     def dry_run(self):
-        if self.args.get('--dry-run') and self.args['--dry-run']:
-            self.__dry_run = True
         return self.__dry_run
 
     def execute(self):
@@ -64,6 +67,7 @@ class Command:
             raise Exception("Invalid subcommand")
 
 # validate command group
+#  maestro validate SCHEMA_FILE YAML_FILE [options]
 class Validate(Command):
     def __init__(self, args):
         self.args = args
@@ -95,13 +99,14 @@ class Validate(Command):
         return 0
 
 # Create command group
+#  maestro create AGENTS_FILE [options]
 class Create(Command):
     def __init__(self, args):
         self.args = args
         super().__init__(self.args)
 
     def __create_agents(self, agents_yaml):
-        pass #TODO
+        return 0 #TODO
 
     def AGENTS_FILE(self):
         return self.args['AGENTS_FILE']
@@ -110,18 +115,21 @@ class Create(Command):
       return "create"
 
     def create(self):
-        file_path = self.AGENTS_FILE()
-        agents_yaml = parse_yaml(file_path)
+        agents_yaml = parse_yaml(self.AGENTS_FILE())
         try:
-            self.__create_agents(agents_yaml)
+            return self.__create_agents(agents_yaml)
         except Exception as e:
             raise RuntimeError("Unable to create agents: {message}".format(message=str(e))) from e
 
 # Run command group
+#  maestro run AGENTS_FILE WORKFLOW_FILE [options]
 class Run(Command):
     def __init__(self, args):
         self.args = args
         super().__init__(self.args)
+
+    def __run_agents_workflow(self, agents_yaml, workflow_yaml):
+        return 0 #TODO
 
     def AGENTS_FILE(self):
         return self.args['AGENTS_FILE']
@@ -133,15 +141,23 @@ class Run(Command):
       return "run"
 
     def run(self):
-        if self.dry_run():
-            self.println("run: --dry-run set") 
-        Console.ok("run: {agents_file} {workflow_file}: OK.".format(agents_file=self.AGENTS_FILE(), workflow_file=self.WORKFLOW_FILE()))
+        agents_yaml = parse_yaml( self.AGENTS_FILE())
+        workflow_yaml = parse_yaml( self.WORKFLOW_FILE())
+        try:
+            return self.__run_agents_workflow(agents_yaml, workflow_yaml)
+        except Exception as e:
+            raise RuntimeError("Unable to run workflow: {message}".format(message=str(e))) from e        
+        
 
 # Deploy command group
+#  maestro deploy AGENTS_FILE WORKFLOW_FILE [options]
 class Deploy(Command):
     def __init__(self, args):
         self.args = args
         super().__init__(self.args)
+    
+    def __deploy_agents_workflow(self, agents_yaml, workflow_yaml):
+        return 0 #TODO
 
     def AGENTS_FILE(self):
         return self.args['AGENTS_FILE']
@@ -153,4 +169,9 @@ class Deploy(Command):
       return "deploy"
 
     def deploy(self):
-        Console.ok("deploy: {agents_file} {workflow_file}: OK.".format(agents_file=self.AGENTS_FILE(), workflow_file=self.WORKFLOW_FILE()))
+        agents_yaml = parse_yaml( self.AGENTS_FILE())
+        workflow_yaml = parse_yaml( self.WORKFLOW_FILE())
+        try:
+            return self.__deploy_agents_workflow(agents_yaml, workflow_yaml)
+        except Exception as e:
+            raise RuntimeError("Unable to deploy workflow: {message}".format(message=str(e))) from e        
