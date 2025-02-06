@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
 import dotenv
@@ -6,8 +7,9 @@ import yaml
 import os
 from pytest_mock import mocker
 
-from bee_hive.workflow import Workflow
-from bee_hive.bee_agent import BeeAgent
+# TODO consider moving to same directory as BeeAgent source
+from bee_hive import Workflow
+from bee_hive import BeeAgent
 
 dotenv.load_dotenv()
 

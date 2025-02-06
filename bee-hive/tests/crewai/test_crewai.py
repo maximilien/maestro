@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
 import dotenv
-import yaml
 import os
+import yaml
 
-from bee_hive.workflow import Workflow
+from bee_hive import Workflow
 
 dotenv.load_dotenv()
 
