@@ -14,16 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""BeeAI
+"""Maestro
 
 Usage:
-  beeAI validate SCHEMA_FILE YAML_FILE [options]
-  beeAI create AGENTS_FILE [options]
-  beeAI run AGENTS_FILE WORKFLOW_FILE [options]
-  beeAI deploy AGENTS_FILE WORKFLOW_FILE [options]
+  maestro validate SCHEMA_FILE YAML_FILE [options]
+  maestro create AGENTS_FILE [options]
+  maestro run AGENTS_FILE WORKFLOW_FILE [options]
+  maestro deploy AGENTS_FILE WORKFLOW_FILE [options]
 
-  beeAI (-h | --help)
-  beeAI (-v | --version)
+  maestro (-h | --help)
+  maestro (-v | --version)
 
 Options:
   --verbose                      Show all output.
@@ -33,11 +33,12 @@ Options:
   -v --version                   Show version.
 
 """
-import os, sys, traceback
+
+import sys
 
 from docopt import docopt
-
-from cli import *
+from cli.common import Console
+from cli.cli import CLI
 
 def execute(command):
     try:
@@ -49,8 +50,11 @@ def execute(command):
         Console.error(str(e))
         return 1
 
-if __name__ == '__main__':
+def run_cli():
     args = docopt(__doc__, version='beeAI CLI v0.0.1')
     command = CLI(args).command()
     rc = execute(command)
     sys.exit(rc)
+        
+if __name__ == '__main__':
+    run_cli()

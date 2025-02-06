@@ -6,7 +6,9 @@ authors = ["IBM"]
 license = "Apache 2.0"
 readme = "README.md"
 requires-poetry = ">=2.0"
-packages = [{include = "*", from="bee_hive"}]
+packages = [
+	{include = "*", from="bee_hive"}
+]
 
 [tool.poetry.dependencies]
 python = ">= 3.11, < 3.13"
@@ -28,3 +30,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 addopts = "-v -s"
+
+[tool.poetry.scripts]
+"beeAI" = "cli.beeAI:run_cli"

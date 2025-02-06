@@ -1,6 +1,18 @@
 #! /usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
 
+"""
+Trigger Bee-Hive Workflow using docopt
+
+Usage:
+  hive run workflow.yaml
+
+Options:
+  -h, --help    Show this screen.
+"""
+#  --prompt      Prompt input
+# hive run workflow.yaml [--prompt=<prompt>]
+
 import json
 import os
 import sys

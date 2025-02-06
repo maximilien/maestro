@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import io, sys, yaml, json, jsonschema
+import yaml, json, jsonschema
 
-import common
 from jsonschema.exceptions import ValidationError
-from create_agents import create_agents
+from common import Console, parse_yaml
 
 # Base class for all commands
 class Command:
@@ -28,10 +27,10 @@ class Command:
         self.print(msg + "\n")
 
     def print(self, msg):
-        common.Console.print(msg)
+        Console.print(msg)
 
     def warn(self, msg):
-        common.Console.warn(msg)
+        Console.warn(msg)
 
     def verbose(self):
         return self.args['--verbose']
@@ -80,7 +79,7 @@ class Validate(Command):
       return "validate"
 
     def validate(self):
-        common.Console.print("validating {yaml_file} with schema {schema_file}".format(yaml_file=self.YAML_FILE(), schema_file=self.SCHEMA_FILE()))
+        Console.print("validating {yaml_file} with schema {schema_file}".format(yaml_file=self.YAML_FILE(), schema_file=self.SCHEMA_FILE()))
         with open(self.SCHEMA_FILE(), 'r') as f:
             schema = json.load(f)
         with open(self.YAML_FILE(), 'r') as f:
@@ -89,9 +88,9 @@ class Validate(Command):
                 json_data = json.dumps(yaml_data, indent=4)
                 try:
                     jsonschema.validate(yaml_data, schema)
-                    common.Console.ok("YAML file is valid.")
+                    Console.ok("YAML file is valid.")
                 except ValidationError as ve:
-                    common.Console.error("YAML file is NOT valid:\n {error_message}".format(error_message=str(ve.message)))
+                    Console.error("YAML file is NOT valid:\n {error_message}".format(error_message=str(ve.message)))
                     return 1
         return 0
 
@@ -101,6 +100,9 @@ class Create(Command):
         self.args = args
         super().__init__(self.args)
 
+    def __create_agents(self, agents_yaml):
+        pass #TODO
+
     def AGENTS_FILE(self):
         return self.args['AGENTS_FILE']
 
@@ -109,9 +111,9 @@ class Create(Command):
 
     def create(self):
         file_path = self.AGENTS_FILE()
-        agents_yaml = common.parse_yaml(file_path)
+        agents_yaml = parse_yaml(file_path)
         try:
-            create_agents(agents_yaml)
+            self.__create_agents(agents_yaml)
         except Exception as e:
             raise RuntimeError("Unable to create agents: {message}".format(message=str(e))) from e
 
@@ -133,7 +135,7 @@ class Run(Command):
     def run(self):
         if self.dry_run():
             self.println("run: --dry-run set") 
-        common.Console.ok("run: {agents_file} {workflow_file}: OK.".format(agents_file=self.AGENTS_FILE(), workflow_file=self.WORKFLOW_FILE()))
+        Console.ok("run: {agents_file} {workflow_file}: OK.".format(agents_file=self.AGENTS_FILE(), workflow_file=self.WORKFLOW_FILE()))
 
 # Deploy command group
 class Deploy(Command):
@@ -151,4 +153,4 @@ class Deploy(Command):
       return "deploy"
 
     def deploy(self):
-        common.Console.ok("deploy: {agents_file} {workflow_file}: OK.".format(agents_file=self.AGENTS_FILE(), workflow_file=self.WORKFLOW_FILE()))
+        Console.ok("deploy: {agents_file} {workflow_file}: OK.".format(agents_file=self.AGENTS_FILE(), workflow_file=self.WORKFLOW_FILE()))

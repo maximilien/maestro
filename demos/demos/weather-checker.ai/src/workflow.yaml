@@ -15,4 +15,4 @@ spec:
     agents:
       - name: current-affairs
       - name: hot-or-not
-    prompt: New York
+    prompt: New York City

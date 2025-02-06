@@ -31,11 +31,13 @@ def create_agent(agent):
     agent_output = agent["spec"].get("output")
     agent_tools = []
 
-    # weather_tool = {"type":"object", "properties":{"location":{"anyOf":[{"type":"object","properties":{"name":{"type":"string", "minLength":1 },"country":{"type":"string" },"language":{"type":"string","default":"English" }},"required":["name"],},{"type":"object","properties":{"latitude":{"type":"number"},"longitude":{"type":"number"}},"required":["latitude","longitude"]}]},"start_date":{"type":"string","format":"date","description":"Start date for the weather forecast in the format YYYY-MM-DD (UTC)"},"end_date":{"type":"string","format":"date","description": "End date for the weather forecast in the format YYYY-MM-DD (UTC)" },"temperature_unit":{"type":"string","enum":["celsius","fahrenheit"],"default":"celsius"}},"required":["location","start_date"]}
-
     for tool in agent["spec"]["tools"]:
         if tool == "code_interpreter":
             agent_tools.append({"type": tool})
+        if tool == "weather":
+            agent_tools.append({"type":"system","system":{"id":"weather"}})
+        if tool == "web_search":
+            agent_tools.append({"type":"system","system":{"id":"web_search"}})
         else:
             print(f"Enable the {tool} tool in the Bee UI")
 
