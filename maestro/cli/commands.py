@@ -15,11 +15,11 @@
 import os, yaml, json, jsonschema
 
 from openai import OpenAI
-from bee_hive.workflow import Workflow
+from maestro.workflow import Workflow
 
 from jsonschema.exceptions import ValidationError
 
-from .common import Console
+from .common import Console, parse_yaml
 
 # Base class for all commands
 class Command:

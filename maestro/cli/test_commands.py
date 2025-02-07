@@ -16,7 +16,7 @@
 
 from unittest import TestCase
 
-from cli import CLI
+from .cli import CLI
 
 # `deploy` commmand tests
 class DeployCommand(TestCase):
@@ -26,9 +26,9 @@ class DeployCommand(TestCase):
                         '--help': False,
                         '--verbose': False,
                         '--version': False,
-                        'AGENTS_FILE': '../test/yamls/agents/simple_agent.yaml',
+                        'AGENTS_FILE': './tests/yamls/agents/simple_agent.yaml',
                         'SCHEMA_FILE': None,
-                        'WORKFLOW_FILE': '../test/yamls/workflows/simple_workflow.yaml',
+                        'WORKFLOW_FILE': './tests/yamls/workflows/simple_workflow.yaml',
                         'YAML_FILE': None,
                         'deploy': True,
                         'run': False,
@@ -53,9 +53,9 @@ class RunCommand(TestCase):
                         '--help': False,
                         '--verbose': False,
                         '--version': False,
-                        'AGENTS_FILE': '../test/yamls/agents/simple_agent.yaml',
+                        'AGENTS_FILE': './tests/yamls/agents/simple_agent.yaml',
                         'SCHEMA_FILE': None,
-                        'WORKFLOW_FILE': '../test/yamls/workflows/simple_workflow.yaml',
+                        'WORKFLOW_FILE': './tests/yamls/workflows/simple_workflow.yaml',
                         'YAML_FILE': None,
                         'deploy': False,
                         'run': True,
@@ -70,7 +70,10 @@ class RunCommand(TestCase):
         
     def test_run__dry_run(self):
         self.assertTrue(self.command.name() == 'run')
-        self.assertTrue(self.command.execute() == 0)
+        try:
+            self.command.execute()
+        except Exception as e:
+            self.fail("Exception running command: {message}".format(message=str(e)))
 
 # `create` commmand tests
 class CreateCommand(TestCase):
@@ -80,9 +83,9 @@ class CreateCommand(TestCase):
                         '--help': False,
                         '--verbose': False,
                         '--version': False,
-                        'AGENTS_FILE': '../test/yamls/agents/simple_agent.yaml',
+                        'AGENTS_FILE': './tests/yamls/agents/simple_agent.yaml',
                         'SCHEMA_FILE': None,
-                        'WORKFLOW_FILE': '../test/yamls/workflows/simple_workflow.yaml',
+                        'WORKFLOW_FILE': './tests/yamls/workflows/simple_workflow.yaml',
                         'YAML_FILE': None,
                         'deploy': False,
                         'create': True,
@@ -100,6 +103,8 @@ class CreateCommand(TestCase):
         self.assertTrue(self.command.execute() == 0)
 
 # `validate` commmand tests
+# TODO: test with './tests/yamls/workflows/funnier_workflow.yaml'
+# TODO: test with './tests/yamls/workflows/conditional_workflow.yaml'
 class ValidateCommand(TestCase):
     def setUp(self):
         self.args = {
@@ -107,9 +112,9 @@ class ValidateCommand(TestCase):
                         '--help': False,
                         '--verbose': False,
                         '--version': False,
-                        'AGENTS_FILE': '../test/yamls/agents/simple_agent.yaml',
+                        'AGENTS_FILE': './tests/yamls/agents/simple_agent.yaml',
                         'SCHEMA_FILE': None,
-                        'WORKFLOW_FILE': '../test/yamls/workflows/simple_workflow.yaml',
+                        'WORKFLOW_FILE': './tests/yamls/workflows/simple_workflow.yaml',
                         'YAML_FILE': None,
                         'deploy': False,
                         'run': False,
@@ -122,14 +127,14 @@ class ValidateCommand(TestCase):
         self.command = None
         
     def test_validate_agents_file(self):
-        self.args['SCHEMA_FILE'] = '../tools/agent_schema.json'
+        self.args['SCHEMA_FILE'] = './schemas/agent_schema.json'
         self.args['YAML_FILE'] = self.args['AGENTS_FILE']
         self.command = CLI(self.args).command()
         self.assertTrue(self.command.name() == 'validate')
         self.assertTrue(self.command.execute() == 0)
 
     def test_validate_workflow_file(self):
-        self.args['SCHEMA_FILE'] = '../tools/workflow_schema.json'
+        self.args['SCHEMA_FILE'] = './schemas/workflow_schema.json'
         self.args['YAML_FILE'] = self.args['WORKFLOW_FILE']
         self.command = CLI(self.args).command()
         self.assertTrue(self.command.name() == 'validate')

@@ -6,8 +6,7 @@ authors = ["IBM"]
 license = "Apache 2.0"
 readme = "README.md"
 packages = [
-    { include = "maestro", from = "maestro" },
-    { include = "cli", from = "maestro" },
+    {include = "*", from="maestro"}
     # TODO - Packaging demos allows them to be run after a pip install
     #{ include = "activity_planner", from = "bee-hive-demos/agents/crewai" }
 ]
@@ -41,5 +40,5 @@ addopts = "-v -s --ignore=framework"
 #rootpath = "bee-hive"
 
 [tool.poetry.scripts]
-"beeAI" = "cli.beeAI:run_cli"
+"maestro" = "cli.maestro:run_cli"
 # TODO Add scripts to run demos here

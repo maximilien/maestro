@@ -13,15 +13,16 @@ spec:
       labels:
         app: example
         use-case: test
-  agents:
-    - test1
-    - test2
-    - test3
-  exception: step4
-  steps:
-    - name: step1
-      agent: test1
-    - name: step2
-      agent: test2
-    - name: step3
-      agent: test3
+    agents:
+        - test1
+        - test2
+        - test3
+    prompt: Tell me a joke about IBM
+    exception: step4
+    steps:
+      - name: step1
+        agent: test1
+      - name: step2
+        agent: test2
+      - name: step3
+        agent: test3

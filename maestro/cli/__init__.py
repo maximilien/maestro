@@ -16,7 +16,8 @@ import dotenv
 
 dotenv.load_dotenv()
 
+from .cli import CLI
+
 __all__ = {
-    "cli",
-    "commands"
+    "CLI"
 }
