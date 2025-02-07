@@ -1,0 +1,37 @@
+# TODO: this workdlow does not validate
+#
+# ./maestro validate ../tools/workflow_schema.json ../test/yamls/workflows/funnier_workflow.yaml
+# validating ../test/yamls/workflows/funnier_workflow.yaml with schema ../tools/workflow_schema.json
+# Error: "'name'"
+# 
+apiVersion: beehive/v1alpha1
+kind: Workflow
+metadata:
+  name: beehive-deployment
+  labels:
+    app: mas-example
+spec:
+  strategy:
+    type: condition
+    output: nonal
+  template:
+    metadata:
+      labels:
+        app: mas-example
+    agents:
+      - expert
+      - colleague
+    prompt: Tell me a joke about IBM
+    start: expert
+    steps:
+      - name: expert
+        agent: expert
+        condition:
+        - default:
+          do: colleague
+      - name: colleague
+        agent: colleague
+        condition:
+        - if: (input.find('funnier') != -1)
+          then: expert
+          else: end

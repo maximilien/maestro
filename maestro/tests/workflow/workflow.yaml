@@ -1,0 +1,25 @@
+apiVersion: maestro/v1alpha1
+kind: Workflow
+metadata:
+  name: sequence-test-deployment
+  labels:
+    app: testapp
+spec:
+  strategy:
+    type: sequence
+    output: nonal
+  template:
+    metadata:
+      labels:
+        app: testapp
+    agents:
+      - agent1
+      - agent2
+    prompt: Start of the workflow
+    steps:
+      - name: step1
+        agent: agent1
+      - name: step2
+        agent: agent2
+      - name: step3
+        agent: agent1

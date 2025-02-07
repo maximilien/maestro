@@ -1,0 +1,33 @@
+apiVersion: beehive/v1alpha1
+kind: Workflow
+metadata:
+  name: beehive-deployment
+  labels:
+    app: mas-example
+spec:
+  strategy:
+    type: condition
+    output: nonal
+  template:
+    metadata:
+      labels:
+        app: mas-example
+    agents:
+      - current-affairs
+      - hot-or-not
+      - cold-activities
+      - hot-activities
+    prompt: New York City
+    steps:
+      - name: current-affairs
+        agent: current-affairs
+        condition:
+        - default:
+          do: hot-or-not
+      - name: hot-or-not
+        agent: hot-or-not
+        condition:
+        - if: (input.find('hotter') != -1)
+          do: hot-activities
+          else: cold-activities
+      - name: end
