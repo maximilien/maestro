@@ -21,8 +21,8 @@ from unittest import TestCase
 from .cli import CLI
 
 class TestCommand(TestCase):
-    TEST_FIXTURES_ROOT_PATH = "./maestro/tests"
-    SCHEMAS_ROOT_PATH = "./maestro/schemas"
+    TEST_FIXTURES_ROOT_PATH = os.path.join(os.path.dirname(__file__), "../tests")
+    SCHEMAS_ROOT_PATH = os.path.join(os.path.dirname(__file__), "../schemas")
     
     def get_fixture(self, file_name):
         return os.path.join(self.TEST_FIXTURES_ROOT_PATH, file_name)
