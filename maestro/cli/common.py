@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
+import sys, yaml
+from random import randint
 
 VERBOSE=False
 
@@ -25,6 +26,15 @@ class Colors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+def parse_yaml(file_path):
+    yaml_data = "--"
+    try:
+        with open(file_path, "r") as file:
+            yaml_data = list(yaml.safe_load_all(file))
+        return yaml_data
+    except Exception as e:
+        Console.error("Could not parse YAML file: {file_path}")
 
 class Console:
     def verbose(msg):

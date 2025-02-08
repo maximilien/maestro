@@ -44,4 +44,4 @@ def test_agent_runs(mocker) -> None:
 
     assert result is not None
     # This gets returned by the mock function which uses the prompt from the workflow
-    assert (result["final_prompt"]=="OK:Welcome")
+    assert (result["final_prompt"]=="Mock agent: answer for Welcome")

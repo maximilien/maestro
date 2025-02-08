@@ -1,3 +1,4 @@
+# TODO: consolidate schemas into one: this or the one in ../tools
 {
   "$id": "https://github.com/i-am-bee/maestro/blob/main/maestro/agent_schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",

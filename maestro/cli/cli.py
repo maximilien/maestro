@@ -17,8 +17,11 @@ from .commands import Validate, Create, Run, Deploy
 class CLI:
     def __init__(self, args):
         self.args = args
+        VERBOSE, DRY_RUN = False, False
         if self.args['--verbose']:
             VERBOSE = True
+        if self.args['--dry-run']:
+            DRY_RUN = True
 
     def command(self):
         if self.args.get('validate') and self.args['validate']:

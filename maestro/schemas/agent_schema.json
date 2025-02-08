@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/i-am-bee/bee-hive/tools/agent_schema.json",
+  "$id": "https://github.com/i-am-bee/maestro/schemas/agent_schema.json",
   "title": "BeeAI Agent",
   "description": "A schema for defining Bee Hive workflows in YAML or JSON",
   "type": "object",

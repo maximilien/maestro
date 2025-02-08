@@ -13,13 +13,10 @@ from maestro import Workflow
 
 dotenv.load_dotenv()
 
-
 def parse_yaml(file_path):
     with open(file_path, "r") as file:
         yaml_data = list(yaml.safe_load_all(file))
     return yaml_data
-
-
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
