@@ -14,21 +14,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from unittest import TestCase
 
 from .cli import CLI
 
+class TestCommand(TestCase):
+    TEST_FIXTURES_ROOT_PATH = "./maestro/tests"
+    SCHEMAS_ROOT_PATH = "./maestro/schemas"
+    
+    def get_fixture(self, file_name):
+        return os.path.join(self.TEST_FIXTURES_ROOT_PATH, file_name)
+
+    def get_schema(self, file_name):
+        return os.path.join(self.SCHEMAS_ROOT_PATH, file_name)
+
 # `deploy` commmand tests
-class DeployCommand(TestCase):
+class DeployCommand(TestCommand):
     def setUp(self):
         self.args = {
                         '--dry-run': True,
                         '--help': False,
                         '--verbose': False,
                         '--version': False,
-                        'AGENTS_FILE': './tests/yamls/agents/simple_agent.yaml',
+                        'AGENTS_FILE': self.get_fixture('yamls/agents/simple_agent.yaml'),
                         'SCHEMA_FILE': None,
-                        'WORKFLOW_FILE': './tests/yamls/workflows/simple_workflow.yaml',
+                        'WORKFLOW_FILE': self.get_fixture('yamls/workflows/simple_workflow.yaml'),
                         'YAML_FILE': None,
                         'deploy': True,
                         'run': False,
@@ -46,16 +58,16 @@ class DeployCommand(TestCase):
         self.assertTrue(self.command.execute() == 0)
 
 # `run` commmand tests
-class RunCommand(TestCase):
+class RunCommand(TestCommand):
     def setUp(self):
         self.args = {
                         '--dry-run': True,
                         '--help': False,
                         '--verbose': False,
                         '--version': False,
-                        'AGENTS_FILE': './tests/yamls/agents/simple_agent.yaml',
+                        'AGENTS_FILE': self.get_fixture('yamls/agents/simple_agent.yaml'),
                         'SCHEMA_FILE': None,
-                        'WORKFLOW_FILE': './tests/yamls/workflows/simple_workflow.yaml',
+                        'WORKFLOW_FILE': self.get_fixture('yamls/workflows/simple_workflow.yaml'),
                         'YAML_FILE': None,
                         'deploy': False,
                         'run': True,
@@ -76,16 +88,16 @@ class RunCommand(TestCase):
             self.fail("Exception running command: {message}".format(message=str(e)))
 
 # `create` commmand tests
-class CreateCommand(TestCase):
+class CreateCommand(TestCommand):
     def setUp(self):
         self.args = {
                         '--dry-run': True,
                         '--help': False,
                         '--verbose': False,
                         '--version': False,
-                        'AGENTS_FILE': './tests/yamls/agents/simple_agent.yaml',
+                        'AGENTS_FILE': self.get_fixture('yamls/agents/simple_agent.yaml'),
                         'SCHEMA_FILE': None,
-                        'WORKFLOW_FILE': './tests/yamls/workflows/simple_workflow.yaml',
+                        'WORKFLOW_FILE': self.get_fixture('yamls/workflows/simple_workflow.yaml'),
                         'YAML_FILE': None,
                         'deploy': False,
                         'create': True,
@@ -105,16 +117,16 @@ class CreateCommand(TestCase):
 # `validate` commmand tests
 # TODO: test with './tests/yamls/workflows/funnier_workflow.yaml'
 # TODO: test with './tests/yamls/workflows/conditional_workflow.yaml'
-class ValidateCommand(TestCase):
+class ValidateCommand(TestCommand):
     def setUp(self):
         self.args = {
                         '--dry-run': False,
                         '--help': False,
                         '--verbose': False,
                         '--version': False,
-                        'AGENTS_FILE': './tests/yamls/agents/simple_agent.yaml',
+                        'AGENTS_FILE': self.get_fixture('yamls/agents/simple_agent.yaml'),
                         'SCHEMA_FILE': None,
-                        'WORKFLOW_FILE': './tests/yamls/workflows/simple_workflow.yaml',
+                        'WORKFLOW_FILE': self.get_fixture('yamls/workflows/simple_workflow.yaml'),
                         'YAML_FILE': None,
                         'deploy': False,
                         'run': False,
@@ -127,14 +139,14 @@ class ValidateCommand(TestCase):
         self.command = None
         
     def test_validate_agents_file(self):
-        self.args['SCHEMA_FILE'] = './schemas/agent_schema.json'
+        self.args['SCHEMA_FILE'] = self.get_schema('agent_schema.json')
         self.args['YAML_FILE'] = self.args['AGENTS_FILE']
         self.command = CLI(self.args).command()
         self.assertTrue(self.command.name() == 'validate')
         self.assertTrue(self.command.execute() == 0)
 
     def test_validate_workflow_file(self):
-        self.args['SCHEMA_FILE'] = './schemas/workflow_schema.json'
+        self.args['SCHEMA_FILE'] = self.get_schema('workflow_schema.json')
         self.args['YAML_FILE'] = self.args['WORKFLOW_FILE']
         self.command = CLI(self.args).command()
         self.assertTrue(self.command.name() == 'validate')
