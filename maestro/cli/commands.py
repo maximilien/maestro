@@ -17,8 +17,9 @@ import os, yaml, json, jsonschema
 from openai import OpenAI
 from jsonschema.exceptions import ValidationError
 
+from common import Console, parse_yaml
+
 from src.workflow import Workflow
-from cli.common import Console, parse_yaml
 
 # Root CLI class
 class CLI:
