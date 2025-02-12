@@ -38,7 +38,7 @@ import sys
 
 from docopt import docopt
 
-from root import CLI
+from commands import CLI
 from common import Console
 
 def __execute(command):
