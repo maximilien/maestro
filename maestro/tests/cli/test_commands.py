@@ -115,8 +115,6 @@ class CreateCommand(TestCommand):
         self.assertTrue(self.command.execute() == 0)
 
 # `validate` commmand tests
-# TODO: test with './tests/yamls/workflows/funnier_workflow.yaml'
-# TODO: test with './tests/yamls/workflows/conditional_workflow.yaml'
 class ValidateCommand(TestCommand):
     def setUp(self):
         self.args = {
