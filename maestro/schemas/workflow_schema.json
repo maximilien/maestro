@@ -99,15 +99,12 @@
                   "loop": {
                     "type": "object",
                     "description": "looping construct",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "step": {
-                          "type": "string"
-                        },
-                        "until": {
-                          "type": "string"
-                        }
+                    "properties": {
+                      "step": {
+                        "type": "string"
+                      },
+                      "until": {
+                        "type": "string"
                       }
                     }
                   },
