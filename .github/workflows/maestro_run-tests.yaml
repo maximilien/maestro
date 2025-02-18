@@ -30,7 +30,4 @@ jobs:
       - name: Run unit tests
         run: |
           cd maestro
-          pwd
-          ls -la tests/yamls/agents
-          ls -la tests/yamls/workflows
           poetry run pytest
