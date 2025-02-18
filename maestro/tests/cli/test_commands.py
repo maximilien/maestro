@@ -55,6 +55,7 @@ class DeployCommand(TestCommand):
         
     def test_deploy__dry_run(self):
         self.assertTrue(self.command.name() == 'deploy')
+        #TODO: complete test for deploy and check deployment server
         self.assertTrue(self.command.execute() == 0)
 
 # `run` commmand tests

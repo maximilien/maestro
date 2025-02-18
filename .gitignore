@@ -175,3 +175,6 @@ cython_debug/
 
 # Do not commit poetry lock file
 poetry.lock
+
+# Do not commit agents.db file
+agents.db

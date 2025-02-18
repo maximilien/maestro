@@ -161,9 +161,11 @@ class Run(Command):
     def __run_agents_workflow(self, agents_yaml, workflow_yaml):
         try:
             workflow = Workflow(agents_yaml, workflow_yaml[0])
-            return workflow.run()
+            workflow.run()
         except Exception as e:
             raise RuntimeError("Unable to run workflow: {message}".format(message=str(e)))
+            return 1
+        return 0
     
     def AGENTS_FILE(self):
         return self.args['AGENTS_FILE']
