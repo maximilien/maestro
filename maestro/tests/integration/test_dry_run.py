@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os, subprocess
+import os, subprocess, traceback
 
 from unittest import TestCase
 
@@ -34,6 +34,7 @@ def _maestro(*args) -> (str, int):
         result = subprocess.run([MAESTRO_PATH, *args], capture_output=True, text=True, check=True)
         return (result.stdout, 0)
     except subprocess.CalledProcessError as e:
+        print(traceback.format_exc())
         return (f"Error: {e}", 1)
 
 class TestCommand(TestCase):
