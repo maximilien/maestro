@@ -1,5 +1,4 @@
-name: Maestro Check Schema
-
+name: Maestro Demo Tests (ollama only)
 on:
   push:
     branches: [ 'main' ]
@@ -9,9 +8,9 @@ on:
     branches: [ 'main' ]
     paths:
     - 'maestro/**'
-
+    - '.github/workflows/**'
 jobs:
-  check-schema:
+  demo-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,8 +28,16 @@ jobs:
         run: |
           cd maestro
           poetry install
-      - name: Check schema
-        # Run from root to capture all projects - but poetry needs to run in maestro to pick up environment above
+      - name: Install Ollama
+        uses: pydantic/ollama-action@v3
+        with:
+          # Small model - 7GB max in this runner
+          model: llama3.1:latest
+      # TODO: generalise for other demos 
+      - name: Run CrewAI workflow
         run: |
           cd maestro
-          poetry run tools/check-schemas.sh
+          demos/workflows/activity-planner-crewai.ai/run.sh
+          # TODO: Add a way to check the output of the demo
+        env:
+          MAESTRO_DEMO_OLLAMA_MODEL: ollama/llama3.2:3b

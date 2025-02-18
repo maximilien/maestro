@@ -175,6 +175,8 @@ class Run(Command):
         except Exception as e:
             self._check_verbose()
             raise RuntimeError("Unable to run workflow: {message}".format(message=str(e)))
+            return 1
+        return 0
     
     def AGENTS_FILE(self):
         return self.args['AGENTS_FILE']
