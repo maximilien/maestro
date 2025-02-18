@@ -17,7 +17,7 @@ import os, yaml, json, jsonschema, traceback
 from openai import OpenAI
 from jsonschema.exceptions import ValidationError, SchemaError
 
-from src.workflow import Workflow
+from src.workflow import Workflow, create_agents
 from cli.common import Console, parse_yaml
 
 # Root CLI class
@@ -53,6 +53,10 @@ class Command:
             self.__dry_run = True
             os.environ["DRY_RUN"] = "True"        
     
+    def _check_verbose(self):
+        if self.verbose():
+            print(traceback.format_exc())
+
     def println(self, msg):
         self.print(msg + "\n")
 
@@ -120,11 +124,11 @@ class Validate(Command):
                     Console.ok("YAML file is valid.")
                 except ValidationError as ve:
                     Console.error("YAML file is NOT valid:\n {error_message}".format(error_message=str(ve.message)))
-                    if self.verbose():
-                        print(traceback.format_exc())
+                    self._check_verbose()
                     return 1
                 except SchemaError as se:
                     Console.error("Schema file is NOT valid:\n {error_message}".format(error_message=str(se.message)))
+                    self._check_verbose()
                     return 1
         return 0
 
@@ -136,7 +140,11 @@ class Create(Command):
         super().__init__(self.args)
 
     def __create_agents(self, agents_yaml):
-        return 0 #TODO
+        try:
+            create_agents(agents_yaml)
+        except Exception as e:
+            self._check_verbose()
+            raise RuntimeError("Unable to create agens=ts workflow: {message}".format(message=str(e)))
 
     def AGENTS_FILE(self):
         return self.args['AGENTS_FILE']
@@ -147,9 +155,11 @@ class Create(Command):
     def create(self):
         agents_yaml = parse_yaml(self.AGENTS_FILE())
         try:
-            return self.__create_agents(agents_yaml)
+            self.__create_agents(agents_yaml)
         except Exception as e:
+            self._check_verbose()
             raise RuntimeError("Unable to create agents: {message}".format(message=str(e))) from e
+        return 0
 
 # Run command group
 #  maestro run AGENTS_FILE WORKFLOW_FILE [options]
@@ -163,6 +173,7 @@ class Run(Command):
             workflow = Workflow(agents_yaml, workflow_yaml[0])
             workflow.run()
         except Exception as e:
+            self._check_verbose()
             raise RuntimeError("Unable to run workflow: {message}".format(message=str(e)))
             return 1
         return 0
@@ -177,12 +188,16 @@ class Run(Command):
       return "run"
 
     def run(self):
-        agents_yaml = parse_yaml( self.AGENTS_FILE())
+        agent_yaml = None
+        if self.AGENTS_FILE() != "None":
+            agent_yaml = parse_yaml( self.AGENTS_FILE())
         workflow_yaml = parse_yaml( self.WORKFLOW_FILE())
         try:
-            return self.__run_agents_workflow(agents_yaml, workflow_yaml)
+            self.__run_agents_workflow(agent_yaml, workflow_yaml)
         except Exception as e:
-            raise RuntimeError("Unable to run workflow: {message}".format(message=str(e))) from e        
+            self._check_verbose()
+            raise RuntimeError("Unable to run workflow: {message}".format(message=str(e))) from e
+        return 0
         
 # Deploy command group
 #  maestro deploy AGENTS_FILE WORKFLOW_FILE [options]
@@ -192,7 +207,8 @@ class Deploy(Command):
         super().__init__(self.args)
     
     def __deploy_agents_workflow(self, agents_yaml, workflow_yaml):
-        return 0 #TODO
+        # TODO: complete this
+        pass
 
     def AGENTS_FILE(self):
         return self.args['AGENTS_FILE']
@@ -207,6 +223,8 @@ class Deploy(Command):
         agents_yaml = parse_yaml( self.AGENTS_FILE())
         workflow_yaml = parse_yaml( self.WORKFLOW_FILE())
         try:
-            return self.__deploy_agents_workflow(agents_yaml, workflow_yaml)
+            self.__deploy_agents_workflow(agents_yaml, workflow_yaml)
         except Exception as e:
+            self._check_verbose()
             raise RuntimeError("Unable to deploy workflow: {message}".format(message=str(e))) from e        
+        return 0

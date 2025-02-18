@@ -1,5 +1,18 @@
-#! /usr/bin/env python3
-# SPDX-License-Identifier: Apache-2.0
+#!/usr/bin/env python3
+
+# Copyright © 2025 IBM
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import os, dotenv
 
@@ -9,16 +22,10 @@ from src.agent_factory import AgentFramework
 from src.crewai_agent import CrewAIAgent
 from src.bee_agent import BeeAgent
 from src.mock_agent import MockAgent
-from src.agent import restore_agent
+from src.agent import save_agent, restore_agent
 
-dotenv.load_dotenv()
+dotenv.load_dotenv() #TODO is this needed now that __init__.py in package runs this?
 
-def find_index(steps, name):
-    for step in steps:
-        if step.get("name") == name:
-            return steps.index(step)
-
-@staticmethod
 def get_agent_class(framework: str) -> type:
     if os.getenv("DRY_RUN"):
         return MockAgent
@@ -27,45 +34,61 @@ def get_agent_class(framework: str) -> type:
     else:
         return BeeAgent
 
-class Workflow:
-    agents = {}
-    steps = {}
-    workflow = {}
+def create_agents(agent_defs):
+    for agent_def in agent_defs:
+        # Use 'bee' if this value isn't set
+        #
+        agent_def["spec"]["framework"] = agent_def["spec"].get(
+            "framework", AgentFramework.BEE
+        )
+        save_agent(get_agent_class(agent_def["spec"]["framework"])(agent_def))
 
-    def __init__(self, agent_defs, workflow):
+class Workflow:
+    def __init__(self, agent_defs={}, workflow={}):
         """Execute sequential workflow.
         input:
             agents: array of agent definitions, saved agent names, or None (agents in workflow must be pre-created)
             workflow: workflow definition
         """
-        if agent_defs:
-            for agent_def in agent_defs:
-                if type(agent_def) == str:
-                    self.agents[agent_def] = restore_agent(agent_def)
-                else:
-                    # Use 'bee' if this value isn't set
-                    #
-                    agent_def["spec"]["framework"] = agent_def["spec"].get(
-                        "framework", AgentFramework.BEE
-                    )
-                    self.agents[agent_def["metadata"]["name"]] = get_agent_class(
-                        agent_def["spec"]["framework"]
-                    )(agent_def)
-        else:
-            for agent in workflow["spec"]["template"]["agents"]:
-                self.agents[agent["name"]] = restore_agent(agent["name"])
+        self.agents = {}
+        self.steps = {}
+                
+        self.agent_defs = agent_defs
         self.workflow = workflow
 
     def run(self):
         """Execute workflow."""
-
+        self.create_or_restore_agents(self.agent_defs, self.workflow)
         if self.workflow["spec"]["strategy"]["type"] == "sequence":
             return self._sequence()
         elif self.workflow["spec"]["strategy"]["type"] == "condition":
             return self._condition()
         else:
             print("not supported yet")
-            
+
+    # private methods
+    def create_or_restore_agents(self, agent_defs, workflow):
+        if agent_defs:
+            if type(agent_defs[0]) == str:
+                for agent_name in agent_defs:
+                    self.agents[agent_name] = restore_agent(agent_def)
+            else:
+                for agent_def in agent_defs:
+                  # Use 'bee' if this value isn't set
+                  #
+                  agent_def["spec"]["framework"] = agent_def["spec"].get(
+                      "framework", AgentFramework.BEE
+                  )
+                  self.agents[agent_def["metadata"]["name"]] = get_agent_class(agent_def["spec"]["framework"])(agent_def)
+        else:
+            for agent in workflow["spec"]["template"]["agents"]:
+                self.agents[agent] = restore_agent(agent)
+    
+    def find_index(self, steps, name):
+        for step in steps:
+            if step.get("name") == name:
+                return steps.index(step)
+    
     def _sequence(self):
         prompt = self.workflow["spec"]["template"].get("prompt", "")
         steps = self.workflow["spec"]["template"].get("steps", [])
@@ -100,5 +123,5 @@ class Workflow:
                 if current_step == steps[len(steps)-1].get("name"):
                     break
                 else:
-                    current_step = find_index(steps, current_step)
+                    current_step = steps[self.find_index(steps, current_step)+1].get("name")
         return prompt

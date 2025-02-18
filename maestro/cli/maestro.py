@@ -52,7 +52,7 @@ def __execute(command):
         return 1
 
 def __run_cli():
-    args = docopt(__doc__, version='beeAI CLI v0.0.1')
+    args = docopt(__doc__, version='Maestro CLI v0.0.2')
     command = CLI(args).command()
     rc = __execute(command)
     sys.exit(rc)
