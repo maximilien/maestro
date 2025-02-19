@@ -1,3 +1,11 @@
 #! /bin/bash
-# TODO write some validation to verify that prereqs exist (bee stack, local ollama, etc)
-#   and later auto remediate issues
+
+# Check maestro CLI is present
+
+function check_maestro {
+    if test -f "../../../maestro"; then
+      echo "maestro CLI ✅"
+    else
+      echo "maestro CLI not found ❌"
+    fi
+}
