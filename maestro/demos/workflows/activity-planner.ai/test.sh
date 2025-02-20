@@ -14,18 +14,18 @@ function check_status() {
 }
 
 echo "🩺 Running environment check..."
-poetry run ./demos/workflows/weather-checker.ai/doctor.sh || exit 1
+poetry run ./demos/workflows/activity-planner.ai/doctor.sh || exit 1
 
 echo "📝 Validating agents.yaml..."
-poetry run maestro validate ./schemas/agent_schema.json ./demos/workflows/weather-checker.ai/agents.yaml
+poetry run maestro validate ./schemas/agent_schema.json ./demos/workflows/activity-planner.ai/agents.yaml
 check_status "❌ Failed to validate agents.yaml!"
 
 echo "📝 Validating workflow.yaml..."
-poetry run maestro validate ./schemas/workflow_schema.json ./demos/workflows/weather-checker.ai/workflow.yaml
+poetry run maestro validate ./schemas/workflow_schema.json ./demos/workflows/activity-planner.ai/workflow.yaml
 check_status "❌ Failed to validate workflow.yaml!"
 
 echo "🧪 Running workflow in dry-run mode..."
-echo "" | poetry run maestro run --dry-run ./demos/workflows/weather-checker.ai/agents.yaml ./demos/workflows/weather-checker.ai/workflow.yaml
+echo "" | poetry run maestro run --dry-run ./demos/workflows/activity-planner.ai/agents.yaml ./demos/workflows/activity-planner.ai/workflow.yaml
 check_status "❌ Workflow test failed!"
 
 echo "✅ All tests passed!"
