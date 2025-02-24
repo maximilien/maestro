@@ -227,10 +227,14 @@ class DeployCmd(Command):
         return 0            
 
     def url(self):
-        return self.args['--url'] | "127.0.0.1:5000"
+        if self.args['--url'] == "" or self.args['--url'] == None:
+            return "127.0.0.1:5000"
+        return self.args['--url'] 
 
     def k8s(self):
-        return self.args['--k8s'] | self.args['--kubernetes'] 
+        if self.args['--k8s'] != "":
+            return self.args['--k8s']
+        return self.args['--kubernetes'] 
 
     def docker(self):
         return self.args['--docker']

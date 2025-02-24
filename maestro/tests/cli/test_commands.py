@@ -58,28 +58,22 @@ class DeployCommand(TestCommand):
         self.command = None
         
     def test_deploy__dry_run_k8s(self):
-        self.assertTrue(self.command.name() == 'deploy')
         self.args["--k8s"] = True
-        try:
-            self.assertTrue(self.command.execute() == 0)
-        except Exception as e:
-            self.fail("Exception running command: {message}".format(message=str(e)))
+        self.command = CLI(self.args).command()
+        self.assertTrue(self.command.name() == 'deploy')
+        self.assertTrue(self.command.execute() == 0)
 
     def test_deploy__dry_run_kubernetes(self):
-        self.assertTrue(self.command.name() == 'deploy')
         self.args["--kubernetes"] = True
-        try:
-            self.assertTrue(self.command.execute() == 0)
-        except Exception as e:
-            self.fail("Exception running command: {message}".format(message=str(e)))
-
-    def test_deploy__dry_run_docker(self):
+        self.command = CLI(self.args).command()
         self.assertTrue(self.command.name() == 'deploy')
+        self.assertTrue(self.command.execute() == 0)
+        
+    def test_deploy__dry_run_docker(self):
         self.args["--docker"] = True
-        try:
-            self.assertTrue(self.command.execute() == 0)
-        except Exception as e:
-            self.fail("Exception running command: {message}".format(message=str(e)))
+        self.command = CLI(self.args).command()
+        self.assertTrue(self.command.name() == 'deploy')
+        self.assertTrue(self.command.execute() == 0)
 
 # `run` commmand tests
 class RunCommand(TestCommand):
