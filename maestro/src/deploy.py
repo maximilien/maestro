@@ -14,16 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os, dotenv
+import os, dotenv, inspect
 import shutil
 import subprocess
 import yaml
+import tempfile
 
-# cmd="podman"
-# env="BEE_API_KEY=sk-proj-testkey BEE_API=http://192.168.86.45:4000"
-# target="127.0.0.1:5000"
-
-dotenv.load_dotenv() #TODO is this needed now that __init__.py in package runs this?
+dotenv.load_dotenv()
 
 def env_array_docker(str_envs):
     env_array = str_envs.split()
@@ -51,7 +48,6 @@ def create_docker_args(cmd, target, env):
 def create_build_args(cmd, flags):
     arg = [f"{cmd}", "build"]
     if flags:
-        print(flags)
         arg.extend(flag_array_build(flags))
     arg.extend(["-t", "maestro", "-f", "Dockerfile", ".."])
     return arg
@@ -76,31 +72,37 @@ class Deploy:
         self.flags = os.getenv("BUILD_FLAGS")
 
     def build_image(self, agent, workflow):
-        shutil.copytree("../deployments", "../tmp", dirs_exist_ok=True)
-        shutil.copy(agent, "../tmp/agents.yaml")
-        shutil.copy(workflow, "../tmp/workflow.yaml")
+        module_path = os.path.abspath(inspect.getsourcefile(lambda:0))
+        module_dir = os.path.dirname(module_path)
+        self.tmp_dir = os.path.join(os.getcwd(), "tmp2")
+        shutil.copytree(os.path.join(module_dir, ".."), self.tmp_dir, dirs_exist_ok=True)
+        shutil.copytree(os.path.join(module_dir, "../deployments"), os.path.join(self.tmp_dir, "tmp"), dirs_exist_ok=True)
+        shutil.copy(agent, os.path.join(self.tmp_dir, "tmp/agents.yaml"))
+        shutil.copy(workflow, os.path.join(self.tmp_dir, "tmp/workflow.yaml"))
 
-        os.chdir("../tmp")
+        cwd = os.getcwd()
+        os.chdir(os.path.join(self.tmp_dir, "tmp"))
         subprocess.run(create_build_args(self.cmd, self.flags))
+        os.chdir(cwd)
 
     def deploy_to_docker(self):
         self.build_image(self.agent, self.workflow)
         subprocess.run(create_docker_args(self.cmd, self.target, self.env))
-    
+        shutil.rmtree(self.tmp_dir)
+
     def deploy_to_kubernetes(self):
+        module_path = os.path.abspath(inspect.getsourcefile(lambda:0))
+        module_dir = os.path.dirname(module_path)
+
         self.build_image(self.agent, self.workflow)
-        update_yaml("deployment.yaml", self.env)
+        update_yaml(os.path.join(self.tmp_dir, "tmp/deployment.yaml"), self.env)
         image_tag_command  = os.getenv("IMAGE_TAG_CMD")
         if image_tag_command:
             subprocess.run(image_tag_command.split())
         image_push_command  = os.getenv("IMAGE_PUSH_CMD")
         if image_push_command:
             subprocess.run(image_push_command.split())
-        subprocess.run(["kubectl", "apply", "-f", "deployment.yaml"])
-        subprocess.run(["kubectl", "apply", "-f", "service.yaml"])
+        subprocess.run(["kubectl", "apply", "-f", os.path.join(self.tmp_dir, "tmp/deployment.yaml")])
+        subprocess.run(["kubectl", "apply", "-f", os.path.join(self.tmp_dir, "tmp/service.yaml")])
+        shutil.rmtree(self.tmp_dir)
 
-#if __name__ == '__main__':
-    #deploy = Deploy("../tests/examples/condition_agents.yaml", "../tests/examples/condition_workflow.yaml", "BEE_API_KEY=sk-proj-testkey BEE_API=http://192.168.86.45:4000", "127.0.0.1:5000")
-    #deploy.deploy_to_docker()
-    #deploy = Deploy("../tests/examples/condition_agents.yaml", "../tests/examples/condition_workflow.yaml", "BEE_API_KEY=sk-proj-testkey BEE_API=http://192.168.86.45:4000")
-    #deploy.deploy_to_kubernetes()
