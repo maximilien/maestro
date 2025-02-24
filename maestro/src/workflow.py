@@ -56,15 +56,10 @@ class Workflow:
         self.agent_defs = agent_defs
         self.workflow = workflow
 
-    def run(self):
+    async def run(self):
         """Execute workflow."""
         self.create_or_restore_agents(self.agent_defs, self.workflow)
-        if self.workflow["spec"]["strategy"]["type"] == "sequence":
-            return self._sequence()
-        elif self.workflow["spec"]["strategy"]["type"] == "condition":
-            return self._condition()
-        else:
-            print("not supported yet")
+        return await self._condition()
 
     def create_or_restore_agents(self, agent_defs, workflow):
         if agent_defs:
@@ -107,16 +102,22 @@ class Workflow:
         step_results["final_prompt"] = prompt
         return step_results
 
-    def _condition(self):
+    async def _condition(self):
         prompt = self.workflow["spec"]["template"]["prompt"]
         steps = self.workflow["spec"]["template"]["steps"]
         for step in steps:
             if step.get("agent"):
                 step["agent"] = self.agents.get(step["agent"])
+            if step.get("parallel"):
+                agents = []
+                for agent in step.get("parallel"):
+                    agents.append(self.agents.get(agent))
+                step["parallel"] = agents
             self.steps[step["name"]] = Step(step)
         current_step = self.workflow["spec"]["template"]["steps"][0]["name"]
+        step_results = {}
         while True:
-            response = self.steps[current_step].run(prompt)
+            response = await self.steps[current_step].run(prompt)
             prompt = response["prompt"]
             if response.get("next"):
                 current_step = response["next"]
@@ -125,4 +126,5 @@ class Workflow:
                     break
                 else:
                     current_step = steps[self.find_index(steps, current_step)+1].get("name")
-        return prompt
+        step_results["final_prompt"] = prompt
+        return step_results

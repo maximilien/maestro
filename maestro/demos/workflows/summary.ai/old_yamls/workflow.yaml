@@ -1,23 +1,26 @@
 apiVersion: maestro/v1alpha1
 kind: Workflow
 metadata:
-  name: summary-ai
+  name: maestro-deployment
   labels:
-    project: maestro-demo
+    app: mas-example
 spec:
-  strategy:
-    type: sequence
   template:
     metadata:
-      name: summary-ai
       labels:
-        project: maestro-demo
+        app: mas-example
     agents:
       - Search Arxiv
-      - Individual Summary
+      - Intermediary
+      - Filter
+      - Summary
     prompt: "Run the fetch tool using this function call: fetch_arxiv_titles(topic='quantum', k=5):"
     steps:
       - name: Search Arxiv
         agent: Search Arxiv
-      - name: Individual Summary
-        agent: Individual Summary
+      - name: Intermediary
+        agent: Intermediary
+      - name: Filter
+        agent: Filter
+      - name: Summary
+        agent: Summary

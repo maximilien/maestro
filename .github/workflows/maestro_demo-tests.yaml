@@ -28,16 +28,16 @@ jobs:
         run: |
           cd maestro
           poetry install
+      - name: Verify Maestro Installation
+        run: |
+          cd maestro
+          poetry run maestro --help
       - name: Install Ollama
         uses: pydantic/ollama-action@v3
         with:
           # Small model - 7GB max in this runner
           model: llama3.1:latest
-      # TODO: generalise for other demos 
-      - name: Run CrewAI workflow
+      - name: Run and tests all demo workflows
         run: |
           cd maestro
-          demos/workflows/activity-planner-crewai.ai/run.sh
-          # TODO: Add a way to check the output of the demo
-        env:
-          MAESTRO_DEMO_OLLAMA_MODEL: ollama/llama3.2:3b
+          bash ./tools/run-demos.sh

@@ -18,7 +18,7 @@ import os, subprocess, traceback
 
 from unittest import TestCase
 
-MAESTRO_PATH = os.path.join(os.path.dirname(__file__), "../../maestro")
+MAESTRO_PATH = os.path.join(os.path.dirname(__file__), "../../../maestro")
 
 def _maestro(*args) -> (str, int):
     """
