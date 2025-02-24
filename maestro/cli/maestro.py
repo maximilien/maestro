@@ -26,15 +26,16 @@ Usage:
   maestro (-v | --version)
 
 Options:
-  --verbose                      Show all output.
-  --dry-run                      Mocks agents and other parts of workflow execution.
+  --verbose              Show all output.
+  --dry-run              Mocks agents and other parts of workflow execution.
 
-  --url                          The deployment URL, default: 127.0.0.1:5000
-  --k8s | --kubernetes           Deploys to Kubernetes
-  --docker                       Deploys to Docker
+  --url                  The deployment URL, default: 127.0.0.1:5000
+  --k8s                  Deploys to Kubernetes
+  --kubernetes
+  --docker               Deploys to Docker
 
-  -h --help                      Show this screen.
-  -v --version                   Show version.
+  -h --help              Show this screen.
+  -v --version           Show version.
 
 """
 
