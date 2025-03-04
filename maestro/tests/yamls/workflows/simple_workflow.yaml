@@ -1,7 +1,7 @@
 apiVersion: maestro/v1
 kind: Workflow
 metadata:
-  name: maestro-deployment
+  name: simple workflow
   labels:
     app: example2
 spec:
@@ -15,7 +15,7 @@ spec:
         - test1
         - test2
         - test3
-    prompt: Tell me a joke about IBM
+    prompt: This is a test input
     exception: step4
     steps:
       - name: step1
