@@ -210,18 +210,19 @@ class DeployCmd(Command):
     
     def __deploy_agents_workflow(self, agents_yaml, workflow_yaml):
         bee_api_key = os.getenv("BEE_API_KEY")
-        bee_api = os.getenv("BEE_API_KEY", "http://192.168.86.45:4000")
+        bee_api = os.getenv("BEE_API", "http://192.168.86.45:4000")
         
         try:
             if self.docker():
-                deploy = Deploy(agents_yaml, workflow_yaml, bee_api_key, bee_api, self.url())
+                env = {'BEE_API_KEY' : bee_api_key, 'BEE_API' : bee_api}
+                deploy = Deploy(agents_yaml, workflow_yaml, env, self.url())
                 deploy.deploy_to_docker()            
             elif self.k8s():
                 deploy = Deploy(agents_yaml, workflow_yaml, )
                 deploy.deploy_to_kubernetes()
             else:
                 Console.error("Need to specify --docker or --k8s | --kubernetes")
-            Console,ok(f"Workflow deployed: {self.url}")
+            Console.ok(f"Workflow deployed: {self.url}")
         except Exception as e:
             self._check_verbose()
             raise RuntimeError(f"Unable to run workflow: {str(e)}") from e

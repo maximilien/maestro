@@ -76,12 +76,12 @@ class Deploy:
         module_dir = os.path.dirname(module_path)
         self.tmp_dir = os.path.join(tempfile.gettempdir(), "maestro")
         shutil.copytree(os.path.join(module_dir, ".."), self.tmp_dir, dirs_exist_ok=True)
-        shutil.copytree(os.path.join(module_dir, "../deployments"), os.path.join(self.tmp_dir, "tmp"), dirs_exist_ok=True)
-        shutil.copy(agent, os.path.join(self.tmp_dir, "tmp/agents.yaml"))
-        shutil.copy(workflow, os.path.join(self.tmp_dir, "tmp/workflow.yaml"))
+        shutil.copytree(os.path.join(module_dir, "../deployments"), os.path.join(self.tmp_dir, "maestro_tmp"), dirs_exist_ok=True)
+        shutil.copy(agent, os.path.join(self.tmp_dir, "maestro_tmp/agents.yaml"))
+        shutil.copy(workflow, os.path.join(self.tmp_dir, "maestro_tmp/workflow.yaml"))
 
         cwd = os.getcwd()
-        os.chdir(os.path.join(self.tmp_dir, "tmp"))
+        os.chdir(os.path.join(self.tmp_dir, "maestro_tmp"))
         subprocess.run(create_build_args(self.cmd, self.flags))
         os.chdir(cwd)
 

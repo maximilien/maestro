@@ -36,7 +36,7 @@ class DeployCommand(TestCommand):
         self.args = {
                         '--dry-run': True,
                         '--help': False,
-                        '--verbose': False,
+                        '--verbose': True,
                         '--version': False,
                         '--url': "127.0.0.1:5000",
                         '--k8s': False,
