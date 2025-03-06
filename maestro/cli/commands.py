@@ -209,13 +209,9 @@ class DeployCmd(Command):
         super().__init__(self.args)
     
     def __deploy_agents_workflow(self, agents_yaml, workflow_yaml):
-        bee_api_key = os.getenv("BEE_API_KEY")
-        bee_api = os.getenv("BEE_API", "http://192.168.86.45:4000")
-        
         try:
             if self.docker():
-                env = {'BEE_API_KEY' : bee_api_key, 'BEE_API' : bee_api}
-                deploy = Deploy(agents_yaml, workflow_yaml, env, self.url())
+                deploy = Deploy(agents_yaml, workflow_yaml)
                 deploy.deploy_to_docker()            
             elif self.k8s():
                 deploy = Deploy(agents_yaml, workflow_yaml, )
@@ -251,11 +247,10 @@ class DeployCmd(Command):
       return "deploy"
 
     def deploy(self):
-        agents_yaml = parse_yaml( self.AGENTS_FILE())
-        workflow_yaml = parse_yaml( self.WORKFLOW_FILE())
         try:
-            self.__deploy_agents_workflow(agents_yaml, workflow_yaml)
+            self.__deploy_agents_workflow(self.AGENTS_FILE(), self.WORKFLOW_FILE())
         except Exception as e:
             self._check_verbose()
+            print(traceback.format_exc())
             raise RuntimeError("Unable to deploy workflow: {message}".format(message=str(e))) from e        
         return 0
