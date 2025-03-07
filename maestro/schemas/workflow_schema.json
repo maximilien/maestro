@@ -48,6 +48,27 @@
                 }
               }
             },
+            "on": {
+              "type": "object",
+              "properties": {
+                "cron": {
+                  "type": "string",
+                  "description": "The cron job in standard cron format"
+                },
+                "step": {
+                  "type": "string",
+                  "description": "The step name to execute"
+                },
+                "steps": {
+                  "type": "array",
+                  "description": "The sequence of step names to execute"
+                },
+                "exit": {
+                  "type": "string",
+                  "description": "The exit condition"
+                }
+              }
+            },
             "agents": {
               "type": "array",
               "items": {
