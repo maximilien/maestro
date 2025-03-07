@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Running all meta-agent tests in CI..."
+echo "🚀 Running all meta-agent workflow tests in CI..."
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 
 echo "📂 Running from: $REPO_ROOT"
@@ -35,14 +35,14 @@ echo "🩺 Running doctor.sh for meta_agent..."
 cd "$META_AGENT_DIR"
 bash doctor.sh || { echo "❌ doctor.sh failed"; exit 1; }
 
-# Run test.sh for the meta_agent directory
-echo "🧪 Running test.sh for meta_agent..."
+# Run test.sh only once with the directory, instead of looping over workflow files
+echo "🧪 Running test.sh for meta_agent directory..."
 bash "$META_AGENT_DIR/test.sh" "$META_AGENT_DIR" || { echo "❌ test.sh failed"; exit 1; }
 ((TEST_COUNT++))
 
 if [[ "$TEST_COUNT" -gt 0 ]]; then
-    echo "✅ All meta-agent tests completed successfully!"
+    echo "✅ All meta-agent workflow tests completed successfully!"
 else
-    echo "❌ Error: No tests were executed!"
+    echo "❌ Error: No workflow tests were executed!"
     exit 1
 fi
