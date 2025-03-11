@@ -49,25 +49,22 @@ class Mermaid:
     # agent1->>agent3: step4
     #
     # See mermaid sequence diagram documentation: 
-    # https://mermaid.js.org/syntax/block.html
+    # https://mermaid.js.org/syntax/sequenceDiagram.html
     def __to_sequenceDiagram(self, sb):
         sb += "sequenceDiagram\n"
-        
         for agent in self.workflow['spec']['template']['agents']:
             sb += f"participant {agent}\n"
-        
         steps, i = self.workflow['spec']['template']['steps'], 0
         for step in steps:
-            agentL = step['agent']
+            agentL = step.get('agent')
             agentR = None
             if i < (len(steps) - 1):
-                agentR = steps[i+1]['agent']            
+                agentR = steps[i+1].get('agent')
             if agentR != None:
                 sb += f"{agentL}->>{agentR}: {step['name']}\n"
             else:
                 sb += f"{agentL}->>{agentL}: {step['name']}\n"
             i = i + 1
-        
         return sb
 
     # returns a markdown of the workflow as a mermaid sequence diagram
@@ -78,22 +75,20 @@ class Mermaid:
     # agemt3-- step3 -->agent3
     #
     # See mermaid sequence diagram documentation: 
-    # https://mermaid.js.org/syntax/block.html
+    # https://mermaid.js.org/syntax/flowchart.html
     def __to_flowchart(self, sb, orientation):
         sb += f"flowchart {orientation}\n"
-        steps, i = self.workflow['spec']['template']['steps'], 0
-        
+        steps, i = self.workflow['spec']['template']['steps'], 0        
         for step in steps:
-            agentL = step['agent']
+            agentL = step.get('agent')
             agentR = None
             if i < (len(steps) - 1):
-                agentR = steps[i+1]['agent']            
+                agentR = steps[i+1].get('agent')
             if agentR != None:
                 sb += f"{agentL}-- {step['name']} -->{agentR}\n"
             else:
                 sb += f"{agentL}-- {step['name']} -->{agentL}\n"
-            i = i + 1
-        
+            i = i + 1        
         return sb
         
     
