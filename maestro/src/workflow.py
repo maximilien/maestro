@@ -16,6 +16,8 @@
 
 import os, dotenv
 
+from src.mermaid import Mermaid
+
 from src.step import Step
 from src.agents.agent_factory import AgentFramework
 
@@ -55,6 +57,12 @@ class Workflow:
                 
         self.agent_defs = agent_defs
         self.workflow = workflow
+
+    # generates a mermaid markdown representation of the workflow
+    # kind: sequenceDiagram or flowchart
+    # orientation: TD (top down) or RL (right left) when kind is flowchart
+    def to_mermaid(self, kind="sequenceDiagram", orientation="TD") -> str:
+        return Mermaid(self.workflow, kind, orientation).to_markdown()
 
     async def run(self):
         """Execute workflow."""
