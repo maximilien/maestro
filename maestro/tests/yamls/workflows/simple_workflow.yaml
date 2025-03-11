@@ -16,7 +16,7 @@ spec:
         - test2
         - test3
     prompt: This is a test input
-    exception: step4
+    exception: step3
     steps:
       - name: step1
         agent: test1
