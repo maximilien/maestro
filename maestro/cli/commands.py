@@ -218,7 +218,7 @@ class DeployCmd(Command):
                 deploy.deploy_to_kubernetes()
             else:
                 Console.error("Need to specify --docker or --k8s | --kubernetes")
-            Console.ok(f"Workflow deployed: {self.url}")
+            Console.ok(f"Workflow deployed: http://{self.url()}")
         except Exception as e:
             self._check_verbose()
             raise RuntimeError(f"Unable to run workflow: {str(e)}") from e
