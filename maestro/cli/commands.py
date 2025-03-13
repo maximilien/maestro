@@ -273,14 +273,14 @@ class MermaidCmd(Command):
     def __mermaid(self, workflow_yaml) -> str:
         mermaid = ""
         workflow = Workflow(None, workflow_yaml)
-        if self.sequenceDiagram() != None:
+        if self.sequenceDiagram():
             mermaid = workflow.to_mermaid("sequenceDiagram")
-        elif self.flowchart_td() != None:
+        elif self.flowchart_td():
             mermaid = workflow.to_mermaid("flowchart", "TD")
-        elif self.flowchart_lr() != None:
+        elif self.flowchart_lr():            
             mermaid = workflow.to_mermaid("flowchart", "LR")
         else:
-            Console.error("Invalid mermaid kind or orientation")
+            mermaid = workflow.to_mermaid("sequenceDiagram")
         return mermaid
 
     # public options
