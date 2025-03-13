@@ -28,7 +28,7 @@ def parse_yaml(file_path):
 
 class TestMermaid(TestCase):
     def setUp(self):        
-        self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/simple_workflow.yaml"))
+        self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/simple_workflow.yaml"))[0]
         
     def tearDown(self):
         self.workflow_yaml = None
@@ -62,7 +62,7 @@ class TestMermaid(TestCase):
 
 class TestWorkdlow_to_mermaid(TestCase):
     def setUp(self):        
-        self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/simple_workflow.yaml"))
+        self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/simple_workflow.yaml"))[0]
         self.workflow = Workflow({}, self.workflow_yaml)
         
     def tearDown(self):

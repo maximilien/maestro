@@ -41,6 +41,8 @@ class CLI:
             return RunCmd(self.args)
         elif self.args.get('deploy') and self.args['deploy']:
             return DeployCmd(self.args)
+        elif self.args.get('mermaid') and self.args['mermaid']:
+            return MermaidCmd(self.args)
         else:
             raise Exception("Invalid command")
 
@@ -94,6 +96,8 @@ class Command:
             return self.run
         elif self.args['deploy']:
             return self.deploy
+        elif self.args['mermaid']:
+            return self.mermaid
         else:
             raise Exception("Invalid subcommand")
 
@@ -114,7 +118,7 @@ class ValidateCmd(Command):
       return "validate"
 
     def validate(self):
-        Console.print("validating {yaml_file} with schema {schema_file}".format(yaml_file=self.YAML_FILE(), schema_file=self.SCHEMA_FILE()))
+        Console.print(f"validating {self.YAML_FILE()} with schema {self.SCHEMA_FILE()}")
         with open(self.SCHEMA_FILE(), 'r') as f:
             schema = json.load(f)
         with open(self.YAML_FILE(), 'r') as f:
@@ -125,12 +129,12 @@ class ValidateCmd(Command):
                     jsonschema.validate(yaml_data, schema)
                     Console.ok("YAML file is valid.")
                 except ValidationError as ve:
-                    Console.error("YAML file is NOT valid:\n {error_message}".format(error_message=str(ve.message)))
                     self._check_verbose()
+                    Console.error(f"YAML file is NOT valid:\n {str(ve.message)}")
                     return 1
                 except SchemaError as se:
-                    Console.error("Schema file is NOT valid:\n {error_message}".format(error_message=str(se.message)))
                     self._check_verbose()
+                    Console.error(f"Schema file is NOT valid:\n {str(se.message)}")
                     return 1
         return 0
 
@@ -146,7 +150,7 @@ class CreateCmd(Command):
             create_agents(agents_yaml)
         except Exception as e:
             self._check_verbose()
-            raise RuntimeError("Unable to create agens=ts workflow: {message}".format(message=str(e)))
+            raise RuntimeError(f"{str(e)}") from e
 
     def AGENTS_FILE(self):
         return self.args['AGENTS_FILE']
@@ -160,7 +164,7 @@ class CreateCmd(Command):
             self.__create_agents(agents_yaml)
         except Exception as e:
             self._check_verbose()
-            raise RuntimeError("Unable to create agents: {message}".format(message=str(e))) from e
+            Console.error(f"Unable to create agents: {str(e)}")
         return 0
 
 # Run command group
@@ -176,8 +180,7 @@ class RunCmd(Command):
             asyncio.run(workflow.run())
         except Exception as e:
             self._check_verbose()
-            raise RuntimeError("Unable to run workflow: {message}".format(message=str(e)))
-            return 1
+            raise RuntimeError(f"{str(e)}") from e
         return 0
     
     def AGENTS_FILE(self):
@@ -198,7 +201,8 @@ class RunCmd(Command):
             self.__run_agents_workflow(agent_yaml, workflow_yaml)
         except Exception as e:
             self._check_verbose()
-            raise RuntimeError("Unable to run workflow: {message}".format(message=str(e))) from e
+            Console.error(f"Unable to run workflow: {str(e)}")
+            return 1
         return 0
         
 # Deploy command group
@@ -221,7 +225,7 @@ class DeployCmd(Command):
             Console.ok(f"Workflow deployed: http://{self.url()}")
         except Exception as e:
             self._check_verbose()
-            raise RuntimeError(f"Unable to run workflow: {str(e)}") from e
+            raise RuntimeError(f"Unable to deploy workflow: {str(e)}") from e
         return 0            
 
     def url(self):
@@ -254,6 +258,56 @@ class DeployCmd(Command):
             self.__deploy_agents_workflow(self.AGENTS_FILE(), self.WORKFLOW_FILE(), self.ENV())
         except Exception as e:
             self._check_verbose()
-            print(traceback.format_exc())
-            raise RuntimeError("Unable to deploy workflow: {message}".format(message=str(e))) from e        
+            Console.error(f"Unable to deploy workflow: {str(e)}")
+            return 1
+        return 0
+
+# Mermaid command group
+# $ maestro mermaid WORKFLOW_FILE [options]
+class MermaidCmd(Command):
+    def __init__(self, args):
+        self.args = args
+        super().__init__(self.args)
+
+    # private    
+    def __mermaid(self, workflow_yaml) -> str:
+        mermaid = ""
+        workflow = Workflow(None, workflow_yaml)
+        if self.sequenceDiagram() != None:
+            mermaid = workflow.to_mermaid("sequenceDiagram")
+        elif self.flowchart_td() != None:
+            mermaid = workflow.to_mermaid("flowchart", "TD")
+        elif self.flowchart_lr() != None:
+            mermaid = workflow.to_mermaid("flowchart", "LR")
+        else:
+            Console.error("Invalid mermaid kind or orientation")
+        return mermaid
+
+    # public options
+    def WORKFLOW_FILE(self):
+        return self.args.get('WORKFLOW_FILE')
+
+    def sequenceDiagram(self):
+        return self.args.get('--sequenceDiagram')
+
+    def flowchart_td(self):
+        return self.args.get('--flowchart-td')
+
+    def flowchart_lr(self):
+        return self.args.get('--flowchart-lr')
+
+    def name(self):
+      return "mermaid"
+
+    # public command method
+    def mermaid(self):
+        workflow_yaml = parse_yaml(self.WORKFLOW_FILE())
+        try:            
+            mermaid = self.__mermaid(workflow_yaml)
+            Console.ok("Created mermaid for workflow\n")
+            Console.print(mermaid + "\n")
+        except Exception as e:
+            self._check_verbose()
+            Console.error(f"Unable to generate mermaid for workflow: {str(e)}")
+            return 1
         return 0

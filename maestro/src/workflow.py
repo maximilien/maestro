@@ -62,7 +62,12 @@ class Workflow:
     # kind: sequenceDiagram or flowchart
     # orientation: TD (top down) or RL (right left) when kind is flowchart
     def to_mermaid(self, kind="sequenceDiagram", orientation="TD") -> str:
-        return Mermaid(self.workflow, kind, orientation).to_markdown()
+        #TODO: why is self.workflow an array?
+        workflow = self.workflow
+        if isinstance(self.workflow, list):
+            workflow = self.workflow[0]
+        
+        return Mermaid(workflow, kind, orientation).to_markdown()
 
     async def run(self):
         """Execute workflow."""
