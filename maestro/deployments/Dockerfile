@@ -49,6 +49,8 @@ COPY tmp/api.py .
 COPY tmp/maestro.html ./templates/index.html
 COPY tmp/agents.yaml ./src/agents.yaml
 COPY tmp/workflow.yaml ./src/workflow.yaml
+COPY tmp/workflow.yaml ./static/workflow.yaml
+COPY tmp/agents.yaml ./static/agents.yaml
 
 RUN chown -R 1000:100 /usr/src/app &&\
     mkdir /usr/src/app/media && chown 1000:100 /usr/src/app/media
