@@ -20,7 +20,7 @@ class Mermaid:
     #              RL (right left) 
     #              when kind is flowchart    
     def __init__(self, workflow, kind="sequenceDiagram", orientation="TD"):
-        self.workflow = workflow[0]
+        self.workflow = workflow
         self.kind = kind
         self.orientation = orientation
     

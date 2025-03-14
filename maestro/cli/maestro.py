@@ -17,10 +17,11 @@
 """Maestro
 
 Usage:
-  maestro validate SCHEMA_FILE YAML_FILE [options]
   maestro create AGENTS_FILE [options]
-  maestro run AGENTS_FILE WORKFLOW_FILE [options]
   maestro deploy AGENTS_FILE WORKFLOW_FILE [options] [ENV...]
+  maestro mermaid WORKFLOW_FILE [options]
+  maestro run AGENTS_FILE WORKFLOW_FILE [options]
+  maestro validate SCHEMA_FILE YAML_FILE [options]
 
   maestro (-h | --help)
   maestro (-v | --version)
@@ -33,6 +34,10 @@ Options:
   --k8s                  Deploys to Kubernetes
   --kubernetes
   --docker               Deploys to Docker
+
+  --sequenceDiagram      Sequence diagram mermaid
+  --flowchart-td         Flowchart TD (top down) mermaid
+  --flowchart-lr         Flowchart LR (left right) mermaid
 
   -h --help              Show this screen.
   -v --version           Show version.
@@ -57,7 +62,7 @@ def __execute(command):
         return 1
 
 def __run_cli():
-    args = docopt(__doc__, version='Maestro CLI v0.0.3')
+    args = docopt(__doc__, version='Maestro CLI v0.0.4')
     command = CLI(args).command()
     rc = __execute(command)
     sys.exit(rc)

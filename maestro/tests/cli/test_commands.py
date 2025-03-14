@@ -104,7 +104,7 @@ class RunCommand(TestCommand):
         try:
             self.command.execute()
         except Exception as e:
-            self.fail("Exception running command: {message}".format(message=str(e)))
+            self.fail(f"Exception running command: {str(e)}")
 
 # `create` commmand tests
 class CreateCommand(TestCommand):
@@ -206,6 +206,38 @@ class ValidateCommand(TestCommand):
         self.command = CLI(self.args).command()
         self.assertTrue(self.command.name() == 'validate')
         self.assertTrue(self.command.execute() == 0)
+
+# `mermaid` commmand tests
+class MermaidCommand(TestCommand):
+    def setUp(self):
+        self.args = {
+                        '--dry-run': False,
+                        '--help': False,
+                        '--verbose': True,
+                        '--version': False,
+                        '--sequenceDiagram': True,
+                        'AGENTS_FILE': None,
+                        'SCHEMA_FILE': None,
+                        'WORKFLOW_FILE': self.get_fixture('yamls/workflows/simple_workflow.yaml'),
+                        'YAML_FILE': None,
+                        'deploy': False,
+                        'run': False,
+                        'create': False,
+                        'mermaid': True,
+                        'validate': False
+                    }
+        self.command = CLI(self.args).command()
+    
+    def tearDown(self):
+        self.args = {}
+        self.command = None
+        
+    def test_mermaid_sequenceDiagram(self):
+        self.assertTrue(self.command.name() == 'mermaid')
+        try:
+            self.command.execute()
+        except Exception as e:
+            self.fail(f"Exception running command: {str(e)}")
 
 if __name__ == '__main__':
     unittest.main()
