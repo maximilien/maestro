@@ -37,6 +37,7 @@ class DeployCommand(TestCommand):
                         '--dry-run': True,
                         '--help': False,
                         '--verbose': True,
+                        '--silent': False,
                         '--version': False,
                         '--url': "127.0.0.1:5000",
                         '--k8s': False,
@@ -83,6 +84,7 @@ class RunCommand(TestCommand):
                         '--dry-run': True,
                         '--help': False,
                         '--verbose': False,
+                        '--silent': False,
                         '--version': False,
                         'AGENTS_FILE': self.get_fixture('yamls/agents/simple_agent.yaml'),
                         'SCHEMA_FILE': None,
@@ -113,6 +115,7 @@ class CreateCommand(TestCommand):
                         '--dry-run': True,
                         '--help': False,
                         '--verbose': False,
+                        '--silent': False,
                         '--version': False,
                         'AGENTS_FILE': self.get_fixture('yamls/agents/simple_agent.yaml'),
                         'SCHEMA_FILE': None,
@@ -140,6 +143,7 @@ class CreateAndRunCommand(TestCommand):
                         '--dry-run': True,
                         '--help': False,
                         '--verbose': False,
+                        '--silent': False,
                         '--version': False,
                         'AGENTS_FILE': self.get_fixture('yamls/agents/simple_agent.yaml'),
                         'SCHEMA_FILE': None,
@@ -178,6 +182,7 @@ class ValidateCommand(TestCommand):
                         '--dry-run': False,
                         '--help': False,
                         '--verbose': False,
+                        '--silent': False,
                         '--version': False,
                         'AGENTS_FILE': self.get_fixture('yamls/agents/simple_agent.yaml'),
                         'SCHEMA_FILE': None,
@@ -214,8 +219,11 @@ class MermaidCommand(TestCommand):
                         '--dry-run': False,
                         '--help': False,
                         '--verbose': True,
-                        '--version': False,
+                        '--silent': False,
+                        '--version': False,                        
                         '--sequenceDiagram': True,
+                        '--flowchart-td': False,
+                        '--flowchart-lr': False,
                         'AGENTS_FILE': None,
                         'SCHEMA_FILE': None,
                         'WORKFLOW_FILE': self.get_fixture('yamls/workflows/simple_workflow.yaml'),
@@ -233,6 +241,29 @@ class MermaidCommand(TestCommand):
         self.command = None
         
     def test_mermaid_sequenceDiagram(self):
+        self.args['--sequenceDiagram'] = True
+        self.args['--flowchart-td'] = False
+        self.args['--flowchart-lr'] = False
+        self.assertTrue(self.command.name() == 'mermaid')
+        try:
+            self.command.execute()
+        except Exception as e:
+            self.fail(f"Exception running command: {str(e)}")
+
+    def test_mermaid_flowchart_td(self):
+        self.args['--sequenceDiagram'] = False
+        self.args['--flowchart-td'] = True
+        self.args['--flowchart-lr'] = False
+        self.assertTrue(self.command.name() == 'mermaid')
+        try:
+            self.command.execute()
+        except Exception as e:
+            self.fail(f"Exception running command: {str(e)}")
+
+    def test_mermaid_flowchart_td(self):
+        self.args['--sequenceDiagram'] = False
+        self.args['--flowchart-td'] = False
+        self.args['--flowchart-lr'] = True
         self.assertTrue(self.command.name() == 'mermaid')
         try:
             self.command.execute()
