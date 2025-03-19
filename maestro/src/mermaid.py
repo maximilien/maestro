@@ -63,22 +63,30 @@ class Mermaid:
             # figure out agentR
             if i < (len(steps) - 1):
                 agentR = steps[i+1].get('agent').replace("-", "_")
-            if agentR != None:
+            if agentR:
                 sb += f"{agentL}->>{agentR}: {step['name']}\n"
             else:
                 sb += f"{agentL}->>{agentL}: {step['name']}\n"
-            
             # if step has condition then add additional links
-            if step.get('condition') != None:
+            if step.get('condition'):
                 for condition in step['condition']:
-                    condition_expr, do = '', ''
+                    condition_expr = ''
                     if condition.get('case'):
-                        condition_expr = condition['case']
-                        do = condition['do']
-                    else:
-                        condition_expr = 'default'
-                        do = condition['default']                        
-                    sb += f"{agentL}->>{agentR}: {do} {condition_expr}\n"
+                        condition_expr, do_expr = condition['case'], condition['do']
+                        if condition.get('default'):
+                            condition_expr = 'default'
+                            do_expr = condition['default']
+                        sb += f"{agentL}->>{agentR}: {do_expr} {condition_expr}\n"
+                    elif condition.get('if'):
+                        if_expr = condition['if']
+                        then_expr = condition['then']
+                        else_expr = condition['else']
+                        sb += f"{agentL}->>{agentR}: {if_expr}\n"
+                        sb += f"alt if True\n"
+                        sb += f"  {agentL}->>{agentR}: {then_expr}\n"
+                        sb += f"else is False\n"
+                        sb += f"  {agentR}->>{agentL}: {else_expr}\n"
+                        sb += f"end\n"
             i = i + 1
         return sb
 
@@ -103,7 +111,25 @@ class Mermaid:
                 sb += f"{agentL}-- {step['name']} -->{agentR}\n"
             else:
                 sb += f"{agentL}-- {step['name']} -->{agentL}\n"
-            i = i + 1        
+            # if step has condition then add additional links
+            if step.get('condition'):
+                for condition in step['condition']:
+                    # condition_expr = ''
+                    # if condition.get('case'):
+                    #     condition_expr do_expr = condition['case'], condition['do']
+                    #     if condition['default']:
+                    #         condition_expr = 'default'
+                    #         do_expr = condition['default']
+                    #     sb += f"{agentL}->>{agentR}: {do_expr} {condition_expr}\n"
+                    if condition.get('if'):
+                        if_expr = f"{condition['if']}"
+                        then_expr = condition['then']
+                        else_expr = condition['else']
+                        step_name = step['name']
+                        sb += f"{step_name} --> Condition{{\"{if_expr}\"}}\n"
+                        sb += f"  Condition -- Yes --> {then_expr}\n"
+                        sb += f"  Condition -- No --> {else_expr}\n"
+            i = i + 1
         return sb
         
     
