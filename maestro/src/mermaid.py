@@ -57,11 +57,11 @@ class Mermaid:
             sb += f"participant {agent}\n"
         steps, i = self.workflow['spec']['template']['steps'], 0
         for step in steps:
-            agentL = step.get('agent').replace("-", "_")
+            if step.get('agent'):
+                agentL = step.get('agent').replace("-", "_")
             agentR = None
-            
             # figure out agentR
-            if i < (len(steps) - 1):
+            if i < (len(steps) - 1) and steps[i+1].get('agent'):
                 agentR = steps[i+1].get('agent').replace("-", "_")
             if agentR:
                 sb += f"{agentL}->>{agentR}: {step['name']}\n"
