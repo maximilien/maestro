@@ -1,4 +1,4 @@
-name: Maestro Check Schema
+name: Maestro Check Schemas
 on:
   push:
     branches: [ 'main' ]

@@ -26,11 +26,13 @@ from cli.common import Console, parse_yaml
 class CLI:
     def __init__(self, args):
         self.args = args
-        VERBOSE, DRY_RUN = False, False
+        VERBOSE, DRY_RUN, SILENT = False, False, False
         if self.args['--verbose']:
             VERBOSE = True
         if self.args['--dry-run']:
             DRY_RUN = True
+        if self.args['--silent']:
+            SILENT = True
 
     def command(self):
         if self.args.get('validate') and self.args['validate']:
@@ -73,6 +75,9 @@ class Command:
     def verbose(self):
         return self.args['--verbose']
     
+    def silent(self):
+        return self.args['--silent']
+
     def dry_run(self):
         return self.__dry_run
 
@@ -127,7 +132,8 @@ class ValidateCmd(Command):
                 json_data = json.dumps(yaml_data, indent=4)
                 try:
                     jsonschema.validate(yaml_data, schema)
-                    Console.ok("YAML file is valid.")
+                    if not self.silent():
+                        Console.ok("YAML file is valid.")
                 except ValidationError as ve:
                     self._check_verbose()
                     Console.error(f"YAML file is NOT valid:\n {str(ve.message)}")
@@ -216,12 +222,14 @@ class DeployCmd(Command):
         try:
             if self.docker():
                 deploy = Deploy(agents_yaml, workflow_yaml, env)
-                deploy.deploy_to_docker()            
-                Console.ok(f"Workflow deployed: http://127.0.0.1:5000")
+                deploy.deploy_to_docker()  
+                if not self.silent():
+                    Console.ok(f"Workflow deployed: http://127.0.0.1:5000")
             elif self.k8s():
                 deploy = Deploy(agents_yaml, workflow_yaml, env)
                 deploy.deploy_to_kubernetes()
-                Console.ok(f"Workflow deployed: http://<kubernates address>:30051")
+                if not self.silent():
+                    Console.ok(f"Workflow deployed: http://<kubernates address>:30051")
             else:
                 Console.error("Need to specify --docker or --k8s | --kubernetes")
         except Exception as e:
@@ -305,7 +313,8 @@ class MermaidCmd(Command):
         workflow_yaml = parse_yaml(self.WORKFLOW_FILE())
         try:            
             mermaid = self.__mermaid(workflow_yaml)
-            Console.ok("Created mermaid for workflow\n")
+            if not self.silent():
+                Console.ok("Created mermaid for workflow\n")
             Console.print(mermaid + "\n")
         except Exception as e:
             self._check_verbose()
