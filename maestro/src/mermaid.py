@@ -78,14 +78,15 @@ class Mermaid:
                             do_expr = condition['default']
                         sb += f"{agentL}->>{agentR}: {do_expr} {condition_expr}\n"
                     elif condition.get('if'):
-                        if_expr = condition['if']
-                        then_expr = condition['then']
-                        else_expr = condition['else']
+                        if_expr, then_expr, else_expr = condition['if'], condition['then'], ''
+                        if condition.get('else'):
+                            else_expr = condition['else']
                         sb += f"{agentL}->>{agentR}: {if_expr}\n"
                         sb += f"alt if True\n"
                         sb += f"  {agentL}->>{agentR}: {then_expr}\n"
-                        sb += f"else is False\n"
-                        sb += f"  {agentR}->>{agentL}: {else_expr}\n"
+                        if condition.get('else'):
+                            sb += f"else is False\n"
+                            sb += f"  {agentR}->>{agentL}: {else_expr}\n"
                         sb += f"end\n"
             i = i + 1
         return sb
