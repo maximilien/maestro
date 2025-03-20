@@ -15,7 +15,7 @@ There are two steps to running a workflow: defining some agents and creating a w
 
 ### Agent Definition
 
-* You can define your Agent in a declarative way using a YAML file, where you can use the current Bee Agent implementation. With that, you can configure your agent or agents. For example, create an `agents.yaml` file containing the following:
+* You can define your Agent in a declarative way using a YAML file, where you can use the current BeeAI Agent implementation. With that, you can configure your agent or agents. For example, create an `agents.yaml` file containing the following:
 
 ```yaml
 apiVersion: maestro/v1alpha1
@@ -107,7 +107,7 @@ maestro run None workflow.yaml
 
 ## Local environment
 
-* Run a local instance of the [Bee Stack](https://github.com/i-am-bee/bee-stack)
+* Run a local instance of the [BeeAI Platform](https://github.com/i-am-bee/bee-stack)
   * [Helpful tips](./demos/README.md) on setting up the stack
 
 * Install dependencies: `poetry shell && poetry install`
@@ -116,24 +116,29 @@ maestro run None workflow.yaml
 
 ### Run workflow in local environment with container runtime (e.g. podman) or kubernetes cluster
 
-* Prepare required environments
-  * Run a local instance of the [Bee Stack](https://github.com/i-am-bee/bee-stack)
-  * `curl` is required for `run` command
-  * for Kubernetes, `kubectl` and `sed` are required
-  * set CONTAINER_CMD, TARGET_IP and BUILD_FLAGS environment variables to adjust maestro.sh script
-    * CONTAINER_CMD: docker, podman. nerdctl, etc..
-    * TARGET_IP: 127.0.0.1:"NodePort of the maestro service" for kubernetes deployment
-    * BUILD_FLAGS: image build command extra flag (e.g. "--namespace k8s.io" for nerdctl)
+* Prepare required environments, running from `~/Bee-Hive/Maestro/` top level:
+  * Run a local instance of the [BeeAI Platform](https://github.com/i-am-bee/bee-stack)
+  * for Kubernetes, [`kubectl`](https://kubernetes.io/docs/tasks/tools/install-kubectl-macos/), [`kind`](https://kind.sigs.k8s.io/) are required
 
-* Build maestro container image: `./maestro.sh build` in maestro/maestro directory
-  * The built maestro:latest image need to be pushed/placed in the local retistry for kubernetes deployment
+* Required Export Tags
+  * `export IMAGE_PUSH_CMD='kind load docker-image docker.io/library/maestro:latest'`
+  * `export IMAGE_TAG_CMD='docker tag localhost/maestro:latest docker.io/library/maestro:latest'`
+  * `export CONTAINER_CMD=podman`
 
-* Deploy maestro: `./maestro.sh deploy BEE_API=http://xxx.xxx.xxx.xxx:4000 BEE_API_KEY=sk-proj-testkey`
-  * To deploy to kubernetes cluster, user `deploy-k` instead `deploy` as the first argument
-  * The required environment variables can be provided at the end of command arguments (e.g. `BEE_API=http://192.168.86.45:4000`).
+* Running command:
+  * `kind create cluster --config maestro/tests/integration/deploys/kind-config.yaml`
+  * To delete the cluster: `kind delete cluster`
 
-* Prepare agent and workflow definition yaml files in the current directory (e.g. agent.yaml, workflow.yaml)
+* Deployment:
+  * `maestro deploy agents.yaml workflow.yaml --docker BEE_API_KEY=sk-proj-testkey BEE_API=http://<local-ip>:4000`
 
-* Run workflow (directly creating agents and running): `maestro run agents.yaml workflow.yaml`
+* Helpful Debugging tools:
+  * Find out where your BEE_API is:
+    * `ifconfig | grep 'inet'`
+  * Restarting containers:
+    * `podman ps | grep maestro` -> `podman stop <container_id>` -> `podman rm <container_id>`
+  * Finding where the UI is hosted:
+    * `podman ps | grep maestro`
+    * by default, should be deployed at `127.0.0.1:5000`
 
 * Learn about [contributing](./demos/CONTRIBUTING.md)
