@@ -115,13 +115,12 @@ class Mermaid:
             # if step has condition then add additional links
             if step.get('condition'):
                 for condition in step['condition']:
-                    # condition_expr = ''
-                    # if condition.get('case'):
-                    #     condition_expr do_expr = condition['case'], condition['do']
-                    #     if condition['default']:
-                    #         condition_expr = 'default'
-                    #         do_expr = condition['default']
-                    #     sb += f"{agentL}->>{agentR}: {do_expr} {condition_expr}\n"
+                    if condition.get('case'):
+                        condition_expr, do_expr = condition['case'], condition['do']
+                        if condition.get('default'):
+                            condition_expr = 'default'
+                            do_expr = condition['default']
+                        sb += f"{agentL}->>{agentR}: {do_expr} {condition_expr}\n"
                     if condition.get('if'):
                         if_expr = f"{condition['if']}"
                         then_expr = condition['then']
