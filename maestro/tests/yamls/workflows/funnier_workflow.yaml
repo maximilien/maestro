@@ -19,8 +19,8 @@ spec:
         agent: expert
         condition:
         - case: (input.find('funnier') != -1)
-        - do: expert
-        - default: colleague
+          do: expert
+          default: colleague
       - name: colleague
         agent: colleague
         condition:

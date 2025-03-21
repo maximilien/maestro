@@ -35,32 +35,134 @@ class TestMermaid(TestCase):
 
     def test_markdown_sequenceDiagram(self):
         mermaid = Mermaid(self.workflow_yaml, "sequenceDiagram")
-        self.assertTrue(mermaid.to_markdown().startswith("sequenceDiagram"))
+        markdown = mermaid.to_markdown()
+        expected_markdown = [
+                "sequenceDiagram",
+                "participant test1",
+                "participant test2",
+                "participant test3",
+                "test1->>test2: step1",
+                "test2->>test3: step2",
+                "test3->>test3: step3"
+            ]
+        for m in expected_markdown:
+            self.assertTrue(m in markdown)
 
-        for agent in ['test1', 'test2', 'test3']:
-            self.assertTrue(f"participant {agent}" in mermaid.to_markdown())
+    def test_markdown_flowchart(self):
+        for orientation in ["TD", "LR"]:        
+            mermaid = Mermaid(self.workflow_yaml, "flowchart", f"{orientation}")
+            markdown = mermaid.to_markdown()
+            expected_markdown = [
+                    f"flowchart {orientation}",
+                    "test1-- step1 -->test2",
+                    "test2-- step2 -->test3",
+                    "test3-- step3 -->test3"
+                ]
+            for m in expected_markdown:
+                self.assertTrue(m in markdown)
+
+class TestMermaidCondition_case(TestCase):
+    def setUp(self):        
+        self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/conditional_case_workflow.yaml"))[0]
         
-        self.assertTrue(f"test1->>test2: step1" in mermaid.to_markdown())
-        self.assertTrue(f"test2->>test3: step2" in mermaid.to_markdown())
-        self.assertTrue(f"test3->>test3: step3" in mermaid.to_markdown())
+    def tearDown(self):
+        self.workflow_yaml = None
 
-    def test_markdown_flowchartTD(self):
-        mermaid = Mermaid(self.workflow_yaml, "flowchart", "TD")
-        self.assertTrue(mermaid.to_markdown().startswith("flowchart TD"))
+    #
+    # # expected mermaid code
+    # sequenceDiagram
+    # sequenceDiagram
+    # participant agent1
+    # participant agent2
+    # participant agent3
+    # agent1->>agent2: step1
+    # agent2->>agent3: step2
+    # agent3->>agent3: step3
+    # agent3->>None: step2 (input.some_condition == True)
+    # agent3->>None: step3 (input.some_condition == False)
+    # agent3->>None: step3 default
+    # 
+    def test_markdown_sequenceDiagram(self):
+        mermaid = Mermaid(self.workflow_yaml, "sequenceDiagram")
+        markdown = mermaid.to_markdown()
+        expected_markdown = [
+            "sequenceDiagram",
+                "participant agent1",
+                "participant agent2",
+                "participant agent3",
+                "agent1->>agent2: step1",
+                "agent2->>agent3: step2",
+                "agent3->>agent3: step3",
+                "agent3->>None: step2 (input.some_condition == True)",
+                "agent3->>None: step3 (input.some_condition == False)"
+            ]
+        for m in expected_markdown:
+            self.assertTrue(m in markdown)
 
-        self.assertTrue(f"test1-- step1 -->test2" in mermaid.to_markdown())
-        self.assertTrue(f"test2-- step2 -->test3" in mermaid.to_markdown())
-        self.assertTrue(f"test3-- step3 -->test3" in mermaid.to_markdown())
+    #
+    # # expected mermaid code
+    # flowchart LR #or TD
+    # agent1-- step1 -->agent2
+    # agent2-- step2 -->agent3
+    # agent3-- step2 (input.some_condition == True) -->agent2
+    # agent3-- step3 (input.some_condition == False) -->agent3
+    #
+    # TODO: complete
+    def _test_markdown_flowchart(self):
+        for orientation in ["TD", "LR"]:
+            mermaid = Mermaid(self.workflow_yaml, "flowchart", f"{orientation}")
+            self.assertTrue(mermaid.to_markdown().startswith(f"flowchart {orientation}"))
 
-    def test_markdown_flowchartRL(self):
-        mermaid = Mermaid(self.workflow_yaml, "flowchart", "RL")
-        self.assertTrue(mermaid.to_markdown().startswith("flowchart RL"))
+            self.assertTrue(f"agent1-- step1 -->agent2" in mermaid.to_markdown())
+            self.assertTrue(f"agent3-- step2 (input.some_condition == True) -->agent2" in mermaid.to_markdown())
+            self.assertTrue(f"agent3-- step3 (input.some_condition == False) -->agent3" in mermaid.to_markdown())
 
-        self.assertTrue(f"test1-- step1 -->test2" in mermaid.to_markdown())
-        self.assertTrue(f"test2-- step2 -->test3" in mermaid.to_markdown())
-        self.assertTrue(f"test3-- step3 -->test3" in mermaid.to_markdown())
+class TestMermaidCondition_if(TestCase):
+    def setUp(self):        
+        self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/conditional_if_workflow.yaml"))[0]
+        
+    def tearDown(self):
+        self.workflow_yaml = None
+    
+    def test_markdown_sequenceDiagram(self):
+        mermaid = Mermaid(self.workflow_yaml, "sequenceDiagram")
+        markdown = mermaid.to_markdown()
+        expected_markdown = [
+            "sequenceDiagram",
+            "participant agent1",
+            "participant agent2",
+            "participant agent3",
+            "agent1->>agent2: step1",
+            "agent1->>agent2: (input.some_condition == True)",
+            "alt if True",
+                "agent1->>agent2: step2",
+            "else is False",
+                "agent2->>agent1: step3",
+            "end",
+            "agent2->>agent3: step2",
+            "agent3->>agent3: step3",
+        ]
+        for m in expected_markdown:
+            self.assertTrue(m in markdown)
+    
+    def test_markdown_flowchart(self):
+        for orientation in ["TD", "LR"]:
+            mermaid = Mermaid(self.workflow_yaml, "flowchart", f"{orientation}")
+            self.assertTrue(mermaid.to_markdown().startswith(f"flowchart {orientation}"))
+            markdown = mermaid.to_markdown()
+            expected_markdown = [
+                f"flowchart {orientation}",
+                    "agent1-- step1 -->agent2",
+                    "step1 --> Condition{\"(input.some_condition == True)\"}",
+                        "Condition -- Yes --> step2",
+                        "Condition -- No --> step3",
+                    "agent2-- step2 -->agent3",
+                    "agent3-- step3 -->agent3",
+                ]
+            for m in expected_markdown:
+                self.assertTrue(m in markdown)
 
-class TestWorkdlow_to_mermaid(TestCase):
+class TestWorkflow_to_mermaid(TestCase):
     def setUp(self):        
         self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/simple_workflow.yaml"))[0]
         self.workflow = Workflow({}, self.workflow_yaml)
@@ -71,27 +173,29 @@ class TestWorkdlow_to_mermaid(TestCase):
 
     def test_markdown_sequenceDiagram(self):
         markdown = self.workflow.to_mermaid("sequenceDiagram")
-        self.assertTrue(markdown.startswith("sequenceDiagram"))
+        expected_markdown = [
+                "sequenceDiagram",
+                "participant test1",
+                "participant test2",
+                "participant test3",
+                "test1->>test2: step1",
+                "test2->>test3: step2",
+                "test3->>test3: step3"
+            ]
+        for m in expected_markdown:
+            self.assertTrue(m in markdown)
 
-        self.assertTrue(f"test1->>test2: step1" in markdown)
-        self.assertTrue(f"test2->>test3: step2" in markdown)
-        self.assertTrue(f"test3->>test3: step3" in markdown)
-
-    def test_markdown_flowchartTD(self):
-        markdown = self.workflow.to_mermaid("flowchart", "TD")
-        self.assertTrue(markdown.startswith("flowchart TD"))
-
-        self.assertTrue(f"test1-- step1 -->test2" in markdown)
-        self.assertTrue(f"test2-- step2 -->test3" in markdown)
-        self.assertTrue(f"test3-- step3 -->test3" in markdown)
-
-    def test_markdown_flowchartRL(self):
-        markdown = self.workflow.to_mermaid("flowchart", "RL")
-        self.assertTrue(markdown.startswith("flowchart RL"))
-
-        self.assertTrue(f"test1-- step1 -->test2" in markdown)
-        self.assertTrue(f"test2-- step2 -->test3" in markdown)
-        self.assertTrue(f"test3-- step3 -->test3" in markdown)
+    def test_markdown_flowchart(self):
+        for orientation in ["TD", "LR"]:
+            markdown = self.workflow.to_mermaid("flowchart", f"{orientation}")
+            expected_markdown = [
+                    f"flowchart {orientation}",
+                    "test1-- step1 -->test2",
+                    "test2-- step2 -->test3",
+                    "test3-- step3 -->test3"
+                ]
+            for m in expected_markdown:
+                self.assertTrue(m in markdown)
 
 if __name__ == '__main__':
     unittest.main()
