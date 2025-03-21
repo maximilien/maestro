@@ -11,14 +11,16 @@ spec:
       labels:
         app: cron
         use-case: test
-    on:
+    event:
        cron: "10 14 * * 1"
-       step: step1
+       name: cron event
+       agent: test4
        exit: ( input.count >= 3 )
     agents:
         - test1
         - test2
         - test3
+        - test4
     prompt: This is a test input
     exception:
         name: step2
@@ -30,3 +32,5 @@ spec:
         agent: test2
       - name: step3
         agent: test3
+      - name: step4
+        agent: test1

@@ -37,6 +37,15 @@ class Mermaid:
 
     # private methods
     
+    def __fix_agent_name(self, name):
+        return name.replace("-", "_")
+
+    def __agent_for_step(self, step_name):
+        for step in self.workflow['spec']['template']['steps']:
+            if step['name'] == step_name:
+                return step['agent']
+        return None
+
     # returns a markdown of the workflow as a mermaid sequence diagram
     # 
     # sequenceDiagram
@@ -53,16 +62,16 @@ class Mermaid:
     def __to_sequenceDiagram(self, sb) -> str:
         sb += "sequenceDiagram\n"
         for agent in self.workflow['spec']['template']['agents']:
-            agent = agent.replace("-", "_")
+            agent = self.__fix_agent_name(agent)
             sb += f"participant {agent}\n"
         steps, i = self.workflow['spec']['template']['steps'], 0
         for step in steps:
             if step.get('agent'):
-                agentL = step.get('agent').replace("-", "_")
+                agentL = self.__fix_agent_name(step.get('agent'))
             agentR = None
             # figure out agentR
             if i < (len(steps) - 1) and steps[i+1].get('agent'):
-                agentR = steps[i+1].get('agent').replace("-", "_")
+                agentR = self.__fix_agent_name(steps[i+1].get('agent'))
             if agentR:
                 sb += f"{agentL}->>{agentR}: {step['name']}\n"
             else:
@@ -72,9 +81,29 @@ class Mermaid:
                 for condition in step['condition']:
                     sb += self.__to_sequenceDiagram_condition(agentL, agentR, condition)
             i = i + 1
+        # if workflow has global on event handling
+        if self.workflow['spec']['template'].get('event'):
+            sb += self.__to_sequenceDiagram_event(self.workflow['spec']['template']['event'])
         # if workflow has global exception then add at the end
         if self.workflow['spec']['template'].get('exception'):
             sb += self.__to_sequenceDiagram_exception(steps, self.workflow['spec']['template']['exception'])
+        return sb
+
+    # convert event to mermaid sequenceDiagram
+    def __to_sequenceDiagram_event(self, event):
+        name = event['name']
+        cron = event['cron']
+        exit = event['exit']
+        sb = f"alt cron \"{cron}\"\n"
+        if event.get('steps'):
+            for step in event['steps']:
+                sb += f"  cron->>{self.__agent_for_step(step)}: {step}\n"
+        else:
+            agent = event['agent']
+            sb += f"  cron->>{agent}: {name}\n"
+        sb += "else\n"
+        sb += f"  cron->>exit: {exit}\n"
+        sb += 'end\n'
         return sb
 
     # convert exception to mermaid sequenceDiagram
@@ -82,7 +111,7 @@ class Mermaid:
         i, sb = 0, 'alt exception\n'
         for step in steps:
             if step.get('agent'):
-                agentL = step.get('agent').replace("-", "_")
+                agentL = self.__fix_agent_name(step.get('agent'))
                 sb += f"  {agentL}->>{exception['agent']}: {exception['name']}\n"
             i += 1
         sb += 'end'
@@ -164,11 +193,24 @@ class Mermaid:
             sb += f"  Condition -- No --> {else_expr}\n"
         return sb
 
+    # convert event to mermaid flowchart
+    def __to_flowchart_event(self, event):
+        name = event['name']
+        cron = event['cron']
+        exit = event['exit']
+        sb = ''
+        # TODO: complete this for flowchart
+        # for step in steps:
+        #     if step.get('agent'):
+        #         agentL = self.__fix_agent_name(step.get('agent'))
+        #         sb += f"{agentL} -->|exception| {exception['name']}{{{exception['agent']}}}\n"
+        return sb
+
     # convert exception to mermaid flowchart
     def __to_flowchart_exception(self, steps, exception):
         sb = ''
         for step in steps:
             if step.get('agent'):
-                agentL = step.get('agent').replace("-", "_")
+                agentL = self.__fix_agent_name(step.get('agent'))
                 sb += f"{agentL} -->|exception| {exception['name']}{{{exception['agent']}}}\n"
         return sb

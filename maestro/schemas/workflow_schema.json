@@ -48,16 +48,20 @@
                 }
               }
             },
-            "on": {
+            "event": {
               "type": "object",
               "properties": {
                 "cron": {
                   "type": "string",
                   "description": "The cron job in standard cron format"
                 },
-                "step": {
+                "name": {
                   "type": "string",
-                  "description": "The step name to execute"
+                  "description": "the event name"
+                },
+                "agent": {
+                    "type": "string",
+                    "description": "the agent name to invoke"
                 },
                 "steps": {
                   "type": "array",
