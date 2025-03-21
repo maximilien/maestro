@@ -244,5 +244,95 @@ class TestMermaid_exception(TestCase):
             for m in expected_markdown:
                 self.assertTrue(m in markdown)
 
+class TestMermaid_event_cron(TestCase):
+    def setUp(self):        
+        self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/simple_cron_workflow.yaml"))[0]
+
+    def tearDown(self):
+        self.workflow_yaml = None
+
+    def test_markdown_sequenceDiagram(self):
+        mermaid = Mermaid(self.workflow_yaml, "sequenceDiagram")
+        markdown = mermaid.to_markdown()
+        expected_markdown = [
+            'sequenceDiagram',
+            'participant test1',
+            'participant test2',
+            'participant test3',
+            'participant test4',
+            'test2->>test2: step1',
+            'test2->>test3: step2',
+            'test3->>test1: step3',
+            'test1->>test1: step4',
+            'alt cron "10 14 * * 1"',
+            '  cron->>test4: cron event',
+            'else',
+            '  cron->>exit: ( input.count >= 3 )',
+            'end',
+            'alt exception',
+            '  test2->>test2: step2',
+            '  test2->>test2: step2',
+            '  test3->>test2: step2',
+            '  test1->>test2: step2',
+            'end'
+        ]
+        for m in expected_markdown:
+            self.assertTrue(m in markdown)
+
+    def test_markdown_flowchart(self):
+        for orientation in ["TD", "LR"]:
+            mermaid = Mermaid(self.workflow_yaml, "flowchart", f"{orientation}")
+            self.assertTrue(mermaid.to_markdown().startswith(f"flowchart {orientation}"))
+            markdown = mermaid.to_markdown()
+            expected_markdown = [
+                f"flowchart {orientation}",
+                ]
+            for m in expected_markdown:
+                self.assertTrue(m in markdown)
+
+class TestMermaid_event_cron_many_steps(TestCase):
+    def setUp(self):
+        self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/simple_cron_many_steps_workflow.yaml"))[0]
+
+    def tearDown(self):
+        self.workflow_yaml = None
+
+    def test_markdown_sequenceDiagram(self):
+        mermaid = Mermaid(self.workflow_yaml, "sequenceDiagram")
+        markdown = mermaid.to_markdown()
+        expected_markdown = [
+            'sequenceDiagram',
+            'participant test1',
+            'participant test2',
+            'participant test3',
+            'test2->>test2: step1',
+            'test2->>test3: step2',
+            'test3->>test3: step3',
+            'alt cron "10 14 * * 1"',
+            '  cron->>test2: step2',
+            '  cron->>test3: step3',
+            'else',
+            '  cron->>exit: ( input.exit == True )',
+            'end',
+            'alt exception',
+            '  test2->>test2: step2',
+            '  test2->>test2: step2',
+            '  test3->>test2: step2',
+            'end'
+        ]
+        for m in expected_markdown:
+            self.assertTrue(m in markdown)
+
+    def test_markdown_flowchart(self):
+        for orientation in ["TD", "LR"]:
+            mermaid = Mermaid(self.workflow_yaml, "flowchart", f"{orientation}")
+            self.assertTrue(mermaid.to_markdown().startswith(f"flowchart {orientation}"))
+            markdown = mermaid.to_markdown()
+            expected_markdown = [
+                f"flowchart {orientation}",
+                ]
+            for m in expected_markdown:
+                self.assertTrue(m in markdown)
+
 if __name__ == '__main__':
     unittest.main()
