@@ -26,6 +26,43 @@ def parse_yaml(file_path):
         yaml_data = list(yaml.safe_load_all(file))
     return yaml_data
 
+# Workflow::to_mermaid
+class TestWorkflow_to_mermaid(TestCase):
+    def setUp(self):        
+        self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/simple_workflow.yaml"))[0]
+        self.workflow = Workflow({}, self.workflow_yaml)
+        
+    def tearDown(self):
+        self.workflow_yaml = None
+        self.workflow = None
+
+    def test_markdown_sequenceDiagram(self):
+        markdown = self.workflow.to_mermaid("sequenceDiagram")
+        expected_markdown = [
+                "sequenceDiagram",
+                "participant test1",
+                "participant test2",
+                "participant test3",
+                "test1->>test2: step1",
+                "test2->>test3: step2",
+                "test3->>test3: step3"
+            ]
+        for m in expected_markdown:
+            self.assertTrue(m in markdown)
+
+    def test_markdown_flowchart(self):
+        for orientation in ["TD", "LR"]:
+            markdown = self.workflow.to_mermaid("flowchart", f"{orientation}")
+            expected_markdown = [
+                    f"flowchart {orientation}",
+                    "test1-- step1 -->test2",
+                    "test2-- step2 -->test3",
+                    "test3-- step3 -->test3"
+                ]
+            for m in expected_markdown:
+                self.assertTrue(m in markdown)
+
+# Mermaid
 class TestMermaid(TestCase):
     def setUp(self):        
         self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/simple_workflow.yaml"))[0]
@@ -162,37 +199,47 @@ class TestMermaidCondition_if(TestCase):
             for m in expected_markdown:
                 self.assertTrue(m in markdown)
 
-class TestWorkflow_to_mermaid(TestCase):
+class TestMermaid_exception(TestCase):
     def setUp(self):        
         self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/simple_workflow.yaml"))[0]
-        self.workflow = Workflow({}, self.workflow_yaml)
-        
+
     def tearDown(self):
         self.workflow_yaml = None
-        self.workflow = None
 
     def test_markdown_sequenceDiagram(self):
-        markdown = self.workflow.to_mermaid("sequenceDiagram")
+        mermaid = Mermaid(self.workflow_yaml, "sequenceDiagram")
+        markdown = mermaid.to_markdown()
         expected_markdown = [
-                "sequenceDiagram",
-                "participant test1",
-                "participant test2",
-                "participant test3",
-                "test1->>test2: step1",
-                "test2->>test3: step2",
-                "test3->>test3: step3"
-            ]
+            'sequenceDiagram',
+            'participant test1',
+            'participant test2',
+            'participant test3',
+            'participant test4',
+            'test1->>test2: step1',
+            'test2->>test3: step2',
+            'test3->>test3: step3',
+            'alt exception',
+            '  test1->>test4: step4',
+            '  test2->>test4: step4',
+            '  test3->>test4: step4',
+            'end'
+        ]
         for m in expected_markdown:
             self.assertTrue(m in markdown)
 
     def test_markdown_flowchart(self):
         for orientation in ["TD", "LR"]:
-            markdown = self.workflow.to_mermaid("flowchart", f"{orientation}")
+            mermaid = Mermaid(self.workflow_yaml, "flowchart", f"{orientation}")
+            self.assertTrue(mermaid.to_markdown().startswith(f"flowchart {orientation}"))
+            markdown = mermaid.to_markdown()
             expected_markdown = [
-                    f"flowchart {orientation}",
+                f"flowchart {orientation}",
                     "test1-- step1 -->test2",
                     "test2-- step2 -->test3",
-                    "test3-- step3 -->test3"
+                    "test3-- step3 -->test3",
+                    "test1 -->|exception| step4{test4}",
+                    "test2 -->|exception| step4{test4}",
+                    "test3 -->|exception| step4{test4}"
                 ]
             for m in expected_markdown:
                 self.assertTrue(m in markdown)

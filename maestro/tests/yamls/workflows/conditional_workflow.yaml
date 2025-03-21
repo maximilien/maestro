@@ -17,7 +17,9 @@ spec:
       - agent3
     prompt: This is a prompt
     start: step1
-    exception: step3
+    exception:
+        name: step3
+        agent: agent3
     steps:
       - name: step1
         agent: agent1

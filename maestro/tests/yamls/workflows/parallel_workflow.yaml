@@ -18,7 +18,9 @@ spec:
         - test4
         - test5
     prompt: Select a number 1 through 6
-    exception: step4
+    exception:
+        name: step4
+        agent: test4
     steps:
       - name: list
         agent: test1
