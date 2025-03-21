@@ -50,7 +50,7 @@ class Mermaid:
     #
     # See mermaid sequence diagram documentation: 
     # https://mermaid.js.org/syntax/sequenceDiagram.html
-    def __to_sequenceDiagram(self, sb):
+    def __to_sequenceDiagram(self, sb) -> str:
         sb += "sequenceDiagram\n"
         for agent in self.workflow['spec']['template']['agents']:
             agent = agent.replace("-", "_")
@@ -70,27 +70,46 @@ class Mermaid:
             # if step has condition then add additional links
             if step.get('condition'):
                 for condition in step['condition']:
-                    condition_expr = ''
-                    # generate the case / do / default
-                    if condition.get('case'):
-                        condition_expr, do_expr = condition['case'], condition['do']
-                        if condition.get('default'):
-                            condition_expr = 'default'
-                            do_expr = condition['default']
-                        sb += f"{agentL}->>{agentR}: {do_expr} {condition_expr}\n"
-                    # generate the if / then / else
-                    elif condition.get('if'):
-                        if_expr, then_expr, else_expr = condition['if'], condition['then'], ''
-                        if condition.get('else'):
-                            else_expr = condition['else']
-                        sb += f"{agentL}->>{agentR}: {if_expr}\n"
-                        sb += f"alt if True\n"
-                        sb += f"  {agentL}->>{agentR}: {then_expr}\n"
-                        if condition.get('else'):
-                            sb += f"else is False\n"
-                            sb += f"  {agentR}->>{agentL}: {else_expr}\n"
-                        sb += f"end\n"
+                    sb += self.__to_sequenceDiagram_condition(agentL, agentR, condition)
             i = i + 1
+        # if workflow has global exception then add at the end
+        if self.workflow['spec']['template'].get('exception'):
+            sb += self.__to_sequenceDiagram_exception(steps, self.workflow['spec']['template']['exception'])
+        return sb
+
+    # convert exception to mermaid sequenceDiagram
+    def __to_sequenceDiagram_exception(self, steps, exception):
+        i, sb = 0, 'alt exception\n'
+        for step in steps:
+            if step.get('agent'):
+                agentL = step.get('agent').replace("-", "_")
+                sb += f"  {agentL}->>{exception['agent']}: {exception['name']}\n"
+            i += 1
+        sb += 'end'
+        return sb
+
+    # convert condition section to sequenceDiagram mermaid diagram
+    def __to_sequenceDiagram_condition(self, agentL, agentR, condition) -> str:            
+        sb, condition_expr = '', ''
+        # generate the case / do / default
+        if condition.get('case'):
+            condition_expr, do_expr = condition['case'], condition['do']
+            if condition.get('default'):
+                condition_expr = 'default'
+                do_expr = condition['default']
+            sb += f"{agentL}->>{agentR}: {do_expr} {condition_expr}\n"
+        # generate the if / then / else
+        elif condition.get('if'):
+            if_expr, then_expr, else_expr = condition['if'], condition['then'], ''
+            if condition.get('else'):
+                else_expr = condition['else']
+            sb += f"{agentL}->>{agentR}: {if_expr}\n"
+            sb += f"alt if True\n"
+            sb += f"  {agentL}->>{agentR}: {then_expr}\n"
+            if condition.get('else'):
+                sb += f"else is False\n"
+                sb += f"  {agentR}->>{agentL}: {else_expr}\n"
+            sb += f"end\n"
         return sb
 
     # returns a markdown of the workflow as a mermaid sequence diagram
@@ -102,7 +121,7 @@ class Mermaid:
     #
     # See mermaid sequence diagram documentation: 
     # https://mermaid.js.org/syntax/flowchart.html
-    def __to_flowchart(self, sb, orientation):
+    def __to_flowchart(self, sb, orientation) -> str:
         sb += f"flowchart {orientation}\n"
         steps, i = self.workflow['spec']['template']['steps'], 0        
         for step in steps:
@@ -117,23 +136,39 @@ class Mermaid:
             # if step has condition then add additional links
             if step.get('condition'):
                 for condition in step['condition']:
-                    # generate the case / do / default
-                    if condition.get('case'):
-                        condition_expr, do_expr = condition['case'], condition['do']
-                        if condition.get('default'):
-                            condition_expr = 'default'
-                            do_expr = condition['default']
-                        sb += f"{agentL}->>{agentR}: {do_expr} {condition_expr}\n"
-                    # generate the if / then / else
-                    if condition.get('if'):
-                        if_expr = f"{condition['if']}"
-                        then_expr = condition['then']
-                        else_expr = condition['else']
-                        step_name = step['name']
-                        sb += f"{step_name} --> Condition{{\"{if_expr}\"}}\n"
-                        sb += f"  Condition -- Yes --> {then_expr}\n"
-                        sb += f"  Condition -- No --> {else_expr}\n"
+                    sb += self.__to_flowchart_condition(agentL, agentR, step, condition)
             i = i + 1
+        # if workflow has global exception then add at the end
+        if self.workflow['spec']['template'].get('exception'):
+            sb += self.__to_flowchart_exception(steps, self.workflow['spec']['template']['exception'])
         return sb
-        
-    
+
+    # convert condition section to flowchart mermaid diagram
+    def __to_flowchart_condition(self, agentL, agentR, step, condition) -> str:
+        sb = ''
+        # generate the case / do / default
+        if condition.get('case'):
+            condition_expr, do_expr = condition['case'], condition['do']
+            if condition.get('default'):
+                condition_expr = 'default'
+                do_expr = condition['default']
+            sb += f"{agentL}->>{agentR}: {do_expr} {condition_expr}\n"
+        # generate the if / then / else
+        if condition.get('if'):
+            if_expr = f"{condition['if']}"
+            then_expr = condition['then']
+            else_expr = condition['else']
+            step_name = step['name']
+            sb += f"{step_name} --> Condition{{\"{if_expr}\"}}\n"
+            sb += f"  Condition -- Yes --> {then_expr}\n"
+            sb += f"  Condition -- No --> {else_expr}\n"
+        return sb
+
+    # convert exception to mermaid flowchart
+    def __to_flowchart_exception(self, steps, exception):
+        sb = ''
+        for step in steps:
+            if step.get('agent'):
+                agentL = step.get('agent').replace("-", "_")
+                sb += f"{agentL} -->|exception| {exception['name']}{{{exception['agent']}}}\n"
+        return sb

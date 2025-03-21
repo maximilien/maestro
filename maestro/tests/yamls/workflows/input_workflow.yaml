@@ -14,8 +14,11 @@ spec:
     agents:
         - test1
         - test2
+        - test3
     prompt: Select a number 1 through 6
-    exception: step4
+    exception:
+        name: step4
+        agent: test3
     steps:
       - name: select
         agent: test1

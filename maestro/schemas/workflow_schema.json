@@ -76,7 +76,17 @@
               }
             },
             "exception": {
-              "type": "string"
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "exception name"
+                  },
+                  "agent": {
+                    "type": "string",
+                    "description": "the agent for this exception"
+                  }
+              }
             },
             "prompt": {
               "type": "string"
