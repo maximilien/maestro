@@ -52,11 +52,11 @@ class MockAgent(Agent):
         Args:
             prompt (str): The prompt to run the agent with.
         """
-        print(f"🐝 Running {self.agent_name}...")
+        print(f"🤖 Running {self.agent_name}...")
         answer = f"Mock agent: answer for {prompt}" 
         if self.instructions:
             answer = eval_expression(self.instructions, prompt)
-        print(f"🐝 Response from {self.agent_name}: {answer}")
+        print(f"🤖 Response from {self.agent_name}: {answer}")
         return answer
 
     def run_streaming(self, prompt: str) -> str:
@@ -65,8 +65,8 @@ class MockAgent(Agent):
         Args:
             prompt (str): The prompt to run the agent with.
         """    
-        print(f"🐝 Running {self.agent_name}...")
+        print(f"🤖 Running {self.agent_name}...")
         answer = f"Mock agent: answer for {prompt}" 
-        print(f"🐝 Response from {self.agent_name}: {answer}")
+        print(f"🤖 Response from {self.agent_name}: {answer}")
         return answer
 
