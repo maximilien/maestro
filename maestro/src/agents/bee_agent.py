@@ -43,7 +43,7 @@ class BeeAgent(Agent):
         Args:
             prompt (str): The prompt to run the agent with.
         """
-        print(f"🐝 Running {self.agent_name}...")
+        print(f"🐝 Running {self.agent_name}...\n")
         client = OpenAI(
             base_url=f'{os.getenv("BEE_API")}/v1', api_key=os.getenv("BEE_API_KEY")
         )
@@ -57,7 +57,7 @@ class BeeAgent(Agent):
         )
         messages = client.beta.threads.messages.list(thread_id=thread.id)
         answer = messages.data[0].content[0].text.value
-        print(f"🐝 Response from {self.agent_name}: {answer}")
+        print(f"🐝 Response from {self.agent_name}: {answer}\n")
         return answer
 
     def run_streaming(self, prompt: str) -> str:
@@ -66,7 +66,7 @@ class BeeAgent(Agent):
         Args:
             prompt (str): The prompt to run the agent with.
         """    
-        print(f"🐝 Running {self.agent_name}...")
+        print(f"🐝 Running {self.agent_name}...\n")
         client = OpenAI(
             base_url=f'{os.getenv("BEE_API")}/v1', api_key=os.getenv("BEE_API_KEY")
         )
@@ -105,6 +105,6 @@ class BeeAgent(Agent):
 
         messages = client.beta.threads.messages.list(thread_id=thread.id)
         answer = messages.data[0].content[0].text.value
-        print(f"🐝 Response from {self.agent_name}: {answer}")
+        print(f"🐝 Response from {self.agent_name}: {answer}\n")
         return answer
 
