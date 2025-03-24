@@ -43,7 +43,7 @@ class MockAgent(Agent):
             for tool in tools:
                 print(f"Mock agent:Loading {tool}")
 
-        print(f"Mock agent: name={self.agent_name}, model={self.agent_model}, description={self.agent_desc}, tools={self.agent_tools}, instructions={self.instructions}")
+        print(f"🤖 Mock agent: name={self.agent_name}, model={self.agent_model}, description={self.agent_desc}, tools={self.agent_tools}, instructions={self.instructions}")
         self.agent_id = self.agent_name
 
     async def run(self, prompt: str) -> str:
