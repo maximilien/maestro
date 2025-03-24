@@ -35,7 +35,7 @@ class CrewAIAgent(Agent):
             self.instance = self.crew_agent_class()          
             self.method_name = method_name
         except Exception as e:
-            print(f"Failed to load agent {self.agent_name}: {e}")
+            print(f"🧑🏽‍✈️ Failed to load agent {self.agent_name}: {e}")
             raise(e)
 
 
