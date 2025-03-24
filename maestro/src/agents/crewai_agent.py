@@ -50,7 +50,7 @@ class CrewAIAgent(Agent):
         Raises:
             Exception: If there is an error in retrieving or executing the agent's method.
         """
-        print(f"Running CrewAI agent: {self.agent_name} with prompt: {prompt}")
+        print(f"🧑🏽‍✈️ RunningCrewAI agent: {self.agent_name} with prompt: {prompt}\n")
 
         try:
             method = getattr(self.instance, self.method_name)
@@ -59,7 +59,7 @@ class CrewAIAgent(Agent):
 
         # TODO address error handling
         except Exception as e:
-            print(f"Failed to kickoff crew agent: {self.agent_name}: {e}")
+            print(f"🧑🏽‍✈️ Failed to kickoff crew agent: {self.agent_name}: {e}\n")
             raise(e)
 
     def run_streaming(self, prompt) ->str:
@@ -71,6 +71,6 @@ class CrewAIAgent(Agent):
         Raises:
             NotImplementedError: Indicates that the CrewAI agent execution logic is not yet implemented.
         """
-        print(f"Running CrewAI agent (streaming): {self.agent_name} with prompt: {prompt}")
+        print(f"🧑🏽‍✈️Running CrewAI agent (streaming): {self.agent_name} with prompt: {prompt}\n")
 
-        raise NotImplementedError("CrewAI agent execution logic not implemented yet")
+        raise NotImplementedError("🧑🏽‍✈️CrewAI agent execution logic not implemented yet")
