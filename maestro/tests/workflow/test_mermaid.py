@@ -334,5 +334,50 @@ class TestMermaid_event_cron_many_steps(TestCase):
             for m in expected_markdown:
                 self.assertTrue(m in markdown)
 
+class TestMermaid_parallel(TestCase):
+    def setUp(self):        
+        self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/parallel_workflow.yaml"))[0]
+
+    def tearDown(self):
+        self.workflow_yaml = None
+
+    def test_markdown_sequenceDiagram(self):
+        mermaid = Mermaid(self.workflow_yaml, "sequenceDiagram")
+        markdown = mermaid.to_markdown()
+        expected_markdown = [
+            'sequenceDiagram',
+            'participant test1',
+            'participant test2',
+            'participant test3',
+            'participant test4',
+            'participant test5',
+            'test1->>test1: list',
+            'test1->>test5: parallel',
+            'test5->>test5: result',
+            'par',
+            '  test1->>test2: parallel',
+            'and',
+            '  test1->>test3: parallel',
+            'and',
+            '  test1->>test4: parallel',
+            'end',
+            'alt exception',
+            '  test1->>test4: step4',
+            '  test5->>test4: step4',
+            'end']
+        for m in expected_markdown:
+            self.assertTrue(m in markdown)
+
+    def test_markdown_flowchart(self):
+        for orientation in ["TD", "LR"]:
+            mermaid = Mermaid(self.workflow_yaml, "flowchart", f"{orientation}")
+            self.assertTrue(mermaid.to_markdown().startswith(f"flowchart {orientation}"))
+            markdown = mermaid.to_markdown()
+            expected_markdown = [
+                f"flowchart {orientation}",
+                ]
+            for m in expected_markdown:
+                self.assertTrue(m in markdown)
+
 if __name__ == '__main__':
     unittest.main()

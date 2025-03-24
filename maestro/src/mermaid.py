@@ -80,6 +80,9 @@ class Mermaid:
             if step.get('condition'):
                 for condition in step['condition']:
                     sb += self.__to_sequenceDiagram_condition(agentL, agentR, condition)
+            # if step has parallel execution
+            if step.get('parallel'):
+                sb += self.__to_sequenceDiagram_parallel(agentL, step)
             i = i + 1
         # if workflow has global on event handling
         if self.workflow['spec']['template'].get('event'):
@@ -103,6 +106,19 @@ class Mermaid:
             sb += f"  cron->>{agent}: {name}\n"
         sb += "else\n"
         sb += f"  cron->>exit: {exit}\n"
+        sb += 'end\n'
+        return sb
+
+    # convert parallel to mermaid sequenceDiagram
+    def __to_sequenceDiagram_parallel(self, agentL, parallelStep):
+        i, sb = 0, 'par\n'
+        agents = parallelStep['parallel']
+        for agent in agents:
+            agentR = self.__fix_agent_name(agent)
+            sb += f"  {agentL}->>{agentR}: {parallelStep['name']}\n"
+            if i < len(agents):
+                sb += 'and\n'
+            i += 1
         sb += 'end\n'
         return sb
 
