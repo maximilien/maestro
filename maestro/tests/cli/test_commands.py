@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import os
-
+import unittest
 from unittest import TestCase
 
 from cli.commands import CLI
@@ -76,6 +76,35 @@ class DeployCommand(TestCommand):
         self.command = CLI(self.args).command()
         self.assertTrue(self.command.name() == 'deploy')
         self.assertTrue(self.command.execute() == 0)
+
+    def test_deploy_with_auto_prompt(self):
+        import tempfile, yaml
+        dummy_workflow = {
+            "spec": {
+                "template": {
+                    "prompt": "This is a test input"
+                }
+            }
+        }
+        temp_file = tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.yaml')
+        yaml.safe_dump(dummy_workflow, temp_file)
+        temp_file.close()
+
+        self.args["WORKFLOW_FILE"] = temp_file.name
+        self.args["--auto_prompt"] = True
+        self.args["--docker"] = True
+        self.command = CLI(self.args).command()
+
+        def dummy_deploy(self, agents_yaml, workflow_file, env):
+            with open(workflow_file, 'r') as f:
+                docs = list(yaml.safe_load_all(f))
+            self.captured_workflow = docs[0]
+            return 0
+        self.command._DeployCmd__deploy_agents_workflow = dummy_deploy.__get__(self.command, type(self.command))
+        self.command.execute()
+        template = self.command.captured_workflow.get("spec", {}).get("template", {})
+        self.assertIn("prompt", template, "Prompt field should be present when --auto_prompt is set")
+
 
 # `run` commmand tests
 class RunCommand(TestCommand):
