@@ -83,6 +83,9 @@ class Mermaid:
             # if step has parallel execution
             if step.get('parallel'):
                 sb += self.__to_sequenceDiagram_parallel(agentL, step)
+            # if step has loop
+            if step.get('loop'):
+                sb += self.__to_sequenceDiagram_loop(agentL, step['loop'])
             i = i + 1
         # if workflow has global on event handling
         if self.workflow['spec']['template'].get('event'):
@@ -131,6 +134,19 @@ class Mermaid:
                 sb += f"  {agentL}->>{exception['agent']}: {exception['name']}\n"
             i += 1
         sb += 'end'
+        return sb
+
+    # convert loop to mermaid sequenceDiagram
+    def __to_sequenceDiagram_loop(self, agentL, loopStep):
+        i, sb = 0, ''
+        agentR = self.__fix_agent_name(loopStep['agent'])
+        loop_name, loop_expr = 'loop', 'True'
+        if loopStep.get('until'):
+            loop_name = 'until'
+            loop_expr = loopStep['until']
+        sb += f"loop {loop_expr}\n"
+        sb += f"  {agentL}-->{agentR}: {loop_name}\n"
+        sb += 'end\n'
         return sb
 
     # convert condition section to sequenceDiagram mermaid diagram

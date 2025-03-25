@@ -286,6 +286,7 @@ class TestMermaid_event_cron(TestCase):
             markdown = mermaid.to_markdown()
             expected_markdown = [
                 f"flowchart {orientation}",
+                #TODO complete
                 ]
             for m in expected_markdown:
                 self.assertTrue(m in markdown)
@@ -330,6 +331,7 @@ class TestMermaid_event_cron_many_steps(TestCase):
             markdown = mermaid.to_markdown()
             expected_markdown = [
                 f"flowchart {orientation}",
+                #TODO: complete
                 ]
             for m in expected_markdown:
                 self.assertTrue(m in markdown)
@@ -375,6 +377,42 @@ class TestMermaid_parallel(TestCase):
             markdown = mermaid.to_markdown()
             expected_markdown = [
                 f"flowchart {orientation}",
+                #TODO: complete
+                ]
+            for m in expected_markdown:
+                self.assertTrue(m in markdown)
+
+class TestMermaid_loop(TestCase):
+    def setUp(self):        
+        self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/loop_workflow.yaml"))[0]
+
+    def tearDown(self):
+        self.workflow_yaml = None
+
+    def test_markdown_sequenceDiagram(self):
+        mermaid = Mermaid(self.workflow_yaml, "sequenceDiagram")
+        markdown = mermaid.to_markdown()
+        expected_markdown = [
+            'sequenceDiagram',
+            'participant generate1_10',
+            'participant countdown',
+            'generate1_10->>generate1_10: step1',
+            'generate1_10->>generate1_10: step2',
+            'loop (input.find("happy") != -1)',
+            '  generate1_10-->countdown: until',
+            'end'
+            ]
+        for m in expected_markdown:
+            self.assertTrue(m in markdown)
+
+    def test_markdown_flowchart(self):
+        for orientation in ["TD", "LR"]:
+            mermaid = Mermaid(self.workflow_yaml, "flowchart", f"{orientation}")
+            self.assertTrue(mermaid.to_markdown().startswith(f"flowchart {orientation}"))
+            markdown = mermaid.to_markdown()
+            expected_markdown = [
+                f"flowchart {orientation}",
+                #TODO: complete
                 ]
             for m in expected_markdown:
                 self.assertTrue(m in markdown)
