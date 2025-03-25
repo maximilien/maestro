@@ -384,7 +384,7 @@ class TestMermaid_parallel(TestCase):
 
 class TestMermaid_loop(TestCase):
     def setUp(self):        
-        self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/parallel_workflow.yaml"))[0]
+        self.workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"../yamls/workflows/loop_workflow.yaml"))[0]
 
     def tearDown(self):
         self.workflow_yaml = None
@@ -397,9 +397,9 @@ class TestMermaid_loop(TestCase):
             'participant generate1_10',
             'participant countdown',
             'generate1_10->>generate1_10: step1',
-            'generate1_10->>countdown:step2',
+            'generate1_10->>generate1_10: step2',
             'loop (input.find("happy") != -1)',
-            '  step2-->countdown: until',
+            '  generate1_10-->countdown: until',
             'end'
             ]
         for m in expected_markdown:
