@@ -44,6 +44,7 @@ class DeployCommand(TestCommand):
                         '--k8s': False,
                         '--kubernetes': False,
                         '--docker': False,
+                        '--streamlit': False,
                         'AGENTS_FILE': self.get_fixture('yamls/agents/simple_agent.yaml'),
                         'SCHEMA_FILE': None,
                         'WORKFLOW_FILE': self.get_fixture('yamls/workflows/simple_workflow.yaml'),
