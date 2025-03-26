@@ -57,10 +57,6 @@ def create_workflow(agents_yaml, workflow_yaml):
     return Workflow(agents_yaml, workflow_yaml[0])
 
 def deploy_agents_workflow_streamlit(agents_file, workflow_file):
-    output = io.StringIO()
-    position = 0
-    sys.stdout = output
-
     agents_yaml = parse_yaml(agents_file)
     workflow_yaml = parse_yaml(workflow_file)
     workflow = create_workflow(agents_yaml, workflow_yaml)
@@ -108,7 +104,11 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
             st.markdown(prompt)
         
         # Display assistant response
-        with st.chat_message("assistant", avatar="🔑"):            
+        with st.chat_message("assistant", avatar="🔑"):
+            # output = io.StringIO()
+            # position = 0
+            # sys.stdout = output
+
             message_placeholder = st.empty()
             # output_redirector = StreamlitOutputRedirector(message_placeholder)
             # #sys.stdout = output_redirector
@@ -137,11 +137,8 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
             #     position = len(message)
 
             # Update the placeholder with the response
-            if response.get('final_prompt'):
-                message_placeholder.markdown(response['final_prompt'])
-            else:
-                message_placeholder.markdown(response)
-        
+            message_placeholder.markdown(response)
+                
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": response}) 
 
