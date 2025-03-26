@@ -37,6 +37,7 @@ class DeployCommand(TestCommand):
                         '--dry-run': True,
                         '--help': False,
                         '--verbose': True,
+                        '--auto-prompt': False,
                         '--silent': False,
                         '--version': False,
                         '--url': "127.0.0.1:5000",

@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os, yaml, json, jsonschema, traceback
-import asyncio
+import os, sys, yaml, json, jsonschema, traceback, asyncio
 
 from openai import OpenAI
+from streamlit.web import cli
 from jsonschema.exceptions import ValidationError, SchemaError
 
 from src.deploy import Deploy
 from src.workflow import Workflow, create_agents
 from cli.common import Console, parse_yaml
+from cli.streamlit_deploy import deploy_agents_workflow_streamlit
 
 # Root CLI class
 class CLI:
@@ -199,12 +200,12 @@ class RunCmd(Command):
       return "run"
 
     def run(self):
-        agent_yaml = None
+        agents_yaml = None
         if self.AGENTS_FILE() != "None":
-            agent_yaml = parse_yaml( self.AGENTS_FILE())
-        workflow_yaml = parse_yaml( self.WORKFLOW_FILE())
+            agents_yaml = parse_yaml(self.AGENTS_FILE())
+        workflow_yaml = parse_yaml(self.WORKFLOW_FILE())
         try:
-            self.__run_agents_workflow(agent_yaml, workflow_yaml)
+            self.__run_agents_workflow(agents_yaml, workflow_yaml)
         except Exception as e:
             self._check_verbose()
             Console.error(f"Unable to run workflow: {str(e)}")
@@ -217,10 +218,16 @@ class DeployCmd(Command):
     def __init__(self, args):
         self.args = args
         super().__init__(self.args)
-
-    def auto_prompt(self):
-        return self.args.get('--auto-prompt', False)
     
+    def __deploy_agents_workflow_streamlit(self):
+        try:
+            sys.argv = ["streamlit", "run", "./cli/streamlit_deploy.py", self.AGENTS_FILE(), self.WORKFLOW_FILE()]
+            sys.exit(cli.main())
+        except Exception as e:
+            self._check_verbose()
+            raise RuntimeError(f"{str(e)}") from e
+        return 0
+
     def __deploy_agents_workflow(self, agents_yaml, workflow_yaml, env):
         try:
             if self.docker():
@@ -232,13 +239,19 @@ class DeployCmd(Command):
                 deploy = Deploy(agents_yaml, workflow_yaml, env)
                 deploy.deploy_to_kubernetes()
                 if not self.silent():
-                    Console.ok(f"Workflow deployed: http://<kubernates address>:30051")
+                    Console.ok(f"Workflow deployed: http://<kubernetes address>:30051")
+            elif self.streamlit():
+                self.__deploy_agents_workflow_streamlit()
             else:
                 Console.error("Need to specify --docker or --k8s | --kubernetes")
+                return 1
         except Exception as e:
             self._check_verbose()
             raise RuntimeError(f"Unable to deploy workflow: {str(e)}") from e
         return 0            
+
+    def auto_prompt(self):
+        return self.args.get('--auto-prompt', False)
 
     def url(self):
         if self.args['--url'] == "" or self.args['--url'] == None:
@@ -252,6 +265,9 @@ class DeployCmd(Command):
 
     def docker(self):
         return self.args['--docker']
+
+    def streamlit(self):
+        return self.args['--streamlit']
 
     def AGENTS_FILE(self):
         return self.args['AGENTS_FILE']
