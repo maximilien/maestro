@@ -125,5 +125,4 @@ if __name__ == '__main__':
     if runtime.exists():
         deploy_agents_workflow_streamlit(sys.argv[1], sys.argv[2])
     else:
-        sys.argv = ["streamlit", "run", sys.argv[0]]
         sys.exit(cli.main())
