@@ -6,6 +6,8 @@ from streamlit import runtime
 from streamlit.web import cli
 import streamlit.components.v1 as components
 
+import streamlit_mermaid as stmd
+
 from src.workflow import Workflow
 from cli.common import Console, parse_yaml
 
@@ -65,33 +67,9 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
     except Exception as excep:
         raise RuntimeError("Unable to create agents") from excep
     
-    # add workflow diagram to page
+    # add workflow mermaid diagram to page
     mermaid_diagram = workflow_instance.to_mermaid()
-    html_code = f"""
-    <div class="mermaid-container">
-    <pre>
-    <code class="language-mermaid">
-    {mermaid_diagram}
-    </code></pre>
-    </div>
-    """
-    st.markdown(html_code, unsafe_allow_html=True)
-
-    html_code ="""
-    <script>
-    var config = {
-        startOnLoad:true,
-        theme: 'forest',
-        flowchart:{
-                useMaxWidth:false,
-                htmlLabels:true
-            }
-    };
-    mermaid.initialize(config);
-    window.mermaid.init(undefined, document.querySelectorAll('.language-mermaid'));
-    </script>
-    """
-    st.markdown(html_code, unsafe_allow_html=True)
+    stmd.st_mermaid(mermaid_diagram)
 
     # Display chat messages
     for message in st.session_state.messages:
