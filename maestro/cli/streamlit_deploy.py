@@ -1,11 +1,9 @@
 import io, sys, asyncio, subprocess, threading
 
 import streamlit as st
+import streamlit.web.cli as st_cli
 
 from streamlit import runtime
-from streamlit.web import cli
-
-import streamlit.components.v1 as components
 
 import streamlit_mermaid as stmd
 
@@ -125,4 +123,4 @@ if __name__ == '__main__':
     if runtime.exists():
         deploy_agents_workflow_streamlit(sys.argv[1], sys.argv[2])
     else:
-        sys.exit(cli.main())
+        sys.exit(st_cli.main())
