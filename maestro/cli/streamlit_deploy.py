@@ -56,7 +56,9 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
         ]
 
     # Page header
-    st.title(f"Maestro workflow: {workflow_yaml[0]['metadata']['name']}")
+    st.image("images/maestro.png", width=200)
+    st.title(f"Maestro workflow")
+    st.markdown(f"### {workflow_yaml[0]['metadata']['name']}")
     
     with st.popover("agents.yaml"):
         st.markdown("## Formatted agents YAML")
