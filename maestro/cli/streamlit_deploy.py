@@ -67,11 +67,11 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
     with cols[0]:
         with st.popover("agents.yaml"):
             st.markdown("## Formatted agents YAML")
-            st.code(read_file(agents_file), language="yaml", line_numbers=True, wrap_lines=False, height=500)
+            st.code(read_file(agents_file), language="yaml", line_numbers=True, wrap_lines=False, height=700)
     with cols[1]:
         with st.popover("workflow.yaml"):
             st.markdown("## Formatted workflow YAML")
-            st.code(read_file(workflow_file), language="yaml", line_numbers=True, wrap_lines=False, height=500)
+            st.code(read_file(workflow_file), language="yaml", line_numbers=True, wrap_lines=False, height=700)
     
     # create workflow
     global output
