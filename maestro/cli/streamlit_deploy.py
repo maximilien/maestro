@@ -38,7 +38,7 @@ def generate_output():
             yield f"{line}\n\n"
         position = len(message)
 
-def deploy_agents_workflow_streamlit(agents_file=sys.argv[1], workflow_file=sys.argv[2]):
+def deploy_agents_workflow_streamlit(agents_file, workflow_file):
     agents_yaml = parse_yaml(agents_file)
     workflow_yaml = parse_yaml(workflow_file)
     workflow = create_workflow(agents_yaml, workflow_yaml)
