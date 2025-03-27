@@ -1,60 +1,40 @@
-import io, sys, asyncio, subprocess
+import io, sys, asyncio, subprocess, threading
 
 import streamlit as st
 
 from streamlit import runtime
 from streamlit.web import cli
+import streamlit.components.v1 as components
 
 from src.workflow import Workflow
 from cli.common import Console, parse_yaml
 
+# TODO: refactor
+
 sys_stdout = sys.stdout
 
-class StreamlitOutputRedirector:
-    def __init__(self, placeholder):
-        self.buffer = ""
-        self.placeholder = placeholder
+global workflow_instance
+global thread
 
-    def write(self, text):
-        # Define a keyword to selectively redirect
-        keyword_to_redirect = "frames/s]"
-
-        # Check if the keyword is present in the text
-        if keyword_to_redirect in text:
-            # Redirect text containing the keyword to Streamlit
-            # sys.__stdout__.write(text) # Testing
-
-            # Split the input string at each "|"
-            split_elements = text.split("|")
-            left  = split_elements[0].strip() # contains percentage complete
-            right = split_elements[2].strip() # contains "frames/s" information
-            newText = left + " | " + right
-            # self.setText(newText)
-            self.buffer += newText
-        else:
-            # Print text without the keyword to the console
-            sys.__stdout__.write(text)
-
-    def flush(self):
-        # Display the captured output
-        self.placeholder.write(f"###### {self.buffer}") # markdown, write very small
-        self.buffer = ""  
-
-    def clear(self):
-        # Clear the Streamlit screen by emptying the placeholder
-        self.placeholder.empty()
-
-    def setText(self, newText):
-        # Write content into placeholder
-        # self.placeholder.write(newText) # normal writing
-        self.placeholder.write(f"###### {newText}") # markdown, write very small
-
-    def replacePlaceholder(self, newPlaceholder):
-         # Replace with the desired placeholder, which may not be initially known
-         self.placeholder = newPlaceholder
+def start_workflow():
+    global output
+    output = io.StringIO()
+    sys.stdout = output
+    asyncio.run(workflow_instance.run())
 
 def create_workflow(agents_yaml, workflow_yaml):
     return Workflow(agents_yaml, workflow_yaml[0])
+
+def generate_output():
+    global output
+    global position
+    position = 0
+    message = output.getvalue()
+    if len(message) > position:
+        lines = output.getvalue()[position:].splitlines()
+        for line in lines:
+            yield f"{line}\n\n"
+        position = len(message)
 
 def deploy_agents_workflow_streamlit(agents_file, workflow_file):
     agents_yaml = parse_yaml(agents_file)
@@ -76,7 +56,42 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
 
     # Page header
     st.title(f"Maestro workflow: {workflow_yaml[0]['metadata']['name']}")
-    st.markdown(f"{workflow_yaml[0]['spec']['template']['prompt']}")
+
+    # create workflow
+    global output
+    global workflow_instance
+    try:
+        workflow_instance = Workflow(agents_yaml, workflow_yaml[0])
+    except Exception as excep:
+        raise RuntimeError("Unable to create agents") from excep
+    
+    # add workflow diagram to page
+    mermaid_diagram = workflow_instance.to_mermaid()
+    html_code = f"""
+    <div class="mermaid-container">
+    <pre>
+    <code class="language-mermaid">
+    {mermaid_diagram}
+    </code></pre>
+    </div>
+    """
+    st.markdown(html_code, unsafe_allow_html=True)
+
+    html_code ="""
+    <script>
+    var config = {
+        startOnLoad:true,
+        theme: 'forest',
+        flowchart:{
+                useMaxWidth:false,
+                htmlLabels:true
+            }
+    };
+    mermaid.initialize(config);
+    window.mermaid.init(undefined, document.querySelectorAll('.language-mermaid'));
+    </script>
+    """
+    st.markdown(html_code, unsafe_allow_html=True)
 
     # Display chat messages
     for message in st.session_state.messages:
@@ -105,42 +120,17 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
         
         # Display assistant response
         with st.chat_message("assistant", avatar="🔑"):
-            # output = io.StringIO()
-            # position = 0
-            # sys.stdout = output
-
             message_placeholder = st.empty()
-            # output_redirector = StreamlitOutputRedirector(message_placeholder)
-            # #sys.stdout = output_redirector
-
-            # message_placeholder = st.empty()
             message_placeholder.markdown("Thinking...")
 
-            # from cli.streamlit_redirect import redirect
-            # redirect.stdout(to=message_placeholder, format='markdown')
+            start_workflow()
 
-            # process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-            # while process.poll() is None:
-            #     line = process.stdout.readline()
-            #     if not line:
-            #         continue
-            #     message_placeholder.write(line.strip())
-            
-            # Process the query
-            response = asyncio.run(process_query(prompt))
-
-            # message = output.getvalue()
-            # if len(message) > position:
-            #     lines = output.getvalue()[position:].splitlines()
-            #     for line in lines:
-            #         message_placeholder.markdown(f"{line}")
-            #     position = len(message)
-
-            # Update the placeholder with the response
-            message_placeholder.markdown(response)
+            # stream response
+            for response in st.write_stream(generate_output):
+                message_placeholder.markdown(response)
                 
         # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": response}) 
+        st.session_state.messages.append({"role": "assistant", "content": output}) 
 
 if __name__ == '__main__':
     if runtime.exists():
