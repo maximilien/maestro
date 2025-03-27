@@ -4,12 +4,13 @@ import streamlit as st
 
 from streamlit import runtime
 from streamlit.web import cli
+
 import streamlit.components.v1 as components
 
 import streamlit_mermaid as stmd
 
 from src.workflow import Workflow
-from cli.common import Console, parse_yaml
+from cli.common import Console, parse_yaml, read_file
 
 # TODO: refactor
 
@@ -49,7 +50,7 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
         page_icon="🤖",
         layout="centered"
     )
-
+    
     # Initialize session state for chat history
     if "messages" not in st.session_state:
         st.session_state.messages = [
@@ -58,6 +59,14 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
 
     # Page header
     st.title(f"Maestro workflow: {workflow_yaml[0]['metadata']['name']}")
+    
+    with st.popover("agents.yaml"):
+        st.markdown("## Formatted agents YAML")
+        st.code(read_file(agents_file), language="yaml", line_numbers=True, wrap_lines=False, height=500)
+
+    with st.popover("workflow.yaml"):
+        st.markdown("## Formatted workflow YAML")
+        st.code(read_file(workflow_file), language="yaml", line_numbers=True, wrap_lines=False, height=500)
 
     # create workflow
     global output
