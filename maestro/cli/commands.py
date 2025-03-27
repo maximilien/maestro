@@ -16,6 +16,8 @@ import os, sys, yaml, json, jsonschema, traceback, asyncio
 
 import streamlit.web
 
+from subprocess import Popen
+
 from openai import OpenAI
 from jsonschema.exceptions import ValidationError, SchemaError
 
@@ -223,7 +225,7 @@ class DeployCmd(Command):
     def __deploy_agents_workflow_streamlit(self):
         try:
             sys.argv = ["streamlit", "run", "./cli/streamlit_deploy.py", self.AGENTS_FILE(), self.WORKFLOW_FILE()]
-            sys.exit(streamlit.web.cli.main())
+            process = Popen(sys.argv)
         except Exception as e:
             self._check_verbose()
             raise RuntimeError(f"{str(e)}") from e

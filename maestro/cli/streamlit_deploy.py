@@ -1,9 +1,10 @@
-import io, sys, asyncio, subprocess, threading
+import io, sys, asyncio, subprocess, os, psutil
 
 import streamlit as st
 import streamlit.web.cli as st_cli
 
 from streamlit import runtime
+from streamlit.runtime.scriptrunner import add_script_run_ctx,get_script_run_ctx
 
 import streamlit_mermaid as stmd
 
@@ -37,7 +38,7 @@ def generate_output():
             yield f"{line}\n\n"
         position = len(message)
 
-def deploy_agents_workflow_streamlit(agents_file, workflow_file):
+def deploy_agents_workflow_streamlit(agents_file=sys.argv[1], workflow_file=sys.argv[2]):
     agents_yaml = parse_yaml(agents_file)
     workflow_yaml = parse_yaml(workflow_file)
     workflow = create_workflow(agents_yaml, workflow_yaml)
@@ -58,16 +59,20 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
     # Page header
     st.image("images/maestro.png", width=200)
     st.title(f"Maestro workflow")
+
+    # add line of workflow: title, agents.yaml, and workflow.yaml
     st.markdown(f"### {workflow_yaml[0]['metadata']['name']}")
+
+    cols = st.columns(4)
+    with cols[0]:
+        with st.popover("agents.yaml"):
+            st.markdown("## Formatted agents YAML")
+            st.code(read_file(agents_file), language="yaml", line_numbers=True, wrap_lines=False, height=500)
+    with cols[1]:
+        with st.popover("workflow.yaml"):
+            st.markdown("## Formatted workflow YAML")
+            st.code(read_file(workflow_file), language="yaml", line_numbers=True, wrap_lines=False, height=500)
     
-    with st.popover("agents.yaml"):
-        st.markdown("## Formatted agents YAML")
-        st.code(read_file(agents_file), language="yaml", line_numbers=True, wrap_lines=False, height=500)
-
-    with st.popover("workflow.yaml"):
-        st.markdown("## Formatted workflow YAML")
-        st.code(read_file(workflow_file), language="yaml", line_numbers=True, wrap_lines=False, height=500)
-
     # create workflow
     global output
     global workflow_instance
@@ -77,6 +82,8 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
         raise RuntimeError("Unable to create agents") from excep
     
     # add workflow mermaid diagram to page
+    st.markdown("")
+    st.markdown(f"###### _Sequence diagram of workflow_")
     mermaid_diagram = workflow_instance.to_mermaid()
     stmd.st_mermaid(mermaid_diagram)
 
@@ -95,9 +102,9 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
             return await workflow.run()
         except Exception as e:
             return f"An error occurred: {str(e)}"
-
-    # Chat input
-    if prompt := st.chat_input(f"{workflow_yaml[0]['spec']['template']['prompt']}"):
+    
+    prompt = st.chat_input(f"{workflow_yaml[0]['spec']['template']['prompt']}")
+    if prompt:
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
         
@@ -106,14 +113,14 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
             st.markdown(prompt)
         
         # Display assistant response
-        with st.chat_message("assistant", avatar="🔑"):
+        with st.chat_message("assistant", avatar="🤖"):
             message_placeholder = st.empty()
             message_placeholder.markdown("Thinking...")
 
             start_workflow()
 
-            responses = ''
             # stream response
+            responses = ''
             for response in st.write_stream(generate_output):
                 message_placeholder.markdown(response)
                 responses += f"{response}"
@@ -121,8 +128,18 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": responses})
 
+        # Add reset button
+        def reset_conversation():
+            st.session_state.conversation = None
+            st.session_state.chat_history = None
+            message_placeholder = st.empty()
+
+        st.button('Reset', on_click=reset_conversation)
+
 if __name__ == '__main__':
     if runtime.exists():
+        ctx = get_script_run_ctx()
         deploy_agents_workflow_streamlit(sys.argv[1], sys.argv[2])
+        add_script_run_ctx(psutil.Process(os.getpid()), ctx)
     else:
         sys.exit(st_cli.main())
