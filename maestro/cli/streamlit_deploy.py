@@ -125,12 +125,14 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
 
             start_workflow()
 
+            responses = ''
             # stream response
             for response in st.write_stream(generate_output):
                 message_placeholder.markdown(response)
+                responses += f"{response}"
                 
         # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": output}) 
+        st.session_state.messages.append({"role": "assistant", "content": responses})
 
 if __name__ == '__main__':
     if runtime.exists():
