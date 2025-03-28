@@ -18,7 +18,7 @@ dotenv.load_dotenv()
 
 from .workflow import Workflow
 
-from .agents.beeai_agent import BeeAIA
+from .agents.beeai_agent import BeeAI
 from .agents.remote_agent import RemoteAgent
 
 from .agents.agent import save_agent, restore_agent, remove_agent
