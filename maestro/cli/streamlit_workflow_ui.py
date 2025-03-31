@@ -11,8 +11,9 @@ sys_stdout = sys.stdout
 global workflow_instance
 
 class StreamlitWorkflowUI:
-    def __init__(self, agents_file, workflow_file, title="Maestro workflow"):
+    def __init__(self, agents_file, workflow_file, prompt, title="Maestro workflow"):
         self.title = title
+        self.prompt = prompt
         self.agents_file = agents_file
         self.workflow_file = workflow_file
 
@@ -24,6 +25,7 @@ class StreamlitWorkflowUI:
         self.__initialize_session_state()
         self.__add_workflow_name_and_files()
         self.__create_workflow_ui()
+        self.__add_initial_prompt()
         self.__create_chat_messages()
         self.__create_chat_input()
         self.__add__chat_reset_button()
@@ -42,6 +44,10 @@ class StreamlitWorkflowUI:
             with st.popover("workflow.yaml"):
                 st.markdown("## Formatted workflow YAML")
                 st.code(read_file(self.workflow_file), language="yaml", line_numbers=True, wrap_lines=False, height=700)
+
+    def __add_initial_prompt(self):
+        # add text area with initial input text prompt
+        st.text_area("Initial prompt", self.prompt, key=f"text_area:{self.title}")
 
     def __initialize_session_state(self):
         # Initialize session state for chat history
