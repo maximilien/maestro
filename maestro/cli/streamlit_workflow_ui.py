@@ -47,6 +47,8 @@ class StreamlitWorkflowUI:
 
     def __add_initial_prompt(self):
         # add text area with initial input text prompt
+        if self.prompt == "":
+            self.prompt = f"{self.workflow_yaml[0]['spec']['template']['prompt']}"
         st.text_area("Initial prompt", self.prompt, key=f"text_area:{self.title}")
 
     def __initialize_session_state(self):
@@ -68,7 +70,7 @@ class StreamlitWorkflowUI:
         st.button('Reset', on_click=reset_conversation, key=f"reset_button:{self.title}")
 
     def __create_chat_input(self):
-        prompt = st.chat_input(f"{self.workflow_yaml[0]['spec']['template']['prompt']}", key=f"chat_input:{self.title}")
+        prompt = st.chat_input('Execute initial prompt or enter new prompt', key=f"chat_input:{self.title}")
         if prompt:
             # Add user message to chat history
             st.session_state.messages.append({"role": "user", "content": prompt})
