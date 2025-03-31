@@ -4,7 +4,7 @@
 import os, dotenv
 import asyncio
 import requests
-
+import json
 from openai import AssistantEventHandler, OpenAI
 from openai.types.beta import AssistantStreamEvent
 from openai.types.beta.threads.runs import RunStep, RunStepDelta, ToolCall
@@ -27,13 +27,34 @@ class BeeAIAgent(Agent):
         """
         super().__init__(agent)
     
-        url = f'{os.getenv("BEEAI_API")}/v1/assistants'
-        payload = f'{{"tools": [{{"type": "code_interpreter"}},{{"type": "system","system": {{"id": "web_search"}}}},{{"type": "system","system": {{"id": "weather"}}}}],"name": "{self.agent_name}","description": "{self.agent_desc}","instructions": "{self.instructions}","metadata": {{}},"model": "{self.agent_model}","agent": "bee", "top_p": 1,"temperature": 0.1}}'
+        url = f'{os.getenv("BEE_API")}/v1/assistants'
         headers = {
             'accept': "application/json",
             'Authorization': "Bearer sk-proj-testkey",
             'Content-Type': "application/json"
         }
+        response = requests.request("GET", url, headers=headers).json()
+        for agent in response["data"]:
+            if agent["name"] == self.agent_name and agent["model"] == self.agent_model: 
+                self.agent_id = agent["id"]
+                return
+
+        payload_dict = {
+            "tools": [
+                {"type": "code_interpreter"},
+                {"type": "system", "system": {"id": "web_search"}},
+                {"type": "system", "system": {"id": "weather"}}
+            ],
+            "name": self.agent_name,
+            "description": self.agent_desc,
+            "instructions": self.instructions.strip(),
+            "metadata": {},
+            "model": self.agent_model,
+            "agent": "bee",
+            "top_p": 0.8,
+            "temperature": 0.1
+        }
+        payload = json.dumps(payload_dict)
         response = requests.request("POST", url, headers=headers, data=payload).json()
         self.agent_id = response["id"]
 
@@ -45,7 +66,7 @@ class BeeAIAgent(Agent):
         """
         print(f"🐝 Running {self.agent_name}...\n")
         client = OpenAI(
-            base_url=f'{os.getenv("BEEAI_API")}/v1', api_key=os.getenv("BEE_API_KEY")
+            base_url=f'{os.getenv("BEE_API")}/v1', api_key=os.getenv("BEE_API_KEY")
         )
         # TODO: Unused currently
         assistant = client.beta.assistants.retrieve(self.agent_id)
