@@ -11,7 +11,7 @@ sys_stdout = sys.stdout
 global workflow_instance
 
 class StreamlitWorkflowUI:
-    def __init__(self, agents_file, workflow_file, prompt, title="Maestro workflow"):
+    def __init__(self, agents_file, workflow_file, prompt='', title='Maestro workflow'):
         self.title = title
         self.prompt = prompt
         self.agents_file = agents_file
