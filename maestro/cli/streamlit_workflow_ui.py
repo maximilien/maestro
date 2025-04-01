@@ -14,6 +14,7 @@ class StreamlitWorkflowUI:
     def __init__(self, agents_file, workflow_file, prompt='', title='Maestro workflow'):
         self.title = title
         self.prompt = prompt
+        self.initial_prompt = 'Enter your prompt here'
         self.agents_file = agents_file
         self.workflow_file = workflow_file
 
@@ -25,10 +26,8 @@ class StreamlitWorkflowUI:
         self.__initialize_session_state()
         self.__add_workflow_name_and_files()
         self.__create_workflow_ui()
-        self.__add_initial_prompt()
         self.__create_chat_messages()
-        self.__create_chat_input()
-        self.__add__chat_reset_button()
+        self.__add_use_prompt_and_chat_reset_button()
 
     # private
 
@@ -45,46 +44,44 @@ class StreamlitWorkflowUI:
                 st.markdown("## Formatted workflow YAML")
                 st.code(read_file(self.workflow_file), language="yaml", line_numbers=True, wrap_lines=False, height=700)
 
-    def __add_initial_prompt(self):
-        # add text area with initial input text prompt
-        if self.prompt == "":
-            self.prompt = f"{self.workflow_yaml[0]['spec']['template']['prompt']}"
-        st.text_area("Initial prompt", self.prompt, key=f"text_area:{self.title}")
-
     def __initialize_session_state(self):
         # Initialize session state for chat history
         if "messages" not in st.session_state:
             st.session_state.messages = [
                 {
                     "role": "assistant", 
-                    "content": "Welcome to Maestro workflow?"
+                    "content": "Welcome to Maestro workflow"
                 }]
 
-    def __add__chat_reset_button(self):
-        # Add reset button
-        def reset_conversation():
-            st.session_state.conversation = None
-            st.session_state.chat_history = None
-            message_placeholder = st.empty()
+    def __add_use_prompt_and_chat_reset_button(self):
+        with st.form(f"prompt_form:{self.title}"):
+            init_prompt = st.selectbox(
+                'You might want to try these prompts...',
+                [self.prompt,
+                 'Generate agents'])
 
-        st.button('Reset', on_click=reset_conversation, key=f"reset_button:{self.title}")
+            instructions = 'Enter your prompt here'
+            self.prompt = st.text_area(instructions, value=init_prompt, key=f"text_area:{self.title}")
 
-    def __create_chat_input(self):
-        prompt = st.chat_input('Execute initial prompt or enter new prompt', key=f"chat_input:{self.title}")
-        if prompt:
+            submitted = st.form_submit_button("Submit")
+            if submitted:
+                self.__process_chat_input()
+
+    def __process_chat_input(self):
+        if self.prompt:
             # Add user message to chat history
-            st.session_state.messages.append({"role": "user", "content": prompt})
+            st.session_state.messages.append({"role": "user", "content": self.prompt})
             
             # Display user message
             with st.chat_message("user", avatar="👤"):
-                st.markdown(prompt)
+                st.markdown(self.prompt)
             
             # Display assistant response
             with st.chat_message("assistant", avatar="🤖"):
                 message_placeholder = st.empty()
                 message_placeholder.markdown("Thinking...")
 
-                self.__start_workflow()
+                self.__start_workflow(self.prompt)
 
                 # stream response
                 responses = ''
@@ -139,11 +136,11 @@ class StreamlitWorkflowUI:
                 yield f"{line}\n\n"
             position = len(message)
 
-    def __start_workflow(self):
+    def __start_workflow(self, prompt):
         global output
         output = io.StringIO()
         sys.stdout = output
-        asyncio.run(workflow_instance.run())
+        asyncio.run(workflow_instance.run(prompt))
 
     def __create_workflow(self, agents_yaml, workflow_yaml):
         return Workflow(agents_yaml, workflow_yaml)

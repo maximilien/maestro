@@ -105,8 +105,10 @@ class Workflow:
 
         return Mermaid(workflow, kind, orientation).to_markdown()
 
-    async def run(self):
+    async def run(self, prompt=''):
         """Execute workflow."""
+        if prompt != '':
+            self.workflow['spec']['template']['prompt'] = prompt
         self.create_or_restore_agents(self.agent_defs, self.workflow)
         return await self._condition()
 

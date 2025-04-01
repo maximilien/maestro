@@ -27,7 +27,7 @@ def deploy_meta_agents_streamlit(prompt_text_file):
     # Initialize session state for chat history
     if "messages" not in st.session_state:
         st.session_state.messages = [
-            {"role": "assistant", "content": "Welcome to Maestro meta-agents workflow?"}
+            {"role": "assistant", "content": "Welcome to Maestro meta-agents workflow"}
         ]
 
     # Page header
