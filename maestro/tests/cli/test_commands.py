@@ -37,12 +37,14 @@ class DeployCommand(TestCommand):
                         '--dry-run': True,
                         '--help': False,
                         '--verbose': True,
+                        '--auto-prompt': False,
                         '--silent': False,
                         '--version': False,
                         '--url': "127.0.0.1:5000",
                         '--k8s': False,
                         '--kubernetes': False,
                         '--docker': False,
+                        '--streamlit': False,
                         'AGENTS_FILE': self.get_fixture('yamls/agents/simple_agent.yaml'),
                         'SCHEMA_FILE': None,
                         'WORKFLOW_FILE': self.get_fixture('yamls/workflows/simple_workflow.yaml'),
@@ -296,6 +298,41 @@ class MermaidCommand(TestCommand):
         self.assertTrue(self.command.name() == 'mermaid')
         try:
             self.command.execute()
+        except Exception as e:
+            self.fail(f"Exception running command: {str(e)}")
+
+# `meta-agents` commmand tests
+class MetaAgentsCommand(TestCommand):
+    def setUp(self):
+        self.args = {
+                        '--dry-run': False,
+                        '--help': False,
+                        '--verbose': True,
+                        '--silent': False,
+                        '--version': False,                        
+                        'AGENTS_FILE': None,
+                        'SCHEMA_FILE': None,
+                        'WORKFLOW_FILE': None,
+                        'TEXT_FILE': self.get_fixture('meta_agents/simple_prompt.txt'),
+                        'deploy': False,
+                        'run': False,
+                        'create': False,
+                        'mermaid': False,
+                        'validate': False,
+                        'meta-agents': True
+
+                    }
+        self.command = CLI(self.args).command()
+    
+    def tearDown(self):
+        self.args = {}
+        self.command = None
+        
+    def test_meta_agents(self):
+        self.assertTrue(self.command.name() == 'meta-agents')
+        try:
+            rc = self.command.execute()
+            self.assertTrue(rc == 0)
         except Exception as e:
             self.fail(f"Exception running command: {str(e)}")
 

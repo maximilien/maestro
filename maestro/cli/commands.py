@@ -12,15 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os, yaml, json, jsonschema, traceback
-import asyncio
+import os, sys, yaml, json, jsonschema, traceback, asyncio
+
+import streamlit.web
+
+from subprocess import Popen
 
 from openai import OpenAI
 from jsonschema.exceptions import ValidationError, SchemaError
 
 from src.deploy import Deploy
 from src.workflow import Workflow, create_agents
-from cli.common import Console, parse_yaml
+from cli.common import Console, parse_yaml, read_file
+from cli.streamlit_deploy import deploy_agents_workflow_streamlit
 
 # Root CLI class
 class CLI:
@@ -45,6 +49,8 @@ class CLI:
             return DeployCmd(self.args)
         elif self.args.get('mermaid') and self.args['mermaid']:
             return MermaidCmd(self.args)
+        elif self.args.get('meta-agents') and self.args['meta-agents']:
+            return MetaAgentsCmd(self.args)
         else:
             raise Exception("Invalid command")
 
@@ -103,6 +109,8 @@ class Command:
             return self.deploy
         elif self.args['mermaid']:
             return self.mermaid
+        elif self.args['meta-agents']:
+            return self.meta_agents
         else:
             raise Exception("Invalid subcommand")
 
@@ -199,12 +207,12 @@ class RunCmd(Command):
       return "run"
 
     def run(self):
-        agent_yaml = None
+        agents_yaml = None
         if self.AGENTS_FILE() != "None":
-            agent_yaml = parse_yaml( self.AGENTS_FILE())
-        workflow_yaml = parse_yaml( self.WORKFLOW_FILE())
+            agents_yaml = parse_yaml(self.AGENTS_FILE())
+        workflow_yaml = parse_yaml(self.WORKFLOW_FILE())
         try:
-            self.__run_agents_workflow(agent_yaml, workflow_yaml)
+            self.__run_agents_workflow(agents_yaml, workflow_yaml)
         except Exception as e:
             self._check_verbose()
             Console.error(f"Unable to run workflow: {str(e)}")
@@ -217,10 +225,16 @@ class DeployCmd(Command):
     def __init__(self, args):
         self.args = args
         super().__init__(self.args)
-
-    def auto_prompt(self):
-        return self.args.get('--auto-prompt', False)
     
+    def __deploy_agents_workflow_streamlit(self):
+        try:
+            sys.argv = ["streamlit", "run", "./cli/streamlit_deploy.py", self.AGENTS_FILE(), self.WORKFLOW_FILE()]
+            process = Popen(sys.argv)
+        except Exception as e:
+            self._check_verbose()
+            raise RuntimeError(f"{str(e)}") from e
+        return 0
+
     def __deploy_agents_workflow(self, agents_yaml, workflow_yaml, env):
         try:
             if self.docker():
@@ -232,13 +246,18 @@ class DeployCmd(Command):
                 deploy = Deploy(agents_yaml, workflow_yaml, env)
                 deploy.deploy_to_kubernetes()
                 if not self.silent():
-                    Console.ok(f"Workflow deployed: http://<kubernates address>:30051")
+                    Console.ok(f"Workflow deployed: http://<kubernetes address>:30051")            
             else:
-                Console.error("Need to specify --docker or --k8s | --kubernetes")
+                self.__deploy_agents_workflow_streamlit()
+                if not self.silent():
+                    Console.ok(f"Workflow deployed: http://localhost:8501/?embed=true")
         except Exception as e:
             self._check_verbose()
             raise RuntimeError(f"Unable to deploy workflow: {str(e)}") from e
         return 0            
+
+    def auto_prompt(self):
+        return self.args.get('--auto-prompt', False)
 
     def url(self):
         if self.args['--url'] == "" or self.args['--url'] == None:
@@ -252,6 +271,9 @@ class DeployCmd(Command):
 
     def docker(self):
         return self.args['--docker']
+
+    def streamlit(self):
+        return self.args['--streamlit']
 
     def AGENTS_FILE(self):
         return self.args['AGENTS_FILE']
@@ -326,5 +348,41 @@ class MermaidCmd(Command):
         except Exception as e:
             self._check_verbose()
             Console.error(f"Unable to generate mermaid for workflow: {str(e)}")
+            return 1
+        return 0
+
+# MetaAgents command group
+# $ maestro meta-agents TEXT_FILE [options]
+class MetaAgentsCmd(Command):
+    def __init__(self, args):
+        self.args = args
+        super().__init__(self.args)
+
+    # private    
+    def __meta_agents(self, text_file) -> int:
+        try:
+            sys.argv = ["streamlit", "run", "./cli/streamlit_meta_agents_deploy.py", text_file]
+            process = Popen(sys.argv)
+        except Exception as e:
+            self._check_verbose()
+            raise RuntimeError(f"{str(e)}") from e
+        return 0
+
+    # public options
+    def TEXT_FILE(self):
+        return self.args.get('TEXT_FILE')
+
+    def name(self):
+      return "meta-agents"
+
+    # public command method
+    def meta_agents(self):
+        try:
+            rc = self.__meta_agents(self.TEXT_FILE())
+            if not self.silent():
+                Console.ok("Running meta-agents\n")
+        except Exception as e:
+            self._check_verbose()
+            Console.error(f"Unable to run meta-agents: {str(e)}")
             return 1
         return 0

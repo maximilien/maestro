@@ -22,6 +22,7 @@ Usage:
   maestro mermaid WORKFLOW_FILE [options]
   maestro run AGENTS_FILE WORKFLOW_FILE [options]
   maestro validate SCHEMA_FILE YAML_FILE [options]
+  maestro meta-agents TEXT_FILE [options]
 
   maestro (-h | --help)
   maestro (-v | --version)
@@ -31,6 +32,8 @@ Options:
   --silent               Show no additional output on success, e.g., no OK or Success etc
   --dry-run              Mocks agents and other parts of workflow execution.
   --auto-prompt          Run prompt by default if specified
+
+  --streamlit            Deploys locally as streamlit application (default deploy)
 
   --url                  The deployment URL, default: 127.0.0.1:5000
   --k8s                  Deploys to Kubernetes

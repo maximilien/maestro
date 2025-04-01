@@ -15,14 +15,17 @@
 # limitations under the License.
 
 import os, dotenv
-
 from src.mermaid import Mermaid
 
 from src.step import Step
 from src.agents.agent_factory import AgentFramework
 
 from src.agents.crewai_agent import CrewAIAgent
-from src.agents.bee_agent import BeeAgent
+
+from src.agents.beeai_agent import BeeAIAgent
+
+from src.agents.remote_agent import RemoteAgent
+
 from src.agents.mock_agent import MockAgent
 from src.agents.agent import save_agent, restore_agent
 
@@ -42,8 +45,10 @@ def get_agent_class(framework: str) -> type:
         return MockAgent
     if framework == "crewai":
         return CrewAIAgent
+    elif framework == "remote":
+        return RemoteAgent
     else:
-        return BeeAgent
+        return BeeAIAgent
 
 def create_agents(agent_defs):
     """
@@ -61,7 +66,7 @@ def create_agents(agent_defs):
         # Use 'bee' if this value isn't set
         #
         agent_def["spec"]["framework"] = agent_def["spec"].get(
-            "framework", AgentFramework.BEE
+            "framework", AgentFramework.BEEAI
         )
         save_agent(get_agent_class(agent_def["spec"]["framework"])(agent_def))
 
@@ -84,7 +89,7 @@ class Workflow:
         """
         self.agents = {}
         self.steps = {}
-                
+
         self.agent_defs = agent_defs
         self.workflow = workflow
 
@@ -96,13 +101,24 @@ class Workflow:
         workflow = self.workflow
         if isinstance(self.workflow, list):
             workflow = self.workflow[0]
-        
+
         return Mermaid(workflow, kind, orientation).to_markdown()
 
-    async def run(self):
+    async def run(self, prompt=''):
         """Execute workflow."""
-        self.create_or_restore_agents(self.agent_defs, self.workflow)
-        return await self._condition()
+        try:
+          if prompt != '':
+            self.workflow['spec']['template']['prompt'] = prompt
+          self.create_or_restore_agents(self.agent_defs, self.workflow)
+          return await self._condition()
+        except Exception as err:
+            if self.workflow["spec"]["template"].get("exception"):
+                exp = self.workflow["spec"]["template"].get("exception")
+                exp_agent = self.agents.get(exp["agent"])
+                if exp_agent:
+                    await exp_agent.run(err)
+            else:
+                raise err
 
     # private methods
     def create_or_restore_agents(self, agent_defs, workflow):
@@ -125,13 +141,13 @@ class Workflow:
                   # Use 'bee' if this value isn't set
                   #
                   agent_def["spec"]["framework"] = agent_def["spec"].get(
-                      "framework", AgentFramework.BEE
+                      "framework", AgentFramework.BEEAI
                   )
                   self.agents[agent_def["metadata"]["name"]] = get_agent_class(agent_def["spec"]["framework"])(agent_def)
         else:
             for agent in workflow["spec"]["template"]["agents"]:
                 self.agents[agent] = restore_agent(agent)
-    
+
     #TODO: why is this public? It should be private by naming: _find_index(...) @aki
     def find_index(self, steps, name):
         for step in steps:
@@ -151,6 +167,8 @@ class Workflow:
         for step in steps:
             if step.get("agent"):
                 step["agent"] = self.agents.get(step["agent"])
+                if not step["agent"]:
+                    raise Exception("Agent doesn't exist")
             if step.get("parallel"):
                 agents = []
                 for agent in step.get("parallel"):

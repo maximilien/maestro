@@ -14,11 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os, dotenv, inspect
-import shutil
-import subprocess
-import yaml
-import tempfile
+import os, dotenv, inspect, asyncio, shutil, subprocess, yaml, tempfile
 
 dotenv.load_dotenv()
 
