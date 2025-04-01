@@ -49,8 +49,12 @@ def deploy_meta_agents_streamlit(prompt_text_file):
 
     with generated_workflow_tab:
         st.header("Meta-agents generated ⌇ -> Workflow")
-        # TODO: Add UI for meta-agents agents workflow        
+        agent_file = st.file_uploader("Choose agents.yaml", key='agents.yaml')
+        workflow_file = st.file_uploader("Choose agents.yaml", key='workflow.yaml')
 
+        if agent_file is not None and workflow_file is not None:
+            ma_gent_workflow_workflow_ui = StreamlitWorkflowUI(agent_file.getvalue().decode("utf-8"), workflow_file.getvalue().decode("utf-8"), '', 'Maestro meta-agents generated workflow')
+            ma_gent_workflow_workflow_ui.setup_ui()
 
 if __name__ == '__main__':
     if runtime.exists():
