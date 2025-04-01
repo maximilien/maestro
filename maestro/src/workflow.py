@@ -15,7 +15,6 @@
 # limitations under the License.
 
 import os, dotenv
-
 from src.mermaid import Mermaid
 
 from src.step import Step
@@ -107,10 +106,19 @@ class Workflow:
 
     async def run(self, prompt=''):
         """Execute workflow."""
-        if prompt != '':
+        try:
+          if prompt != '':
             self.workflow['spec']['template']['prompt'] = prompt
-        self.create_or_restore_agents(self.agent_defs, self.workflow)
-        return await self._condition()
+          self.create_or_restore_agents(self.agent_defs, self.workflow)
+          return await self._condition()
+        except Exception as err:
+            if self.workflow["spec"]["template"].get("exception"):
+                exp = self.workflow["spec"]["template"].get("exception")
+                exp_agent = self.agents.get(exp["agent"])
+                if exp_agent:
+                    await exp_agent.run(err)
+            else:
+                raise err
 
     # private methods
     def create_or_restore_agents(self, agent_defs, workflow):
@@ -159,6 +167,8 @@ class Workflow:
         for step in steps:
             if step.get("agent"):
                 step["agent"] = self.agents.get(step["agent"])
+                if not step["agent"]:
+                    raise Exception("Agent doesn't exist")
             if step.get("parallel"):
                 agents = []
                 for agent in step.get("parallel"):
