@@ -1,36 +1,33 @@
 # SPDX-License-Identifier: Apache-2.0
-from enum import Enum
+from enum import StrEnum
 from typing import Callable, Type, Union
 
 from .beeai_agent import BeeAIAgent
 from .crewai_agent import CrewAIAgent
+from .remote_agent import RemoteAgent
+from .mock_agent import MockAgent
 
-class AgentFramework(Enum):
+EMOJIS = {
+    'beeai': '🐝',
+    'crewai': '👥',
+    'mock': '🤖',
+    'remote': '💸',
+
+    # # Not yet supported
+    # 'langflow': '⛓',
+    # 'openai': '🔓',
+}
+
+class AgentFramework(StrEnum):
     """Enumeration of supported frameworks"""
-    BEEAI = "beeai"
-    CREWAI = "crewai"
-    MOCK = "mock"
+    BEEAI = 'beeai'
+    CREWAI = 'crewai'
+    MOCK = 'mock'
+    REMOTE = 'remote'
 
-    """Enumeration of supported frameworks"""
-    FRAMEWORKS = {
-        'BEEAI': "beeai",
-        'CREWAI': "crewai",
-        'MOCK': "mock",
-
-        # Not yet supported but adding in anticipation
-        'LANGFLOW': "langflow",
-        'OPENAI': "openai",
-        'REMOTE': "remote"   
-    }
-
-    EMOJIS = {
-        'BEEAI': '🐝',
-        'CREWAI': '👥',
-        'LANGFLOW': '⛓',
-        'OPENAI': '🔓',
-        'MOCK': '🤖',
-        'REMOTE': '💸'
-    }
+    # Not yet supported
+    # LANGFLOW = 'langflow'
+    # OPENAI = 'openai'
 
 class AgentFactory:
     """Factory class for handling agent frameworks"""
@@ -46,7 +43,10 @@ class AgentFactory:
         """
         factories = {
             AgentFramework.BEEAI: BeeAIAgent,
-            AgentFramework.CREWAI: CrewAIAgent
+            AgentFramework.CREWAI: CrewAIAgent,
+            AgentFramework.REMOTE: RemoteAgent,
+            AgentFramework.MOCK: MockAgent
+            
         }
 
         if framework not in factories:
