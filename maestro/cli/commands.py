@@ -207,8 +207,8 @@ class RunCmd(Command):
       return "run"
 
     def run(self):
-        agents_yaml = None
-        if self.AGENTS_FILE() != "None":
+        agents_yaml, workflow_yaml = None, None
+        if self.AGENTS_FILE() != None and self.AGENTS_FILE() != 'None':
             agents_yaml = parse_yaml(self.AGENTS_FILE())
         workflow_yaml = parse_yaml(self.WORKFLOW_FILE())
         try:

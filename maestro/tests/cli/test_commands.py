@@ -31,7 +31,7 @@ class TestCommand(TestCase):
         return os.path.join(self.SCHEMAS_ROOT_PATH, file_name)
 
 # `deploy` commmand tests
-class DeployCommand(TestCommand):
+class DeployCommandTest(TestCommand):
     def setUp(self):
         self.args = {
                         '--dry-run': True,
@@ -109,7 +109,7 @@ class DeployCommand(TestCommand):
 
 
 # `run` commmand tests
-class RunCommand(TestCommand):
+class RunCommandTest(TestCommand):
     def setUp(self):
         self.args = {
                         '--dry-run': True,
@@ -139,8 +139,24 @@ class RunCommand(TestCommand):
         except Exception as e:
             self.fail(f"Exception running command: {str(e)}")
 
+    def test_run_None_agents_file__dry_run(self):
+        self.args['AGENTS_FILE'] = None
+        self.assertTrue(self.command.name() == 'run')
+        try:
+            self.command.execute()
+        except Exception as e:
+            self.fail(f"Exception running command: {str(e)}")
+
+    def test_run_None_agents_file__dry_run2(self):
+        self.args['AGENTS_FILE'] = 'None'
+        self.assertTrue(self.command.name() == 'run')
+        try:
+            self.command.execute()
+        except Exception as e:
+            self.fail(f"Exception running command: {str(e)}")
+
 # `create` commmand tests
-class CreateCommand(TestCommand):
+class CreateCommandTest(TestCommand):
     def setUp(self):
         self.args = {
                         '--dry-run': True,
@@ -168,7 +184,7 @@ class CreateCommand(TestCommand):
         self.assertTrue(self.command.execute() == 0)
 
 # `create` and `run` commmand tests
-class CreateAndRunCommand(TestCommand):
+class CreateAndRunCommandTest(TestCommand):
     def setUp(self):
         self.args = {
                         '--dry-run': True,
@@ -207,7 +223,7 @@ class CreateAndRunCommand(TestCommand):
         self.assertTrue(self.command.execute() == 0)
 
 # `validate` commmand tests
-class ValidateCommand(TestCommand):
+class ValidateCommandTest(TestCommand):
     def setUp(self):
         self.args = {
                         '--dry-run': False,
@@ -244,7 +260,7 @@ class ValidateCommand(TestCommand):
         self.assertTrue(self.command.execute() == 0)
 
 # `mermaid` commmand tests
-class MermaidCommand(TestCommand):
+class MermaidCommandTest(TestCommand):
     def setUp(self):
         self.args = {
                         '--dry-run': False,
@@ -302,7 +318,7 @@ class MermaidCommand(TestCommand):
             self.fail(f"Exception running command: {str(e)}")
 
 # `meta-agents` commmand tests
-class MetaAgentsCommand(TestCommand):
+class MetaAgentsCommandTest(TestCommand):
     def setUp(self):
         self.args = {
                         '--dry-run': False,
