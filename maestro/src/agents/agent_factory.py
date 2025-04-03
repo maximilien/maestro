@@ -3,6 +3,7 @@ from enum import StrEnum
 from typing import Callable, Type, Union
 
 from .beeai_agent import BeeAIAgent
+from .beeai_local_agent import BeeAILocalAgent
 from .crewai_agent import CrewAIAgent
 from .remote_agent import RemoteAgent
 from .mock_agent import MockAgent
@@ -20,8 +21,9 @@ EMOJIS = {
 
 class AgentFramework(StrEnum):
     """Enumeration of supported frameworks"""
-    BEEAI = 'beeai'
-    CREWAI = 'crewai'
+    BEEAI = "beeai"
+    BEEAILOCAL = "beeailocal"
+    CREWAI = "crewai"
     MOCK = 'mock'
     REMOTE = 'remote'
 
@@ -43,10 +45,10 @@ class AgentFactory:
         """
         factories = {
             AgentFramework.BEEAI: BeeAIAgent,
+            AgentFramework.BEEAILOCAL: BeeAILocalAgent,
             AgentFramework.CREWAI: CrewAIAgent,
             AgentFramework.REMOTE: RemoteAgent,
             AgentFramework.MOCK: MockAgent
-            
         }
 
         if framework not in factories:
@@ -55,6 +57,6 @@ class AgentFactory:
         return factories[framework]
 
     @classmethod
-    def get_factory(cls, framework: str) -> Callable[..., Union[BeeAIAgent, CrewAIAgent]]:
+    def get_factory(cls, framework: str) -> Callable[..., Union[BeeAIAgent, BeeAILocalAgent, CrewAIAgent]]:
         """Get a factory function for the specified agent type."""
         return cls.create_agent(framework)
