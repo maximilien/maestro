@@ -10,8 +10,8 @@ spec:
       labels:
         app: crewtest
     agents:
-      - tests.crewai.crew_dummy.DummyCrew.dummy_crew
+      - tests.agents.crewai.crew_dummy.DummyCrew.dummy_crew
     prompt: Show me some activities to do in London in the cold weather
     steps:
       - name: begin
-        agent: tests.crewai.crew_dummy.DummyCrew.dummy_crew
+        agent: tests.agents.crewai.crew_dummy.DummyCrew.dummy_crew

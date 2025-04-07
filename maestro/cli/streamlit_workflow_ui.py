@@ -140,7 +140,6 @@ class StreamlitWorkflowUI:
         except Exception as e:
             traceback.print_exc()
             raise RuntimeError(f"Unable to create agents: {str(e)}") from e
-
         # add workflow mermaid diagram to page
         st.markdown("")
         st.markdown(f"###### _Sequence diagram of workflow_")
@@ -160,4 +159,3 @@ class StreamlitWorkflowUI:
 
     def __create_workflow(self, agents_yaml, workflow_yaml):
         return Workflow(agents_yaml, workflow_yaml)
-
