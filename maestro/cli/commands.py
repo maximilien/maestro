@@ -207,8 +207,8 @@ class RunCmd(Command):
       return "run"
 
     def run(self):
-        agents_yaml = None
-        if self.AGENTS_FILE() != "None":
+        agents_yaml, workflow_yaml = None, None
+        if self.AGENTS_FILE() != None and self.AGENTS_FILE() != 'None':
             agents_yaml = parse_yaml(self.AGENTS_FILE())
         workflow_yaml = parse_yaml(self.WORKFLOW_FILE())
         try:
@@ -228,7 +228,7 @@ class DeployCmd(Command):
     
     def __deploy_agents_workflow_streamlit(self):
         try:
-            sys.argv = ["streamlit", "run", "./cli/streamlit_deploy.py", self.AGENTS_FILE(), self.WORKFLOW_FILE()]
+            sys.argv = ["streamlit", "run", "--ui.hideTopBar", "True", "--client.toolbarMode", "minimal", "./cli/streamlit_deploy.py", self.AGENTS_FILE(), self.WORKFLOW_FILE()]
             process = Popen(sys.argv)
         except Exception as e:
             self._check_verbose()
@@ -361,7 +361,7 @@ class MetaAgentsCmd(Command):
     # private    
     def __meta_agents(self, text_file) -> int:
         try:
-            sys.argv = ["streamlit", "run", "./cli/streamlit_meta_agents_deploy.py", text_file]
+            sys.argv = ["streamlit", "run", "--ui.hideTopBar", "True", "--client.toolbarMode", "minimal", "./cli/streamlit_meta_agents_deploy.py", text_file]
             process = Popen(sys.argv)
         except Exception as e:
             self._check_verbose()

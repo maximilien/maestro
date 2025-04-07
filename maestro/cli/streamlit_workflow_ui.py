@@ -1,4 +1,4 @@
-import io, os, sys, yaml, asyncio, subprocess, psutil, traceback
+import io, os, sys, yaml, asyncio, subprocess, psutil, traceback, threading, time
 
 import streamlit as st
 import streamlit_mermaid as stmd
@@ -26,7 +26,6 @@ class StreamlitWorkflowUI:
     def setup_ui(self):        
         self.__initialize_session_state()
         self.__add_workflow_name_and_files()
-        self.__create_workflow_ui()
         self.__create_chat_messages()
         self.__add_use_prompt_and_chat_reset_button()
 
@@ -46,16 +45,21 @@ class StreamlitWorkflowUI:
 
     def __add_workflow_name_and_files(self):
         # add line of workflow: title, agents.yaml, and workflow.yaml
-        st.markdown(f"### {self.workflow_yaml[0]['metadata']['name']}")
-        cols = st.columns(4)
-        with cols[0]:
-            with st.popover("agents.yaml"):
-                st.markdown("## Formatted agents YAML")
-                st.code(self.__read_file_content(self.agents_file), language="yaml", line_numbers=True, wrap_lines=False, height=700)
-        with cols[1]:
-            with st.popover("workflow.yaml"):
-                st.markdown("## Formatted workflow YAML")
-                st.code(self.__read_file_content(self.workflow_file), language="yaml", line_numbers=True, wrap_lines=False, height=700)
+        with st.form(f"draw_form:{self.title}"):
+            st.markdown(f"### {self.workflow_yaml[0]['metadata']['name']}")
+            cols = st.columns(4)
+            with cols[0]:
+                with st.popover("agents.yaml"):
+                    st.markdown("## Formatted agents YAML")
+                    st.code(self.__read_file_content(self.agents_file), language="yaml", line_numbers=True, wrap_lines=False, height=700)
+            with cols[1]:
+                with st.popover("workflow.yaml"):
+                    st.markdown("## Formatted workflow YAML")
+                    st.code(self.__read_file_content(self.workflow_file), language="yaml", line_numbers=True, wrap_lines=False, height=700)
+            with cols[2]:
+                show = st.form_submit_button("Show diagram")
+            if show:
+                self.__create_workflow_ui()
 
     def __initialize_session_state(self):
         # Initialize session state for chat history
@@ -95,16 +99,28 @@ class StreamlitWorkflowUI:
                 message_placeholder.markdown("Thinking...")
 
                 # start and run workflow
-                self.__start_workflow(self.prompt)
+                thread = threading.Thread(target=StreamlitWorkflowUI.__start_workflow, args=(self.prompt,))
+                thread.start()
 
                 # stream response
-                responses = ''
-                for response in st.write_stream(StreamlitWorkflowUI.__generate_output):
-                    message_placeholder.markdown(response)
-                    responses += f"{response}"
-                    
+                while True:
+                    message = ""
+                    lines = StreamlitWorkflowUI.__generate_output().splitlines()
+                    for line in lines:
+                        message = message + f"{line}\n\n"
+                    message_placeholder.markdown(message)
+                    time.sleep(1)
+                    if not thread.is_alive():
+                        message = ""
+                        lines = StreamlitWorkflowUI.__generate_output().splitlines()
+                        for line in lines:
+                            message = message + f"{line}\n\n"
+                        message_placeholder.markdown(message)
+                        break
+
+
             # Add assistant response to chat history
-            st.session_state.messages.append({"role": "assistant", "content": responses})
+            st.session_state.messages.append({"role": "assistant", "content": message})
 
     def __create_chat_messages(self):
         # Display chat messages
@@ -118,14 +134,12 @@ class StreamlitWorkflowUI:
 
     def __create_workflow_ui(self):
         # create workflow
-        global output
         global workflow_instance
         try:
             workflow_instance = self.__create_workflow(self.agents_yaml, self.workflow_yaml[0])
         except Exception as e:
             traceback.print_exc()
             raise RuntimeError(f"Unable to create agents: {str(e)}") from e
-        
         # add workflow mermaid diagram to page
         st.markdown("")
         st.markdown(f"###### _Sequence diagram of workflow_")
@@ -134,16 +148,10 @@ class StreamlitWorkflowUI:
 
     def __generate_output():
         global output
-        global position
-        position = 0
         message = output.getvalue()
-        if len(message) > position:
-            lines = output.getvalue()[position:].splitlines()
-            for line in lines:
-                yield f"{line}\n\n"
-            position = len(message)
+        return(message)
 
-    def __start_workflow(self, prompt):
+    def __start_workflow(prompt):
         global output
         output = io.StringIO()
         sys.stdout = output
