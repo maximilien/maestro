@@ -329,7 +329,7 @@ class MetaAgentsCommandTest(TestCommand):
                         'AGENTS_FILE': None,
                         'SCHEMA_FILE': None,
                         'WORKFLOW_FILE': None,
-                        'TEXT_FILE': self.get_fixture('meta_agents/simple_prompt.txt'),
+                        'TEXT_FILE': self.get_fixture('agents/meta_agents/simple_prompt.txt'),
                         'deploy': False,
                         'run': False,
                         'create': False,
