@@ -16,6 +16,8 @@
 
 import os, unittest
 
+from typing import Callable
+
 from unittest import TestCase
 
 from src.agents.agent_factory import AgentFramework, AgentFactory, EMOJIS
@@ -24,21 +26,31 @@ class TestAgentFramework(TestCase):
     def test_frameworks(self):        
         self.assertTrue(AgentFramework.BEEAI is not None)
         self.assertTrue(AgentFramework.CREWAI is not None)
+        self.assertTrue(AgentFramework.OPENAI is not None)
         self.assertTrue(AgentFramework.MOCK is not None)
         self.assertTrue(AgentFramework.REMOTE is not None)
 
     def test_EMOJIS(self):
         self.assertTrue(EMOJIS['beeai'] == '🐝')
         self.assertTrue(EMOJIS['crewai'] == '👥')
+        self.assertTrue(EMOJIS['openai'] == '🔓')
         self.assertTrue(EMOJIS['mock'] == '🤖')
         self.assertTrue(EMOJIS['remote'] == '💸')
 
 class TestAgentFactory(TestCase):    
     def test_create_agents(self):
-        pass
+        self.assertTrue(isinstance(AgentFactory.create_agent(AgentFramework.BEEAI), Callable))
+        self.assertTrue(isinstance(AgentFactory.create_agent(AgentFramework.CREWAI), Callable))
+        self.assertTrue(isinstance(AgentFactory.create_agent(AgentFramework.OPENAI), Callable))
+        self.assertTrue(isinstance(AgentFactory.create_agent(AgentFramework.MOCK), Callable))
+        self.assertTrue(isinstance(AgentFactory.create_agent(AgentFramework.REMOTE), Callable))
 
     def test_get_factory(self):
-        pass
+        self.assertTrue(AgentFactory.get_factory(AgentFramework.BEEAI) is not None)
+        self.assertTrue(AgentFactory.get_factory(AgentFramework.CREWAI) is not None)
+        self.assertTrue(AgentFactory.get_factory(AgentFramework.OPENAI) is not None)
+        self.assertTrue(AgentFactory.get_factory(AgentFramework.MOCK) is not None)
+        self.assertTrue(AgentFactory.get_factory(AgentFramework.REMOTE) is not None)
 
 if __name__ == '__main__':
     unittest.main()
