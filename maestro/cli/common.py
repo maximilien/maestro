@@ -17,6 +17,14 @@ from random import randint
 
 VERBOSE=False
 
+# workaround to remove streamlit WARNING:
+# WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext!
+def remove_streamlit_logging_warnings():
+    import logging
+    for name, l in logging.root.manager.loggerDict.items():
+        if "streamlit" in name:
+            l.disabled = True
+
 class Colors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'

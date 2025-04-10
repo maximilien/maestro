@@ -23,7 +23,7 @@ from jsonschema.exceptions import ValidationError, SchemaError
 
 from src.deploy import Deploy
 from src.workflow import Workflow, create_agents
-from cli.common import Console, parse_yaml, read_file
+from cli.common import Console, parse_yaml, read_file, remove_streamlit_logging_warnings
 from cli.streamlit_deploy import deploy_agents_workflow_streamlit
 
 # Root CLI class
@@ -227,6 +227,7 @@ class DeployCmd(Command):
         super().__init__(self.args)
     
     def __deploy_agents_workflow_streamlit(self):
+        remove_streamlit_logging_warnings()
         try:
             sys.argv = ["streamlit", "run", "--ui.hideTopBar", "True", "--client.toolbarMode", "minimal", "./cli/streamlit_deploy.py", self.AGENTS_FILE(), self.WORKFLOW_FILE()]
             process = Popen(sys.argv)
@@ -298,7 +299,6 @@ class DeployCmd(Command):
             Console.error(f"Unable to deploy workflow: {str(e)}")
             return 1
         return 0
-        
 
 # Mermaid command group
 # $ maestro mermaid WORKFLOW_FILE [options]
@@ -360,6 +360,7 @@ class MetaAgentsCmd(Command):
 
     # private    
     def __meta_agents(self, text_file) -> int:
+        remove_streamlit_logging_warnings()
         try:
             sys.argv = ["streamlit", "run", "--ui.hideTopBar", "True", "--client.toolbarMode", "minimal", "./cli/streamlit_meta_agents_deploy.py", text_file]
             process = Popen(sys.argv)

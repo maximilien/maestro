@@ -10,8 +10,6 @@ from streamlit_workflow_ui import StreamlitWorkflowUI
 
 from cli.common import Console, parse_yaml, read_file
 
-# TODO: refactor
-
 sys_stdout = sys.stdout
 
 global workflow_instance
@@ -44,6 +42,7 @@ def deploy_agents_workflow_streamlit(agents_file, workflow_file):
 
 
 if __name__ == '__main__':
+    remove_streamlit_logging_warnings()
     if runtime.exists():
         ctx = get_script_run_ctx()
         deploy_agents_workflow_streamlit(sys.argv[1], sys.argv[2])
