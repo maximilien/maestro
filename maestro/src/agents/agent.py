@@ -19,7 +19,7 @@ class Agent:
         # TODO: Review which attributes belong in base class vs subclasses
         self.agent_name = agent["metadata"]["name"]
         self.agent_framework = agent["spec"]["framework"]
-        self.agent_model = agent["spec"]["model"]
+        self.agent_model = agent['spec'].get('model')
 
         self.agent_desc = agent["spec"]["description"]
         self.agent_instr = agent["spec"]["instructions"]
@@ -28,8 +28,11 @@ class Agent:
         self.instructions = f"{self.agent_instr} Input is expected in format: {self.agent_input}" if self.agent_input else self.agent_instr
         self.instructions = f"{self.instructions} Output must be in format: {self.agent_output}" if self.agent_output else self.instructions
 
+    def emoji(self) -> str:
+        return AgentFactory.EMOJIS[AgentFramework.MOCK]
+
     def print(self, message) -> str:
-        return f" {message}"
+        return f"{self.emoji()} {message}"
 
     @abstractmethod
     async def run(self, prompt: str) -> str:

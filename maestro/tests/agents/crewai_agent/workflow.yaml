@@ -3,15 +3,15 @@ kind: Workflow
 metadata:
   name: maestro-deployment
   labels:
-    app: crewtest
+    app: crewaitest
 spec:
   template:
     metadata:
       labels:
-        app: crewtest
+        app: crewaitest
     agents:
-      - tests.agents.crewai.crew_dummy.DummyCrew.dummy_crew
+      - tests.agents.crewai_agent.crew_dummy.DummyCrew.dummy_crew
     prompt: Show me some activities to do in London in the cold weather
     steps:
       - name: begin
-        agent: tests.agents.crewai.crew_dummy.DummyCrew.dummy_crew
+        agent: tests.agents.crewai_agent.crew_dummy.DummyCrew.dummy_crew

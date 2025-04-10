@@ -1,11 +1,11 @@
 apiVersion: maestro/v1alpha1
 kind: Agent
 metadata:
-  name: tests.agents.crewai.crew_dummy.DummyCrew.dummy_crew
+  name: beetest
   labels:
-    app: crewtest
+    app: testapp
 spec:
   model: "llama3.1:latest"
   description: test
   instructions: input = 'Mock agent:'
-  framework: crewai
+  framework: beeai
