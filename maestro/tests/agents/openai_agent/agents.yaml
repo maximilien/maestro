@@ -5,6 +5,7 @@ metadata:
   labels:
     app: testapp
 spec:
+  model: "gpt-4o"
   description: test
   instructions: echo your prompt
   framework: openai
