@@ -33,7 +33,7 @@ class AgentFramework(StrEnum):
 class AgentFactory:
     """Factory class for handling agent frameworks"""
     @staticmethod
-    def create_agent(framework: AgentFramework, mode="local") -> Callable[..., Union[BeeAIAgent, BeeAILocalAgent, CrewAIAgent, RemoteAgent, MockAgent]]:
+    def create_agent(framework: AgentFramework, mode="local") -> Callable[..., Union[BeeAIAgent, BeeAILocalAgent, CrewAIAgent, OpenAIAgent, RemoteAgent, MockAgent]]:
         """Create an instance of the specified agent framework.
 
         Args:
@@ -55,10 +55,10 @@ class AgentFactory:
             AgentFramework.MOCK: MockAgent
         }
 
-        if framework not in factories:
+        if framework not in factories and framework not in remote_factories:
             raise ValueError(f"Unknown framework: {framework}")
 
-        if mode == "remote":
+        if mode == "remote" or framework == AgentFramework.REMOTE:
             return remote_factories[framework]
         else:
             return factories[framework]
@@ -66,6 +66,6 @@ class AgentFactory:
         return factories[framework]
 
     @classmethod
-    def get_factory(cls, framework: str, mode="local") -> Callable[..., Union[BeeAIAgent, BeeAILocalAgent, CrewAIAgent, RemoteAgent, MockAgent]]:
+    def get_factory(cls, framework: str, mode="local") -> Callable[..., Union[BeeAIAgent, BeeAILocalAgent, CrewAIAgent, OpenAIAgent, RemoteAgent, MockAgent]]:
         """Get a factory function for the specified agent type."""
         return cls.create_agent(framework, mode)
