@@ -21,7 +21,7 @@ from pytest_mock import mocker
 from cli.common import parse_yaml
 
 from src.workflow import Workflow
-from src.agents.beeai_agent import BeeAIAgent
+from src.agents.beeai_agent import BeeAIAgent, BeeAILocalAgent
 
 dotenv.load_dotenv()
 
@@ -35,7 +35,7 @@ class BeeAIAgentMock:
 def test_agent_runs(mocker) -> None:
     # setup mocks
     mock_beeai=BeeAIAgentMock()
-    mocker.patch.object(BeeAIAgent, "__new__", return_value = mock_beeai)
+    mocker.patch.object(BeeAILocalAgent, "__new__", return_value = mock_beeai)
 
     agents_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"agents.yaml"))
     workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"workflow.yaml"))

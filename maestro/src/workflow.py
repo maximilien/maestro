@@ -18,7 +18,7 @@ import os, dotenv
 from src.mermaid import Mermaid
 
 from src.step import Step
-from src.agents.agent_factory import AgentFramework
+from src.agents.agent_factory import AgentFramework, AgentFactory
 
 from src.agents.beeai_agent import BeeAIAgent
 from src.agents.crewai_agent import CrewAIAgent
@@ -31,7 +31,7 @@ from src.agents.agent import save_agent, restore_agent
 
 dotenv.load_dotenv() #TODO is this needed now that __init__.py in package runs this?
 
-def get_agent_class(framework: str) -> type:
+def get_agent_class(framework: str, mode="local") -> type:
     """
     Returns the agent class based on the provided framework.
 
@@ -44,16 +44,7 @@ def get_agent_class(framework: str) -> type:
     if os.getenv("DRY_RUN"):
         return MockAgent
 
-    if framework == "crewai":
-        return CrewAIAgent
-    elif framework == "openai":
-        return OpenAIAgent
-    elif framework == "remote":
-        return RemoteAgent
-    elif framework == "beeailocal":
-        return BeeAILocalAgent
-    else:
-        return BeeAIAgent
+    return AgentFactory.create_agent(framework, mode)
 
 def create_agents(agent_defs):
     """
@@ -73,7 +64,7 @@ def create_agents(agent_defs):
         agent_def["spec"]["framework"] = agent_def["spec"].get(
             "framework", AgentFramework.BEEAI
         )
-        save_agent(get_agent_class(agent_def["spec"]["framework"])(agent_def))
+        save_agent(get_agent_class(agent_def["spec"]["framework"], agent_def["spec"].get("mode"))(agent_def))
 
 class Workflow:
     """Execute sequential workflow.
@@ -148,7 +139,7 @@ class Workflow:
                   agent_def["spec"]["framework"] = agent_def["spec"].get(
                       "framework", AgentFramework.BEEAI
                   )
-                  self.agents[agent_def["metadata"]["name"]] = get_agent_class(agent_def["spec"]["framework"])(agent_def)
+                  self.agents[agent_def["metadata"]["name"]] = get_agent_class(agent_def["spec"]["framework"], agent_def["spec"].get("mode"))(agent_def)
         else:
             for agent in workflow["spec"]["template"]["agents"]:
                 self.agents[agent] = restore_agent(agent)
