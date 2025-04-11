@@ -5,6 +5,7 @@ import os, dotenv
 import asyncio
 import requests
 import json
+
 from openai import AssistantEventHandler, OpenAI
 from openai.types.beta import AssistantStreamEvent
 from openai.types.beta.threads.runs import RunStep, RunStepDelta, ToolCall

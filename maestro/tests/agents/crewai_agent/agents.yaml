@@ -1,9 +1,9 @@
 apiVersion: maestro/v1alpha1
 kind: Agent
 metadata:
-  name: tests.agents.crewai.crew_dummy.DummyCrew.dummy_crew
+  name: tests.agents.crewai_agent.crew_dummy.DummyCrew.dummy_crew
   labels:
-    app: crewtest
+    app: crewaitest
 spec:
   model: "llama3.1:latest"
   description: test

@@ -20,15 +20,13 @@ from src.mermaid import Mermaid
 from src.step import Step
 from src.agents.agent_factory import AgentFramework, AgentFactory
 
-from src.agents.crewai_agent import CrewAIAgent
-
 from src.agents.beeai_agent import BeeAIAgent
-
+from src.agents.crewai_agent import CrewAIAgent
+from src.agents.openai_agent import OpenAIAgent
 from src.agents.beeai_local_agent import BeeAILocalAgent
-
 from src.agents.remote_agent import RemoteAgent
-
 from src.agents.mock_agent import MockAgent
+
 from src.agents.agent import save_agent, restore_agent
 
 dotenv.load_dotenv() #TODO is this needed now that __init__.py in package runs this?
@@ -45,6 +43,7 @@ def get_agent_class(framework: str, mode="local") -> type:
     """
     if os.getenv("DRY_RUN"):
         return MockAgent
+
     return AgentFactory.create_agent(framework, mode)
 
 def create_agents(agent_defs):

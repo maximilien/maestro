@@ -1,0 +1,11 @@
+apiVersion: maestro/v1alpha1
+kind: Agent
+metadata:
+  name: openai_test
+  labels:
+    app: testapp
+spec:
+  model: "gpt-4o"
+  description: test
+  instructions: echo your prompt
+  framework: openai
