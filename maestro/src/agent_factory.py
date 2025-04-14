@@ -2,11 +2,11 @@
 from enum import StrEnum
 from typing import Callable, Type, Union
 
-from .beeai_agent import BeeAIAgent, BeeAILocalAgent
-from .crewai_agent import CrewAIAgent
-from .openai_agent import OpenAIAgent
-from .remote_agent import RemoteAgent
-from .mock_agent import MockAgent
+from .frameworks.beeai_agent import BeeAIAgent, BeeAILocalAgent
+from .frameworks.crewai_agent import CrewAIAgent
+from .frameworks.openai_agent import OpenAIAgent
+from .frameworks.remote_agent import RemoteAgent
+from .frameworks.mock_agent import MockAgent
 
 EMOJIS = {
     'beeai': '🐝',

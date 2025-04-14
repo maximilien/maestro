@@ -12,18 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import agents
+import dotenv
+
+import openai_agents
 
 from .agent import Agent
 
+dotenv.load_dotenv()
+
 class OpenAIAgent(Agent):
     def __init__(self, agent: dict) -> None:
-        super.__init__(agent)
-        self.openai_agent = agents.Agent(
+        super().__init__(agent)        
+        self.openai_agent = openai_agents.Agent(
             name=self.agent_name,
             instructions=self.instructions,
-            tools=self.tools)
+            tools=self.__create_openai_tools())
     
+    def __create_openai_tools(self):
+        tools = []
+        tools_names = self.tools
+        for tool_name in tools_names:
+            if tool_name == 'WebSearchTool':
+                tools += openai_agents.WebSearchTool()
+            else:
+                self.print(f"Could not create tool: {tool_name}")
+        return tools
+
     async def run(self, prompt: str) -> str:
         """
         Runs the agent with the given prompt.

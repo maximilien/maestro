@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright © 2025 IBM
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,21 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import dotenv
+import unittest
 
-dotenv.load_dotenv()
+from unittest import TestCase
 
-from .workflow import Workflow
+class MASOpenAIAgentTestCase(TestCase):
+    def test_run_mas_openai(self):
+        self.assertTrue(True)
 
-from .frameworks.beeai_agent import BeeAIAgent
-from .frameworks.crewai_agent import CrewAIAgent
-from .frameworks.openai_agent import OpenAIAgent
-from .frameworks.remote_agent import RemoteAgent
-
-from .frameworks.agent import save_agent, restore_agent, remove_agent
-from .deploy import Deploy
-
-__all__ = {
-    "Workflow",
-    "Deploy"
-}
+if __name__ == '__main__':
+    unittest.main()

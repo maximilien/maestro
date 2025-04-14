@@ -1,10 +1,9 @@
 #! /usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
 
+import os, pickle, asyncio
+
 from abc import abstractmethod
-import os
-import pickle
-import asyncio
 
 class Agent:
     """

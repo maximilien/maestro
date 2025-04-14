@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import importlib
-import asyncio
+import importlib, asyncio
 
 from .agent import Agent
 

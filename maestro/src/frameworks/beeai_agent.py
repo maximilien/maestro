@@ -1,10 +1,7 @@
 #! /usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
 
-import os, dotenv
-import asyncio
-import requests
-import json
+import os, dotenv, asyncio, requests, json
 
 from openai import AssistantEventHandler, OpenAI
 from openai.types.beta import AssistantStreamEvent
@@ -25,7 +22,7 @@ from beeai_framework.tools.search.duckduckgo import DuckDuckGoSearchTool
 from beeai_framework.tools.weather import OpenMeteoTool
 from beeai_framework.utils import AbortSignal
 
-from src.agents.agent import Agent
+from src.frameworks.agent import Agent
 
 dotenv.load_dotenv()
 

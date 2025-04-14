@@ -1,0 +1,13 @@
+apiVersion: maestro/v1alpha1
+kind: Agent
+metadata:
+  name: OpenAI Web Search Agent
+  labels:
+    app: integration
+spec:
+  model: "gpt-4o"
+  description: web search agent
+  instructions: use your prompt as an input to web_search tool and respond with result
+  framework: openai
+  tools:
+    - WebSearchTool

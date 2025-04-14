@@ -1,0 +1,17 @@
+apiVersion: maestro/v1alpha1
+kind: Workflow
+metadata:
+  name: OpenAI Web Search Workflow
+  labels:
+    app: integration
+spec:
+  template:
+    metadata:
+      labels:
+        app: integration
+    agents:
+      - OpenAI Web Search Agent
+    prompt: create a list of open source AI agent frameworks
+    steps:
+      - name: search
+        agent: OpenAI Web Search Agent
