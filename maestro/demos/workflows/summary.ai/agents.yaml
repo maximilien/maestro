@@ -6,6 +6,8 @@ metadata:
     app: mas-example 
 spec:
   model: llama3.1
+  framework: beeai
+  mode: remote
   description: "Fetches the k most recent article titles from arXiv on a given topic."
   instructions: "Execute the given query using only the fetch tool provided. In your output, only list out the output the function gave you and nothing else. Example output: ['title1', 'title2', .... ]"  
   tools: 
@@ -27,12 +29,50 @@ spec:
 apiVersion: maestro/v1alpha1
 kind: Agent
 metadata:
-  name: Individual Summary
+  name: Abstract Agent
   labels:
-    app: mas-example
+    app: mas-example 
 spec:
   model: llama3.1
-  description: "creates a summary of the arxiv paper given a title"
-  instructions: "You will be given the title of a research paper from ArXiv. Your task is to generate a detailed and confident summary of the core topics related to the title, even if the title is highly complex or abstract. You do not need to find the actual paper—just summarize the general subject area based on relevant knowledge. Do not include disclaimers such as 'I don't know' or 'It appears to be about.' Instead, provide a direct, authoritative explanation. If the title is highly technical, break it down into simpler components, explain each part clearly, and then summarize the overarching topic. The summary must be at least three paragraphs long and focus on key concepts, challenges, and potential applications."
+  framework: beeai
+  mode: remote
+  description: "Get the abstract of the desired paper."
+  instructions: |
+    "You will be given the title of a research paper from arXiv. First, use the arXiv tool to locate the paper by constructing a search_query with the paper title only.
+    Once the paper is located, retrieve its summary, output the summary directly here."  
   tools: 
-    - 'llm'
+    - 'arxiv'
+
+---
+apiVersion: maestro/v1alpha1
+kind: Agent
+metadata:
+  name: Summary Agent
+  labels:
+    app: mas-example 
+spec:
+  model: llama3.1
+  framework: beeai
+  mode: remote
+  description: "Get the summary of the desired paper"
+  instructions: |
+    You will be given an abstract of a research paper. Your job is to expand on it and make sure the concept is more clear, try to make the summary very long and detailed. Please add onto the summary. Produce your final answer in a single block of text, without separating ‘Thought’ and ‘Result.’ Show everything directly in the final output.”
+  tools: 
+    - 'LLM'
+
+---
+apiVersion: maestro/v1alpha1
+kind: Agent
+metadata:
+  name: Choose Paper
+  labels:
+    app: mas-example 
+spec:
+  model: llama3.1
+  framework: beeai
+  mode: remote
+  description: "Choose a paper from the list of titles."
+  instructions: |
+    You will be given an abstract of a research paper. Your job is to expand on it and make sure the concept is more clear, try to make the summary very long and detailed. Please add onto the summary. Produce your final answer in a single block of text, without separating ‘Thought’ and ‘Result.’ Show everything directly in the final output.”
+  tools: 
+    - 'LLM'
