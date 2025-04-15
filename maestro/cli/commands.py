@@ -117,24 +117,39 @@ class Command:
 # validate command group
 #  maestro validate SCHEMA_FILE YAML_FILE [options]
 class ValidateCmd(Command):
+    TOOL_SCHEMA_FILE = f"{os.path.dirname(os.path.abspath(__file__))}/../schemas/tool_schema.json"
+    AGENT_SCHEMA_FILE = f"{os.path.dirname(os.path.abspath(__file__))}/../schemas/agent_schema.json"
+    WORKFLOW_SCHEMA_FILE = f"{os.path.dirname(os.path.abspath(__file__))}/../schemas/workflow_schema.json"
     def __init__(self, args):
         self.args = args
         super().__init__(self.args)
 
-    def SCHEMA_FILE(self):
-        return self.args['SCHEMA_FILE']
+    # private
 
-    def YAML_FILE(self):
-        return self.args['YAML_FILE']
+    def __discover_schema_file(self, yaml_file):
+        try:
+            yaml_data = parse_yaml(yaml_file)
+            if type(yaml_data) == list:
+                yaml_data = yaml_data[0]
 
-    def name(self):
-      return "validate"
+            kind = yaml_data.get('kind')
+            if kind == 'Agent':
+                return ValidateCmd.AGENT_SCHEMA_FILE
+            elif kind == 'Tool':
+                return ValidateCmd.TOOL_SCHEMA_FILE
+            elif kind == 'Workflow':
+                return ValidateCmd.WORKFLOW_SCHEMA_FILE
+            else:
+                raise f"Unknown kind: {kind}"
+        except Exception as e:
+            Console.error(f"Could not parse yaml file: {yaml_file}")
+            raise e
 
-    def validate(self):
-        Console.print(f"validating {self.YAML_FILE()} with schema {self.SCHEMA_FILE()}")
-        with open(self.SCHEMA_FILE(), 'r') as f:
+    def __validate(self, schema_file, yaml_file):
+        Console.print(f"validating {yaml_file} with schema {schema_file}")
+        with open(schema_file, 'r') as f:
             schema = json.load(f)
-        with open(self.YAML_FILE(), 'r') as f:
+        with open(yaml_file, 'r') as f:
             yamls = yaml.safe_load_all(f)
             for yaml_data in yamls:
                 json_data = json.dumps(yaml_data, indent=4)
@@ -151,6 +166,28 @@ class ValidateCmd(Command):
                     Console.error(f"Schema file is NOT valid:\n {str(se.message)}")
                     return 1
         return 0
+
+    # public
+
+    def SCHEMA_FILE(self):
+        return self.args['SCHEMA_FILE']
+
+    def YAML_FILE(self):
+        return self.args['YAML_FILE']
+
+    def name(self):
+      return "validate"
+
+    def validate(self):
+        if self.SCHEMA_FILE() == None or self.SCHEMA_FILE() == '':
+            discovered_schema_file = ''
+            try:
+                discovered_schema_file = self.__discover_schema_file(self.YAML_FILE())
+            except Exception as e:
+                Console.error(f"Invalid YAML file: {self.YAML_FILE()}: {str(e)}")
+                return 1
+            return self.__validate(discovered_schema_file, self.YAML_FILE())
+        return self.__validate(self.SCHEMA_FILE(), self.YAML_FILE())
 
 # Create command group
 #  maestro create AGENTS_FILE [options]
