@@ -246,6 +246,13 @@ class ValidateCommandTest(TestCommand):
         self.command = None
         
     def test_validate_agents_file(self):
+        self.args['SCHEMA_FILE'] = None
+        self.args['YAML_FILE'] = self.args['AGENTS_FILE']
+        self.command = CLI(self.args).command()
+        self.assertTrue(self.command.name() == 'validate')
+        self.assertTrue(self.command.execute() == 0)
+
+    def test_validate_agents_file_with_schema(self):
         self.args['SCHEMA_FILE'] = self.get_schema('agent_schema.json')
         self.args['YAML_FILE'] = self.args['AGENTS_FILE']
         self.command = CLI(self.args).command()
@@ -253,6 +260,13 @@ class ValidateCommandTest(TestCommand):
         self.assertTrue(self.command.execute() == 0)
 
     def test_validate_workflow_file(self):
+        self.args['SCHEMA_FILE'] = None
+        self.args['YAML_FILE'] = self.args['WORKFLOW_FILE']
+        self.command = CLI(self.args).command()
+        self.assertTrue(self.command.name() == 'validate')
+        self.assertTrue(self.command.execute() == 0)
+
+    def test_validate_workflow_file_with_schema(self):
         self.args['SCHEMA_FILE'] = self.get_schema('workflow_schema.json')
         self.args['YAML_FILE'] = self.args['WORKFLOW_FILE']
         self.command = CLI(self.args).command()
