@@ -27,6 +27,7 @@ class TestAgentFramework(TestCase):
         self.assertTrue(AgentFramework.BEEAI is not None)
         self.assertTrue(AgentFramework.CREWAI is not None)
         self.assertTrue(AgentFramework.OPENAI is not None)
+        self.assertTrue(AgentFramework.MAESTRO is not None)
         self.assertTrue(AgentFramework.MOCK is not None)
         self.assertTrue(AgentFramework.REMOTE is not None)
 
@@ -34,6 +35,7 @@ class TestAgentFramework(TestCase):
         self.assertTrue(EMOJIS['beeai'] == '🐝')
         self.assertTrue(EMOJIS['crewai'] == '👥')
         self.assertTrue(EMOJIS['openai'] == '🔓')
+        self.assertTrue(EMOJIS['maestro'] == '⍜')
         self.assertTrue(EMOJIS['mock'] == '🤖')
         self.assertTrue(EMOJIS['remote'] == '💸')
 
@@ -42,6 +44,7 @@ class TestAgentFactory(TestCase):
         self.assertTrue(isinstance(AgentFactory.create_agent(AgentFramework.BEEAI), Callable))
         self.assertTrue(isinstance(AgentFactory.create_agent(AgentFramework.CREWAI), Callable))
         self.assertTrue(isinstance(AgentFactory.create_agent(AgentFramework.OPENAI), Callable))
+        self.assertTrue(isinstance(AgentFactory.create_agent(AgentFramework.MAESTRO), Callable))
         self.assertTrue(isinstance(AgentFactory.create_agent(AgentFramework.MOCK), Callable))
         self.assertTrue(isinstance(AgentFactory.create_agent(AgentFramework.REMOTE), Callable))
 
@@ -49,6 +52,7 @@ class TestAgentFactory(TestCase):
         self.assertTrue(AgentFactory.get_factory(AgentFramework.BEEAI) is not None)
         self.assertTrue(AgentFactory.get_factory(AgentFramework.CREWAI) is not None)
         self.assertTrue(AgentFactory.get_factory(AgentFramework.OPENAI) is not None)
+        self.assertTrue(AgentFactory.get_factory(AgentFramework.MAESTRO) is not None)
         self.assertTrue(AgentFactory.get_factory(AgentFramework.MOCK) is not None)
         self.assertTrue(AgentFactory.get_factory(AgentFramework.REMOTE) is not None)
 

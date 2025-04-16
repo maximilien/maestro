@@ -5,6 +5,7 @@ from typing import Callable, Type, Union
 from .beeai_agent import BeeAIAgent, BeeAILocalAgent
 from .crewai_agent import CrewAIAgent
 from .openai_agent import OpenAIAgent
+from .maestro_agent import MaestroAgent
 from .remote_agent import RemoteAgent
 from .mock_agent import MockAgent
 
@@ -13,6 +14,7 @@ EMOJIS = {
     'crewai': '👥',
     'openai': '🔓',
     'mock': '🤖',
+    'maestro': '⍜',
     'remote': '💸',
 
     # # Not yet supported
@@ -25,6 +27,7 @@ class AgentFramework(StrEnum):
     CREWAI = "crewai"
     OPENAI = 'openai'
     MOCK = 'mock'
+    MAESTRO = 'maestro'
     REMOTE = 'remote'
 
     # Not yet supported
@@ -46,6 +49,7 @@ class AgentFactory:
             AgentFramework.BEEAI: BeeAILocalAgent,
             AgentFramework.CREWAI: CrewAIAgent,
             AgentFramework.OPENAI: OpenAIAgent,
+            AgentFramework.MAESTRO: MaestroAgent,
             AgentFramework.MOCK: MockAgent
         }
 

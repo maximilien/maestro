@@ -1,0 +1,19 @@
+apiVersion: maestro/v1alpha1
+kind: Workflow
+metadata:
+  name: Maestro Agent Workflow test
+  labels:
+    app: test
+spec:
+  template:
+    metadata:
+      labels:
+        app: test
+    agents:
+      - Maestro agent test
+    prompt: Welcome Maestro agents to the AI Agent OSS party
+    steps:
+      - name: begin
+        agent: Maestro Agent test
+      - name: end
+        agent: Maestro Agent test

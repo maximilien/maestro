@@ -1,0 +1,11 @@
+apiVersion: maestro/v1alpha1
+kind: Agent
+metadata:
+  name: Maestro Agent test
+  labels:
+    app: test
+spec:
+  model: "claude-3-5-sonnet-20241022"
+  framework: maestro
+  description: a test Maestro agent
+  instructions: echo your prompt
