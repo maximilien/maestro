@@ -32,11 +32,7 @@ class MCPClient:
         """
         is_python = server_script_path.endswith('.py')
         is_js = server_script_path.endswith('.js')
-        is_mcp = server_script_path.endswith('/mcp')
-        if not (is_python or is_js or is_mcp):
-            raise ValueError("Server path must be a .py or .js or MCP server")
-
-        if is_mcp:
+        if not (is_python or is_js):
             async with Client(SSETransport(server_script_path)) as client:
                 self.session = client
         else:
