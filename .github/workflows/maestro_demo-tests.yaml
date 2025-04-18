@@ -28,6 +28,7 @@ jobs:
         run: |
           cd maestro
           poetry install
+          poetry run pip install beeai-framework
       - name: Verify Maestro Installation
         run: |
           cd maestro
