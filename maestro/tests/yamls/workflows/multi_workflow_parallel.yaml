@@ -17,9 +17,9 @@ spec:
         - JudgeAgent
     prompt: Pick a number between 1 and 10 for a guessing game
     steps:
-      - name: beeai
-        agent: beeaiagent
-      - name: crewai
-        agent: Generic_Crew
+      - name: guess
+        parallel:
+        - beeaiagent
+        - Generic_Crew
       - name: JudgeAgent
         agent: JudgeAgent

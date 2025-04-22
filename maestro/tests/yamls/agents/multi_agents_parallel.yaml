@@ -5,9 +5,7 @@ metadata:
   labels:
     app: multi-agent
 spec:
-  #model: meta-llama/llama-3-1-70b-instruct
   model: llama3.1
-  # model: granite3.1-dense:8b
   framework: beeai
   mode: remote
   description: beeai agent
@@ -25,11 +23,14 @@ metadata:
   name: Generic_Crew
   labels:
     app: multi-agent
-    module: demos.agents.crewai.generic.generic_agent
-    class: Generic_Crew
-    factory: generic_crew
+    crew_role: "gussing game player"
+    crew_goal: "guess the number and output it"
+    crew_backstory: "I am a guess game player.  I guess a number between 1 and 10."
+    crew_description: "You are playing a guessing game.  One person has a number between 1 and 10 in mind.  You guess the number."
+    crew_expected_output: "your answer format is 'CrewAI=' + guessed number."
 spec:
-  model: "llama3.1:latest"
+  model: "ollama/llama3.1"
+  url: "http://localhost:11434"
   description: crewai agent
   instructions: dummy
   framework: crewai
@@ -43,9 +44,7 @@ metadata:
   labels:
     app: multi-agent
 spec:
-  #model: meta-llama/llama-3-1-70b-instruct
   model: llama3.1
-  # model: granite3.1-dense:8b
   framework: beeai
   mode: remote
   description: beeai agent
