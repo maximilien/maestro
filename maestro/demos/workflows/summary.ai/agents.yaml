@@ -1,86 +1,166 @@
 apiVersion: maestro/v1alpha1
 kind: Agent
 metadata:
-  name: Abstract Agent
+  name: slack
   labels:
-    app: mas-example 
+    app: slack-example
+    custom_agent: slack_agent
 spec:
-  model: llama3.1
-  framework: beeai
+  model: dummy
+  framework: custom
   mode: remote
-  description: "Get the abstract of the desired paper."
-  instructions: |
-    "You will be given the title of a research paper from arXiv. Your task is to use the arXiv tool to search for the paper by using only the provided paper title as your search parameter. Once you have located the paper, retrieve its summary (abstract) and output it directly here in a markdown format for readability. Do not use any SQL queries or database commands."
-  tools: 
-    - 'arxiv'
+  description: slack agent
+  instructions: post a message to slack
 
 ---
 apiVersion: maestro/v1alpha1
 kind: Agent
 metadata:
-  name: Summary Agent
+  name: Paper Finder
   labels:
     app: mas-example 
 spec:
   model: llama3.1
   framework: beeai
   mode: remote
-  description: "Get the summary of the desired paper"
+  description: "Retrieve IBM related papers from a certain topic in a certain time frame"
   instructions: |
-    You will be given an abstract of a research paper. Your job is to expand on it and generate a summary from it. Make sure the concept is more clear, try to make the summary long and detailed. Go into detail about each topic mentioned. Please add onto the summary. Produce your final answer/summary in a single markdown code block, Show everything directly in the final output.
+    Input:
+          • category (string) # e.g. "quantum-ph"
+          • since_days (int)  # e.g. "1" for the last 1 days since today's date.
 
-    Example output {the following below should be in a code block):
+        Task:
+          1. Call the ibm-arXiv tool to search for all papers on `category` published in the last `since_days`. All the functionality is already implemented in the funciton, simply execute the function with the given parameters as the input, and then return the output (which should be titles of research papers) into a list.
+          Directly print out the list in the output.
+  code: |
+    import arxiv
+    import feedparser
+    from datetime import datetime, timedelta, timezone
+    from typing import List, Dict
+    from urllib.parse import urlencode
 
-    ```markdown
-    The summary/output you generated
-    ```
+    def find_ibm_papers(
+        category: str,
+        since_days: int,
+    ) -> List[Dict]:
+        """
+        Search ArXiv in `category`, pre-filter by abstract keywords, then
+        post-filter by author affiliation tags—handling URL encoding properly.
+        """
+      
+        ibm_keywords = ["ibm", "watson", "powerai", "ibm research"]
+
+        cutoff = datetime.now(timezone.utc) - timedelta(days=since_days)
+        abs_filter = " OR ".join(f'abs:"{kw}"' for kw in ibm_keywords)
+        query = f"cat:{category} AND ({abs_filter})"
+        params = {
+            "search_query": query,
+            "start": 0,
+            "max_results": 100,
+            "sortBy": "submittedDate",
+            "sortOrder": "descending",
+        }
+        base_url = "http://export.arxiv.org/api/query?"
+        url = base_url + urlencode(params)
+
+        feed = feedparser.parse(url)
+        papers = []
+
+        for entry in feed.entries:
+            published = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
+            if published < cutoff:
+                continue
+
+            abstract = entry.summary.lower()
+            keyword_match = any(kw.lower() in abstract for kw in ibm_keywords)
+
+            affs = entry.get("arxiv_affiliation", [])
+            affiliation_match = any("ibm" in aff.lower() for aff in affs)
+
+            if not (keyword_match or affiliation_match):
+                continue
+
+            papers.append(entry.title)
+
+        return papers
+  tools:
+    - 'find_ibm_papers'
+
+---
+apiVersion: maestro/v1alpha1
+kind: Agent
+metadata:
+  name: get metadata
+  labels:
+    app: mas-example 
+spec:
+  model: llama3.1
+  framework: beeai
+  mode: remote
+  description: "Retrieve metadata for a given arxiv paper"
+  instructions: |
+    The input will be a title to a research paper from arxiv, which we can call `title`. This will be used as a parameter for the function in step 1. 
+
+    Step1:
+    Use the get_metadata tool, passing in the given title to retreive the abstract for the paper.  The function call should just be `get_metadata_by_title(title)`. 
+
+    Currently you are using the Thought, Result, and Reason step which is the final output that is generated. However, I want you to stop at the Result step (which should directly just be the output of the function).
+    *STRICTLY output the result of the function and nothing else*
+
+    Example output that the user should see:
+    {
+      "title": inputted title,
+      "authors": [
+          actual authors retrieved by the function
+      ],
+      "published": actual date retrieved by the function,
+      "abstract": actual abstract retrieved by the function
+    }
+  code: |
+    import arxiv
+    from typing import Optional
+
+    def get_metadata_by_title(title: str) -> Optional[str]:
+        """
+        Given the exact title of an arXiv paper, fetch its abstract.
+        Returns None if no match is found.
+        """
+        client = arxiv.Client()
+        search = arxiv.Search(
+            query=f'ti:"{title}"',
+            max_results=1
+        )
+        result = next(client.results(search), None)
+        if not result:
+            return None
+        return {
+            "title":     result.title,
+            "authors":   [a.name for a in result.authors],
+            "published": result.published.strftime("%Y-%m-%d"),
+            "abstract":  result.summary.strip()
+        }
+  tools:
+    - 'get_metadata_by_title'
+
+---
+apiVersion: maestro/v1alpha1
+kind: Agent
+metadata:
+  name: generate summary
+  labels:
+    app: mas-example 
+spec:
+  model: llama3.1
+  framework: beeai
+  mode: remote
+  description: "Retrieve metadata for a given arxiv paper"
+  instructions: |
+    You will be given the metadata to an arxiv research paper as input, including categories like title, author, date published, and abstract. 
+    Use all these input information to generate a formatted text summary. In addition to this, please add onto/extend the abstract to be more comprehensive as a whole, explaining terms, ideas, concepts that might be difficult to understand. 
+    *Do not output anything other than the generated summary, and directly print it from the result step*. Make sure it follows the example output format.
+
+    Example output:
+    Title, by Authors, published date.
+    Augmented abstract/summary....
   tools: 
     - 'LLM'
-
----
-apiVersion: maestro/v1alpha1
-kind: Agent
-metadata:
-  name: Choose Paper
-  labels:
-    app: mas-example 
-spec:
-  model: llama3.1
-  framework: beeai
-  mode: remote
-  description: "Choose a paper from the list of titles."
-  instructions: |
-    You will be provided a list of titles, simply output one at random. Note, the outputted title must be in the list.
-
-    Example:
-    Input: [`title1`, `title2`, `title3`]
-    Output: `title3`
-    
----
-apiVersion: maestro/v1alpha1
-kind: Agent
-metadata:
-  name: paper retriever
-  labels:
-    app: mas-example 
-spec:
-  model: llama3.1
-  framework: beeai
-  mode: remote
-  description: "Choose a paper from the list of titles."
-  instructions: |
-    Input: A topic (string) and a number n (integer) indicating how many papers to retrieve.
-
-    Task:
-    Use the arXiv tool to search for the most recent papers related to the given topic. Do not perform any SQL queries or database commands, use the tool directly to get these papers.
-    Retrieve exactly n papers sorted by their publication date (most recent first).
-    Extract only the titles of these papers.
-    Output the titles in a list format (i.e., a Python list). Do not include any additional text or formatting.
-
-    Example Input:
-    topic: "quantum", n: 2
-
-    Output:
-    ['title1_related_quantum', 'title2_quantum']
-  tools: 
-    - 'arxiv'
