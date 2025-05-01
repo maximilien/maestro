@@ -12,7 +12,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">= 3.11, < 3.13"
-openai = "^1.61.1"
+openai = "^1.76.2"
 pyyaml = "^6.0.2"
 python-dotenv = "^1.0.1"
 jsonschema = "^4.23.0"
@@ -23,10 +23,12 @@ streamlit = "^1.44.0"
 streamlit-mermaid = "^0.3.0"
 psutil = "^7.0.0"
 openapi = "^2.0.0"
-openai-agents = "^0.0.11"
+openai-agents = {extras = ["litellm"], version = "^0.0.14"}
 pycron = "^3.1.2"
 beeai-framework = "^0.1.17"
 slack_sdk = "^3.35.0"
+nest-asyncio = "^1.6.0"
+pydantic-ai = {extras = ["logfire"], version = "^0.1.8"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
