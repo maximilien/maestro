@@ -3,11 +3,11 @@ on:
   push:
     branches: [ 'main' ]
     paths:
-    - 'maestro/**'
+    - '**'
   pull_request:
     branches: [ 'main' ]
     paths:
-    - 'maestro/**'
+    - '**'
 jobs:
   run-deploy-tests:
     runs-on: ubuntu-latest
@@ -21,7 +21,7 @@ jobs:
           which kind
       - name: Create Kind cluster
         run: |
-          kind create cluster --config maestro/tests/integration/deploys/kind-config.yaml 
+          kind create cluster --config tests/integration/deploys/kind-config.yaml 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -34,12 +34,10 @@ jobs:
           poetry self add poetry-plugin-shell
       - name: Install dependencies
         run: |
-          cd maestro
           poetry install
           poetry run pip install crewai
       - name: Run deploy integration tests/
         run: |
-          cd maestro
           export IMAGE_PUSH_CMD='kind load docker-image docker.io/library/maestro:latest'
           export IMAGE_TAG_CMD='docker tag localhost/maestro:latest docker.io/library/maestro:latest'
           export DEPLOY_DOCKER_TEST=1
