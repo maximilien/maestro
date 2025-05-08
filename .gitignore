@@ -178,3 +178,6 @@ poetry.lock
 
 # Do not commit agents.db file
 agents.db
+
+# IDE workspaces
+*.code-workspace
