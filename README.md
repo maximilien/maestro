@@ -5,7 +5,7 @@
 
 A multi-agent platform with the vision to facilitate deployment and running of AI agents.
 
-In this initial version you are going to find some examples showing how to run a group of agents, that you can build using the current and more mature TypeScript [Bee AI Agent framework](https://github.com/i-am-bee/bee-agent-framework), or experiment with the new [Python version](../framework/bee-py).
+In this initial version you are going to find some examples showing how to run a group of agents, from differnt frameoeks, e.g., BeeAI, OpenAI, CrewAI, and others. 
 
 ## Local environment Setup
 
@@ -15,7 +15,7 @@ In this initial version you are going to find some examples showing how to run a
 
 * Install dependencies: Use the `setup_maestro.sh` script in order to install required libraries using poetry. Run `source ./tools/setup_maestro.sh` in order to install the dependencies and activate a virtual environment. Only need to install the dependencies once, in the future directly activate the venv.
 
-* Configure environmental variables: `cp example.env .env`
+* Configure environmental variables: `.env`
 
 ## Usage
 
@@ -25,7 +25,7 @@ There are two steps to running a workflow: defining some agents and creating a w
 
 ### Agent Definition
 
-* You can define your Agent in a declarative way using a YAML file, where you can use the current BeeAI Agent implementation. With that, you can configure your agent or agents. For example, create an `agents.yaml` file containing the following:
+* You can define your Agent in a declarative way using a YAML file. For example, create an `agents.yaml` file containing the following:
 
 ```yaml
 apiVersion: maestro/v1alpha1
@@ -100,7 +100,7 @@ maestro validate agent_schema.json agent.yaml
 ```
 
 ```bash
-maestro validate workflow_schema.json workflow.yaml
+maestro validate workflow.yaml
 ```
 
 * Execute the workflow:
@@ -133,7 +133,7 @@ After running, use the `maestro clean` command to shut down the instance.
 
 ## Mermaid Support
 
-Maestro supports the creation of visual diagrams of how the workflow will execute. In a given demo,  one can run the following command to visualize:
+Maestro supports the creation of visual diagrams of how the workflow will execute. In a given demo, one can run the following command to visualize:
 
 ```bash
 maestro mermaid workflow.yaml
