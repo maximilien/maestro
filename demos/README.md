@@ -46,8 +46,10 @@ Verify the installation by running: \
 
 By default, the .env file and api runs on llama version 3.1. Download ollama: <https://ollama.com/>
 and navigate to llama3.1 model: <https://ollama.com/library/llama3.1>.
-If using a different model, make sure to [change the model](https://github.com/i-am-bee/bee-stack?tab=readme-ov-file#custom-models) in the api connection (currently untested).
-Verify Ollama is installed by running command `ollama list` in terminal.
+
+To use a different model, use `ollama pull` and choose from the official models. If using a different model, make sure to define in the agents.yaml file correctly. 
+
+For MCP tools, certain models support tools while others do not. Models that current support tooling that are tested include `llama3.1:8b`, `llama3.3-70b-instruct` and `qwen3:8b`. To note, one of the best performing models we tested `gpt-4o-mini` requires external API credit.
 
 ### Create a Podman machine
 
@@ -102,3 +104,15 @@ Verify maestro is running properly: `maestro --help`
 ##### SlackBot support
 
 Please set `SLACK_BOT_TOKEN` and `SLACK_TEAM_ID` as environment variables. See `./tests/yamls/agents/slack_agent.yaml` and `./tests/yamls/workflow_agent.yaml` for details. The output of slack message will be whatever is passed into the prompt.
+
+##### Evaluation/Metrics Support
+
+The Metrics Agent integrates Opik's LLM as a judge metrics into our workflows. Automatically route `spec.model` in the agent definition and add to workflow to automatically evaluate using `AnswerRelevance` and `Hallucination` scores. 
+
+See `./tests/yamls/agents/metrics_agent.py` and `./tests/yamls/workflows/metrics_agents.py` for more details.
+
+There are 2 required exports as we use ollama for backend:
+```bash
+OPENAI_API_BASE=http://localhost:11434/v1
+OPENAI_API_KEY=ollama
+```
