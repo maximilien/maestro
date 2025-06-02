@@ -3,21 +3,10 @@
 
 import dotenv
 import asyncio
+import ast
+from src.utils import eval_expression, convert_to_list
 
 dotenv.load_dotenv()
-
-def eval_expression(expression, prompt):
-    """
-    Evaluate an expression with a given prompt.
-
-    Args:
-        expression (str): The expression to evaluate.
-        prompt: The value bound to `input` when evaluating.
-    Returns:
-        The result of evaluating the expression.
-    """
-    local = {"input": prompt}
-    return eval(expression, local)
 
 class Step:
     """
@@ -114,13 +103,46 @@ class Step:
         return template.replace("{prompt}", prompt).replace("{response}", response)
 
     async def parallel(self, prompt):
-        tasks = [asyncio.create_task(agent.run(prompt)) for agent in self.step_parallel]
+        """
+        This function runs multiple agents in parallel and returns the results as a string.
+
+        Args:
+            prompt (str): The input prompt for the agents to run.
+
+        Returns:
+            str: The results of running the agents in parallel as a string.
+        """
+
+        tasks = []
+        if prompt.find("[") != -1:
+            args = convert_to_list(prompt)
+            tasks = [asyncio.create_task(agent.run(args[index])) for index, agent in enumerate(self.step_parallel)]
+        else:
+            tasks = [asyncio.create_task(agent.run(prompt)) for agent in self.step_parallel]
         results = await asyncio.gather(*tasks)
+        print(results)
         return str(results)
 
     async def loop(self, prompt):
-        until = self.step_loop["until"]
+        """
+        This function is a loop that runs an agent on a given prompt until a certain condition is met.
+
+        Parameters:
+            prompt (str): The initial prompt for the agent to run.
+
+        Returns:
+            str: The final prompt after the loop has completed.
+        """
+        until = self.step_loop.get ("until")
         agent = self.step_loop["agent"]
+        prompt = str(prompt)
+        if prompt.find("[") != -1:
+            args = convert_to_list(prompt)
+            results = []
+            for arg in args:
+                prompt = await agent.run(arg)
+                results.append(prompt)
+            return str(results)
         while True:
             prompt = await agent.run(prompt)
             if eval_expression(until, prompt):
