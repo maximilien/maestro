@@ -51,6 +51,8 @@ jobs:
         uv venv --python 3.12
         uv pip install -r requirements.txt
         uv pip install python-dotenv
+        uv pip install -e .
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/src
     - name: Bootstrap Maestro (deps + venv)
       shell: bash
       run: |

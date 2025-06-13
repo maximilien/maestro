@@ -25,5 +25,6 @@ jobs:
         uv pip install -r requirements.txt
         uv pip install python-dotenv
         uv pip install -e .
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/src
     - name: Check schemas
       run: uv run tools/check-schemas.sh
