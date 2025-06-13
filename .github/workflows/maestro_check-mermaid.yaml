@@ -22,9 +22,6 @@ jobs:
     - name: Install dependencies
       run: |
         uv venv --python 3.12
-        uv pip install -e .
-        uv pip install crewai litellm==1.67.0.post1 pydantic==2.10.6 pydantic-core==2.25.0 pydantic-settings==2.5.2 
-        uv pip install pydantic-ai==0.10.0 pydantic-ai-tools==0.10.0 pydantic-ai-tools-core==0.10.0 pydantic-ai-tools-core-utils==0.10.0
-        uv pip install pygraphviz==1.13.0 pygraphviz-mermaid==0.1.0 pygraphviz-mermaid-mermaid==0.1.0
+        uv pip install -r requirements.txt
     - name: Check mermaid
       run: uv run tools/check-mermaid.sh
