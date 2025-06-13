@@ -39,4 +39,4 @@ jobs:
       run: |
         export PYTHONPATH=$PYTHONPATH:$(pwd)/src
         export PATH=$PATH:$(pwd)/.venv/bin
-        pytest tests/agents/beeai_agent/test_beeai.py tests/agents/openai_agent/test_openai.py tests/agents/crewai_agent/test_crewai.py -v
+        uv run pytest tests/agents/beeai_agent/test_beeai.py tests/agents/openai_agent/test_openai.py tests/agents/crewai_agent/test_crewai.py -v
