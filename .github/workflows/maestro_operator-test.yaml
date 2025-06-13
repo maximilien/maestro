@@ -89,7 +89,7 @@ jobs:
     - name: Port forward and send request
       run: |
         # Start port-forward in background
-        kubectl port-forward svc/weather-checker-ai 30051:30051 &
+        kubectl port-forward svc/weather-checker-ai 30051:80 &
         PF_PID=$!
         
         # Wait for port-forward to be ready
