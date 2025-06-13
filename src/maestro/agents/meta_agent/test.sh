@@ -16,9 +16,9 @@ if [[ ${#WORKFLOW_FILES[@]} -eq 0 ]]; then
     exit 1
 fi
 
-SCHEMA_DIR=$(find "$(dirname "$0")/../../.." -type d -name "schemas" -print -quit)
+SCHEMA_DIR="$(cd "$(dirname "$0")/../../../../schemas" && pwd)"
 
-if [[ -z "$SCHEMA_DIR" ]]; then
+if [[ ! -d "$SCHEMA_DIR" ]]; then
     echo "❌ Error: Could not find schemas/ directory"
     exit 1
 fi
@@ -31,18 +31,18 @@ echo "🔍 Using schema file: $AGENT_SCHEMA_PATH"
 echo "🔍 Using schema file: $WORKFLOW_SCHEMA_PATH"
 
 echo "📝 Validating $AGENTS_YAML..."
-if ! poetry run maestro validate "$AGENT_SCHEMA_PATH" "$AGENTS_YAML"; then
+if ! uv run maestro validate "$AGENT_SCHEMA_PATH" "$AGENTS_YAML"; then
     echo "⚠️ Warning: agents.yaml failed validation, but continuing in loose mode."
 fi
 
 for WORKFLOW_YAML in "${WORKFLOW_FILES[@]}"; do
     echo "📝 Validating $WORKFLOW_YAML..."
-    if ! poetry run maestro validate "$WORKFLOW_SCHEMA_PATH" "$WORKFLOW_YAML"; then
+    if ! uv run maestro validate "$WORKFLOW_SCHEMA_PATH" "$WORKFLOW_YAML"; then
         echo "⚠️ Warning: $WORKFLOW_YAML failed validation, but continuing in loose mode."
     fi
 
     echo "🧪 Running workflow in dry-run mode for $WORKFLOW_YAML..."
-    if ! echo "" | poetry run maestro run --dry-run "$AGENTS_YAML" "$WORKFLOW_YAML"; then
+    if ! echo "" | uv run maestro run --dry-run "$AGENTS_YAML" "$WORKFLOW_YAML"; then
         echo "⚠️ Warning: Workflow test failed for $WORKFLOW_YAML in loose mode."
     else
         echo "✅ Workflow dry-run succeeded for $WORKFLOW_YAML!"

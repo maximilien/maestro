@@ -19,9 +19,9 @@ import asyncio
 
 from unittest import TestCase
 
-from cli.common import parse_yaml
+from maestro.cli.common import parse_yaml
 
-from src.workflow import Workflow
+from maestro.workflow import Workflow
 
 dotenv.load_dotenv()
 

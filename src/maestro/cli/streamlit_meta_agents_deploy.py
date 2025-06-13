@@ -10,9 +10,9 @@ import streamlit.web.cli as st_cli
 from streamlit import runtime
 from streamlit.runtime.scriptrunner import add_script_run_ctx,get_script_run_ctx
 
-from cli.streamlit_workflow_ui import StreamlitWorkflowUI
+from maestro.cli.streamlit_workflow_ui import StreamlitWorkflowUI
 
-from cli.common import Console, read_file
+from maestro.common import Console, read_file
 
 def deploy_meta_agents_streamlit(prompt_text_file):
     """Deploy and run meta-agents workflow using Streamlit UI.

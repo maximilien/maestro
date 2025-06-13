@@ -34,7 +34,7 @@ end
 
 * Verify a valid llm is available to bee-stack
 
-* Install [maestro](https://github.com/i-am-bee/beeai-labs) dependencies: `cd ../../../maestro && poetry shell && poetry install && cd -`
+* Install [maestro](https://github.com/AI4quantum/maestro) dependencies: `cd ../../../maestro && uv pip install -e . && cd -`
 
 * Configure environmental variables: `cp example.env .env`
 
@@ -126,3 +126,52 @@ def get_metadata_by_title(title: str) -> Optional[str]:
         "abstract":  result.summary.strip()
     }
 ```
+
+# Summary Demo
+
+This demo shows how to use Maestro to create a workflow that generates summaries of text documents.
+
+## Prerequisites
+
+* Python 3.12 or higher
+* [uv](https://github.com/astral-sh/uv) package manager
+* [maestro](https://github.com/AI4quantum/maestro) installed
+
+## Setup
+
+1. Clone the repository:
+```bash
+git clone https://github.com/AI4quantum/maestro.git
+cd maestro
+```
+
+2. Install dependencies:
+* Install [maestro](https://github.com/AI4quantum/maestro) dependencies: `cd ../../../maestro && uv pip install -e . && cd -`
+
+## Usage
+
+1. Run the workflow:
+```bash
+uv run maestro run workflows/summary.ai
+```
+
+2. The workflow will:
+   * Process input text
+   * Generate a summary
+   * Extract key points
+   * Save the results to `output/summary.txt`
+
+## Output
+
+The output will be saved in `output/summary.txt` and will contain:
+* Main summary
+* Key points
+* Important quotes
+* Related topics
+
+## Customization
+
+You can modify the workflow by editing the YAML files in the `workflows/summary.ai` directory:
+* `workflow.yaml`: Main workflow configuration
+* `agents/`: Directory containing agent configurations
+* `tools/`: Directory containing tool configurations

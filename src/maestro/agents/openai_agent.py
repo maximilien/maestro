@@ -23,8 +23,8 @@ from agents import (
 )
 from agents.extensions.models.litellm_model import LitellmModel
 
-from src.agents.agent import Agent as MaestroAgent
-from src.agents.openai_mcp import setup_mcp_servers, MCPServerInstance
+from maestro.agents.agent import Agent as MaestroAgent
+from maestro.agents.openai_mcp import setup_mcp_servers, MCPServerInstance
 
 
 SUPPORTED_TOOL_NAME: Final[str] = "web_search"

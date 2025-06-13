@@ -6,7 +6,7 @@ import asyncio
 import requests
 from requests import RequestException
 
-from src.agents.agent import Agent
+from maestro.agents.agent import Agent
 
 dotenv.load_dotenv()
 

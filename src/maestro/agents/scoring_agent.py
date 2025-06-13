@@ -4,7 +4,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from src.agents.agent import Agent
+from maestro.agents.agent import Agent
 from opik.evaluation.metrics import AnswerRelevance, Hallucination
 
 class ScoringAgent(Agent):
@@ -31,7 +31,7 @@ class ScoringAgent(Agent):
         """
         Args:
           prompt:   the original prompt
-          response: the agent’s output
+          response: the agent's output
           context:  optional list of strings to use as gold/context
 
         Note: The response only supports strings for now because Opik's evaluation passes in this as a json object.

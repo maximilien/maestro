@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/i-am-bee/maestro/schemas/agent_schema.json",
-  "title": "BeeAI Agent",
+  "$id": "https://github.com/AI4quantum/maestro/schemas/agent_schema.json",
+  "title": "Maestro Agent",
   "description": "A schema for defining Maestro workflows in YAML or JSON",
   "type": "object",
   "properties": {
@@ -55,7 +55,7 @@
             "type": "string"
           }
         },
-        "instruction": {
+        "instructions": {
           "type": "string",
           "description": "The instruction (context) to pass to this agent"
         },

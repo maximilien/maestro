@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import unittest
-from src.agents.agent import Agent
+from maestro.agents.agent import Agent
 
 class TestAgentEmojis(unittest.TestCase):
 

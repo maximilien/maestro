@@ -20,7 +20,7 @@ from typing import Callable
 
 from unittest import TestCase
 
-from src.agents.agent_factory import AgentFramework, AgentFactory
+from maestro.agents.agent_factory import AgentFramework, AgentFactory
 
 class TestAgentFramework(TestCase):    
     def test_frameworks(self):        

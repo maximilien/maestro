@@ -3,7 +3,7 @@
 
 import asyncio
 
-from src.agents.prompt_agent import PromptAgent
+from maestro.agents.prompt_agent import PromptAgent
 
 def test_prompt_agent_returns_instruction_string():
     """

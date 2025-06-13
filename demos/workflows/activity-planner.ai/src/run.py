@@ -2,7 +2,7 @@
 
 import sys
 import yaml
-from src.workflow import Workflow
+from maestro.workflow import Workflow
 import dotenv
 
 dotenv.load_dotenv()

@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-from src.agents.agent import Agent
+from maestro.agents.agent import Agent
 
 load_dotenv()
 

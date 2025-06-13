@@ -8,8 +8,8 @@ then
 fi
 
 declare -i fail=0
-WORKFLOW_FILES=$(find . -name '*workflow*.yaml')
-AGENT_FILES=$(find . -name '*agents*.yaml')
+WORKFLOW_FILES=$(find . -path "./.venv" -prune -o -name '*workflow*.yaml' -print)
+AGENT_FILES=$(find . -path "./.venv" -prune -o -name '*agents*.yaml' -print)
 EXCLUDE_FILES=("./tests/yamls/workflowrun/simple_workflow_run.yaml"
 	       "./operator/config/crd/bases/maestro.ai4quantum.com_workflowruns.yaml"
 	       "./operator/config/crd/bases/maestro.ai4quantum.com_workflows.yaml"
@@ -29,7 +29,7 @@ echo "|---|---|---|" >> "$GITHUB_STEP_SUMMARY"
 for f in $WORKFLOW_FILES
 do
     if ! printf '%s\n' "${EXCLUDE_FILES[@]}" | grep -q "^$f$"; then
-        if ! maestro mermaid --verbose "$f"
+        if ! ./maestro mermaid --verbose "$f"
         then
           RESULT="FAIL ❌"
           fail+=1

@@ -10,11 +10,11 @@ else
     echo "   uv pip install -e ."
 fi
 
-# Check workflow directory structure
-echo "📂 Checking workflow directory structure..."
+# Check meta-agent directory structure
+echo "📂 Checking meta-agent directory structure..."
 if [[ -d "$(dirname "$0")" ]]; then
     echo "✅ Environment check passed!"
 else
-    echo "❌ Error: workflow directory not found"
+    echo "❌ Error: meta-agent directory not found"
     exit 1
 fi

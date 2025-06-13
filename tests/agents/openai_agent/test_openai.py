@@ -20,10 +20,10 @@ import asyncio
 from unittest import TestCase
 from pytest_mock import mocker
 
-from cli.common import parse_yaml
+from maestro.cli.common import parse_yaml
 
-from src.workflow import Workflow
-from src.agents.openai_agent import OpenAIAgent
+from maestro.workflow import Workflow
+from maestro.agents.openai_agent import OpenAIAgent
 
 dotenv.load_dotenv()
 

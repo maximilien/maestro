@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/i-am-bee/beeai-labs/maestro/schemas/workflow_schema.json",
-  "title": "BeeAI Maestro",
+  "$id": "https://github.com/AI4quantum/maestro/schemas/workflow_schema.json",
+  "title": "Maestro Workflow",
   "description": "A schema for defining Maestro workflows in YAML or JSON",
   "type": "object",
   "properties": {

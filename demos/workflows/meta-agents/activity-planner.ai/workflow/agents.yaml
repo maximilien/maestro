@@ -89,7 +89,7 @@ spec:
     Identify the number of agents from the input.
     Extract key agent functionalities.
     Assign each agent a descriptive name.
-    Provide a clear description of each agent’s task.
+    Provide a clear description of each agent's task.
     Output must exactly follow the expected format above with no additional commentary or text.
 
     ## Examples:
@@ -184,7 +184,7 @@ spec:
 
       def get_workflow_schema():
           """Fetches the workflow schema from the GitHub repository."""
-          url = "https://raw.githubusercontent.com/i-am-bee/beeai-labs/main/maestro/schemas/workflow_schema.json"
+          url = "https://raw.githubusercontent.com/AI4quantum/maestro/main/maestro/schemas/workflow_schema.json"
           
           try:
               response = requests.get(url)
@@ -249,12 +249,6 @@ spec:
         agents:
           - Temperature Agent
           - hot-or-not Agent
-        prompt: New York City
-        steps:
-          - name: get_temperature
-            agent: Temperature Agent
-          - name: compare_temperature
-            agent: hot-or-not Agent
     Example Output:
 
     <file start>
@@ -272,12 +266,6 @@ spec:
         agents:
           - Temperature Agent
           - hot-or-not Agent
-        prompt: New York City
-        steps:
-          - name: get_temperature
-            agent: Temperature Agent
-          - name: compare_temperature
-            agent: hot-or-not Agent
     </file>
     Important:
 

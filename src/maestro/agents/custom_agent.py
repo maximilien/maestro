@@ -6,10 +6,10 @@ import os
 import sys
 from typing import Any
 
-from src.agents.agent import Agent
-from src.agents.slack_agent import SlackAgent
-from src.agents.scoring_agent import ScoringAgent
-from src.agents.prompt_agent import PromptAgent
+from maestro.agents.agent import Agent
+from maestro.agents.slack_agent import SlackAgent
+from maestro.agents.scoring_agent import ScoringAgent
+from maestro.agents.prompt_agent import PromptAgent
 
 # adding a custom agent
 # 1. add necessary import for the agent
@@ -42,6 +42,6 @@ class CustomAgent(Agent):
 
     async def run_streaming(self, *args: Any, **kwargs: Any) -> Any:
         """
-        Forward any positional or keyword args to the underlying agent’s streaming run.
+        Forward any positional or keyword args to the underlying agent's streaming run.
         """
         return await self.agent.run_streaming(*args, **kwargs)

@@ -4,7 +4,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from src.agents.agent import Agent
+from maestro.agents.agent import Agent
 
 class PromptAgent(Agent):
     """

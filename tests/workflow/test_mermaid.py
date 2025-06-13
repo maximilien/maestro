@@ -18,8 +18,8 @@ import os, yaml, unittest
 
 from unittest import TestCase
 
-from src.mermaid import Mermaid
-from src.workflow import Workflow
+from maestro.mermaid import Mermaid
+from maestro.workflow import Workflow
 
 def parse_yaml(file_path):
     with open(file_path, "r") as file:

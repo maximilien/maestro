@@ -61,7 +61,7 @@ spec:
 
         def get_agent_schema():
             """Fetches the agent schema from the GitHub repository and ensures the response matches the expected format."""
-            url = "https://raw.githubusercontent.com/i-am-bee/beeai-labs/main/maestro/schemas/agent_schema.json"
+            url = "https://raw.githubusercontent.com/AI4quantum/maestro/schemas/agent_schema.json"
             
             try:
                 response = requests.get(url)
@@ -157,7 +157,7 @@ spec:
     - Identify the number of agents from the input.
     - Extract key agent functionalities.
     - Assign each agent a descriptive name.
-    - Provide a clear description of each agent’s task.
+    - Provide a clear description of each agent's task.
 
     ## Examples:
 

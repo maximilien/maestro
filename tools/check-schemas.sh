@@ -8,8 +8,8 @@ then
 fi
 
 declare -i fail=0
-WORKFLOW_FILES=$(find . -name '*workflow*.yaml')
-AGENT_FILES=$(find . -name '*agents*.yaml')
+WORKFLOW_FILES=$(find . -path "./.venv" -prune -o -name '*workflow*.yaml' -print)
+AGENT_FILES=$(find . -path "./.venv" -prune -o -name '*agents*.yaml' -print)
 
 
 echo "|Filename|Type|Stats|" >> "$GITHUB_STEP_SUMMARY"
@@ -35,7 +35,7 @@ for f in $WORKFLOW_FILES
       done
       if ! $EXCLUDE
       then
-        if ! maestro validate --verbose "$f"
+        if ! ./maestro validate "$f"
         then
           RESULT="FAIL ❌"
           fail+=1
@@ -59,7 +59,7 @@ for f in $AGENT_FILES
       done
       if ! $EXCLUDE
       then
-        if ! ./maestro validate --verbose "$f"
+        if ! ./maestro validate "$f"
         then
           RESULT="FAIL ❌"
           fail+=1

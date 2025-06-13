@@ -25,7 +25,7 @@ from beeai_framework.tools.search.duckduckgo import DuckDuckGoSearchTool
 from beeai_framework.tools.weather import OpenMeteoTool
 from beeai_framework.utils import AbortSignal
 
-from src.agents.agent import Agent
+from maestro.agents.agent import Agent
 
 dotenv.load_dotenv()
 

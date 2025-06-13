@@ -17,7 +17,7 @@
 import os, yaml, sys, io
 import pytest
 from unittest import TestCase
-from src.workflow import Workflow
+from maestro.workflow import Workflow
 
 import asyncio
 

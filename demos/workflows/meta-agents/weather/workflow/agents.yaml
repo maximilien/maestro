@@ -54,7 +54,7 @@ spec:
 
         def get_workflow_schema():
             """Fetches the workflow schema from the GitHub repository."""
-            url = "https://raw.githubusercontent.com/i-am-bee/beeai-labs/main/maestro/schemas/workflow_schema.json"
+            url = "https://raw.githubusercontent.com/AI4quantum/maestro/schemas/workflow_schema.json"
             
             try:
                 response = requests.get(url)
@@ -157,7 +157,7 @@ spec:
     - Identify the number of agents from the input.
     - Extract key agent functionalities.
     - Assign each agent a descriptive name.
-    - Provide a clear description of each agent’s task.
+    - Provide a clear description of each agent's task.
 
     ## Examples:
 
