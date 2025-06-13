@@ -16,7 +16,7 @@ import os, dotenv, yaml
 import asyncio
 
 from unittest import TestCase
-from pytest_mock import mocker
+import pytest
 
 from maestro.cli.common import parse_yaml
 
