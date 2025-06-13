@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import os
-import dotenv
+from dotenv import load_dotenv
 import time
 import pycron
 
@@ -27,7 +27,7 @@ from maestro.agents.agent_factory import AgentFramework, AgentFactory
 from maestro.agents.agent import save_agent, restore_agent
 from maestro.agents.mock_agent import MockAgent
 
-dotenv.load_dotenv()
+load_dotenv()
 
 
 def get_agent_class(framework: str, mode="local") -> type:

@@ -5,14 +5,14 @@ import os
 import time
 import asyncio
 
-import dotenv
+from dotenv import load_dotenv
 from openai import AssistantEventHandler, OpenAI
 from openai.types.beta import AssistantStreamEvent
 from openai.types.beta.threads.runs import RunStep, RunStepDelta, ToolCall
 
 from .agent import Agent
 
-dotenv.load_dotenv()
+load_dotenv()
 
 def eval_expression(expression, prompt):
     local = {}

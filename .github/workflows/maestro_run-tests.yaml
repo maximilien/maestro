@@ -23,6 +23,7 @@ jobs:
       run: |
         uv venv --python 3.12
         uv pip install -r requirements.txt
+        uv pip install python-dotenv
         uv pip install -e .
     - name: Run tests
       run: uv run pytest --ignore=tests/integration/deploys

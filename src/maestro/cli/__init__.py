@@ -16,9 +16,9 @@
 
 import os
 import sys
-import dotenv
+from dotenv import load_dotenv
 
-dotenv.load_dotenv()
+load_dotenv()
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../src")
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../cli")
