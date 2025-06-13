@@ -49,6 +49,10 @@ COPY ./operator/entrypoint_api.sh .
 COPY ./operator/api.py .
 COPY ./deployments/maestro.html ./templates/index.html
 
+# Install maestro package
+RUN cd /usr/src/app && \
+    python3.11 -m pip install -e .
+
 RUN chown -R 1000:100 /usr/src/app &&\
     mkdir /usr/src/app/media && chown 1000:100 /usr/src/app/media
 

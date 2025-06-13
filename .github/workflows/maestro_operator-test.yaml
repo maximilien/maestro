@@ -88,11 +88,11 @@ jobs:
 
     - name: Configure service and send request
       run: |
-        # Convert service to LoadBalancer
-        kubectl patch svc weather-checker-ai -p '{"spec": {"type": "LoadBalancer"}}'
+        # Convert service to NodePort
+        kubectl patch svc weather-checker-ai -p '{"spec": {"type": "NodePort"}}'
         
         # Wait for service to be ready
-        echo "Waiting for LoadBalancer to be ready..."
+        echo "Waiting for service to be ready..."
         sleep 10
         
         # Debug information
@@ -103,16 +103,12 @@ jobs:
         echo "Checking pod logs..."
         kubectl logs -l app.kubernetes.io/instance=weather-checker-ai
         
-        # Get service IP and port
-        SERVICE_IP=$(kubectl get svc weather-checker-ai -o jsonpath="{.status.loadBalancer.ingress[0].ip}")
-        if [ -z "$SERVICE_IP" ]; then
-            # If no external IP, use localhost
-            SERVICE_IP="127.0.0.1"
-        fi
+        # Get NodePort
+        NODE_PORT=$(kubectl get svc weather-checker-ai -o jsonpath="{.spec.ports[0].nodePort}")
         
         # Send request
-        echo "Sending request to http://${SERVICE_IP}:80/?Prompt=Los+angels"
-        curl -v -L --max-time 30 "http://${SERVICE_IP}:80/?Prompt=Los+angels"
+        echo "Sending request to http://127.0.0.1:${NODE_PORT}/?Prompt=Los+angels"
+        curl -v -L --max-time 30 "http://127.0.0.1:${NODE_PORT}/?Prompt=Los+angels"
         
         # Check pod status
         POD_DETAILS=$(kubectl get pod -l app.kubernetes.io/instance=weather-checker-ai -o json)
