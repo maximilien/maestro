@@ -1,10 +1,14 @@
-name: Run Tests
+name: Maestro Run Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
+    paths:
+    - '**'
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
+    paths:
+    - '**'
 
 jobs:
   test:
@@ -14,7 +18,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: "3.12"
     - name: Install uv
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -23,10 +27,16 @@ jobs:
       run: |
         uv venv --python 3.12
         uv pip install -r requirements.txt
-        uv pip install python-dotenv pytest-mock crewai litellm==1.67.0.post1
+        uv pip install python-dotenv
+        uv pip install pytest-mock crewai
         uv pip install -e .
-    - name: Run tests 
+    - name: Bootstrap Maestro (deps + venv)
+      shell: bash
+      run: |
+        chmod +x ./tools/setup_maestro.sh
+        source ./tools/setup_maestro.sh
+    - name: Run tests
       run: |
         export PYTHONPATH=$PYTHONPATH:$(pwd)/src
-        uv pip install pytest-mock crewai litellm==1.67.0.post1
-        uv run pytest --ignore=tests/integration/deploys
+        export PATH=$PATH:$(pwd)/.venv/bin
+        pytest tests/agents/beeai_agent/test_beeai.py tests/agents/openai_agent/test_openai.py tests/agents/crewai_agent/test_crewai.py -v

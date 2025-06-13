@@ -82,10 +82,23 @@ jobs:
           echo "Pod is created"
         fi
 
-    - name: Send request
+    - name: Wait for pod to be ready
       run: |
-        curl -L --max-time 30 "http://127.0.0.1:30051/?Prompt=Los+angels"
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=weather-checker-ai --timeout=60s
 
+    - name: Port forward and send request
+      run: |
+        # Start port-forward in background
+        kubectl port-forward svc/weather-checker-ai 30051:30051 &
+        PF_PID=$!
+        
+        # Wait for port-forward to be ready
+        sleep 5
+        
+        # Send request
+        curl -L --max-time 30 "http://127.0.0.1:30051/?Prompt=Los+angels"
+        
+        # Check pod status
         POD_DETAILS=$(kubectl get pod -l app.kubernetes.io/instance=weather-checker-ai -o json)
         RESTART_COUNT=$(echo $POD_DETAILS | jq -r '.items[0].status.containerStatuses[0].restartCount')
         if [ "$RESTART_COUNT" -eq 0 ]; then
@@ -93,6 +106,9 @@ jobs:
         else
             exit 1
         fi
+        
+        # Cleanup port-forward
+        kill $PF_PID
 
     - name: Cleanup
       if: always()
