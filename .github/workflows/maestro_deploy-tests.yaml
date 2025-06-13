@@ -23,5 +23,6 @@ jobs:
       run: |
         uv venv --python 3.12
         uv pip install -r requirements.txt
+        uv pip install -e .
     - name: Run deploy tests
       run: uv run pytest tests/integration/deploys
