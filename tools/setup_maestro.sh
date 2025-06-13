@@ -9,6 +9,11 @@
 
 uv sync
 
-VENV_PATH=$(uv venv --python 3.12)
-source "$VENV_PATH/bin/activate"
+# Create virtual environment
+uv venv --python 3.12 .venv
+
+# Activate virtual environment
+source .venv/bin/activate
+
+# Install additional dependencies
 uv pip install crewai litellm==1.67.0.post1
