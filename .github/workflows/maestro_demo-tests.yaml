@@ -25,6 +25,7 @@ jobs:
         uv pip install -r requirements.txt
         uv pip install python-dotenv
         uv pip install -e .
-        export PYTHONPATH=$PYTHONPATH:$(pwd)/src
     - name: Run demo tests
-      run: uv run pytest tests/integration/demos
+      run: |
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+        uv run pytest tests/integration/demos

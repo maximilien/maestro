@@ -25,6 +25,7 @@ jobs:
         uv pip install -r requirements.txt
         uv pip install python-dotenv
         uv pip install -e .
-        export PYTHONPATH=$PYTHONPATH:$(pwd)/src
     - name: Check mermaid
-      run: uv run tools/check-mermaid.sh
+      run: |
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+        uv run tools/check-mermaid.sh

@@ -52,7 +52,6 @@ jobs:
         uv pip install -r requirements.txt
         uv pip install python-dotenv
         uv pip install -e .
-        export PYTHONPATH=$PYTHONPATH:$(pwd)/src
     - name: Bootstrap Maestro (deps + venv)
       shell: bash
       run: |
@@ -60,6 +59,7 @@ jobs:
         source ./tools/setup_maestro.sh
     - name: Deploy test agents, workflow, configmap and workflowrun
       run: |
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/src
         uv run maestro create-cr demos/workflows/weather-checker.ai/agents.yaml
         uv run maestro create-cr demos/workflows/weather-checker.ai/workflow.yaml
         kubectl apply -f operator/test/config/test-configmap.yaml
