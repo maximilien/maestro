@@ -23,7 +23,7 @@ jobs:
       run: |
         uv venv --python 3.12
         uv pip install -r requirements.txt
-        uv pip install python-dotenv pytest-mock
+        uv pip install python-dotenv pytest-mock crewai
         uv pip install -e .
     - name: Run deploy tests
       run: |

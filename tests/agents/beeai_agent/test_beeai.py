@@ -17,6 +17,7 @@ import asyncio
 
 from unittest import TestCase
 import pytest
+from pytest_mock import MockerFixture
 
 from maestro.cli.common import parse_yaml
 
@@ -32,7 +33,7 @@ class BeeAIAgentMock:
     async def run(self, prompt: str) -> str:
         return 'OK:'+prompt
 
-def test_agent_runs(mocker) -> None:
+def test_agent_runs(mocker: MockerFixture) -> None:
     # setup mocks
     mock_beeai=BeeAIAgentMock()
     mocker.patch.object(BeeAILocalAgent, "__new__", return_value = mock_beeai)

@@ -19,6 +19,7 @@ import asyncio
 
 from unittest import TestCase
 import pytest
+from pytest_mock import MockerFixture
 
 from maestro.cli.common import parse_yaml
 
@@ -34,7 +35,7 @@ class OpenAIAgentMock:
     async def run(self, prompt: str) -> str:
         return 'OK:'+prompt
 
-def test_agent_runs(mocker) -> None:
+def test_agent_runs(mocker: MockerFixture) -> None:
     # setup mocks
     mock_openai=OpenAIAgentMock()
     mocker.patch.object(OpenAIAgent, "__new__", return_value = mock_openai)
