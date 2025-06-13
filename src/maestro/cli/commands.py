@@ -28,9 +28,9 @@ import psutil
 
 from jsonschema.exceptions import ValidationError, SchemaError
 
-from src.deploy import Deploy
-from src.workflow import Workflow, create_agents
-from cli.common import Console, parse_yaml
+from maestro.deploy import Deploy
+from maestro.workflow import Workflow, create_agents
+from maestro.cli.common import Console, parse_yaml
 
 # Root CLI class
 class CLI:
@@ -147,9 +147,6 @@ class Command:
 class ValidateCmd(Command):
     """Command handler for validating YAML files against JSON schemas."""
     
-    TOOL_SCHEMA_FILE = f"{os.path.dirname(os.path.abspath(__file__))}/../schemas/tool_schema.json"
-    AGENT_SCHEMA_FILE = f"{os.path.dirname(os.path.abspath(__file__))}/../schemas/agent_schema.json"
-    WORKFLOW_SCHEMA_FILE = f"{os.path.dirname(os.path.abspath(__file__))}/../schemas/workflow_schema.json"
     def __init__(self, args):
         self.args = args
         super().__init__(self.args)
@@ -157,38 +154,46 @@ class ValidateCmd(Command):
     # private
 
     def __discover_schema_file(self, yaml_file):
-        try:
-            yaml_data = parse_yaml(yaml_file)
-            if type(yaml_data) == list:
-                yaml_data = yaml_data[0]
-
-            kind = yaml_data.get('kind')
-            if kind == 'Agent':
-                return ValidateCmd.AGENT_SCHEMA_FILE
-            elif kind == 'Tool':
-                return ValidateCmd.TOOL_SCHEMA_FILE
-            elif kind == 'Workflow':
-                return ValidateCmd.WORKFLOW_SCHEMA_FILE
-            elif kind == 'WorkflowRun':
-                Console.ok("WorkflowRun is not supported")
-                return None
-            elif kind == 'CustomResourceDefinition':
-                Console.ok("CustomResourceDefinition is not supported")
-                return None
-            else:
-                raise ValueError(f"Unknown kind: {kind}")
-        except Exception as e:
-            Console.error(f"Could not parse yaml file: {yaml_file}")
-            raise e
+        yaml_data = parse_yaml(yaml_file)
+        if isinstance(yaml_data, list) and len(yaml_data) > 0:
+            yaml_data = yaml_data[0]
+        kind = yaml_data.get('kind')
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../'))
+        if kind == 'Agent':
+            return os.path.join(project_root, 'schemas/agent_schema.json')
+        elif kind == 'Tool':
+            return os.path.join(project_root, 'schemas/tool_schema.json')
+        elif kind == 'Workflow':
+            return os.path.join(project_root, 'schemas/workflow_schema.json')
+        elif kind == 'WorkflowRun':
+            Console.ok("WorkflowRun is not supported")
+            return None
+        elif kind == 'CustomResourceDefinition':
+            Console.ok("CustomResourceDefinition is not supported")
+            return None
+        else:
+            raise ValueError(f"Unknown kind: {kind}")
 
     def __validate(self, schema_file, yaml_file):
         Console.print(f"validating {yaml_file} with schema {schema_file}")
+        if schema_file is None:
+            # Try to discover the schema file based on the yaml file
+            project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../'))
+            if "agents.yaml" in yaml_file:
+                schema_file = os.path.join(project_root, "schemas/agent_schema.json")
+            elif "workflow.yaml" in yaml_file:
+                schema_file = os.path.join(project_root, "schemas/workflow_schema.json")
+            else:
+                raise RuntimeError("Could not determine schema file from yaml file name")
         with open(schema_file, 'r', encoding='utf-8') as f:
             schema = json.load(f)
         with open(yaml_file, 'r', encoding='utf-8') as f:
             yamls = yaml.safe_load_all(f)
             for yaml_data in yamls:
                 try:
+                    if self.verbose():
+                        Console.print(f"Validating YAML data: {json.dumps(yaml_data, indent=2)}")
+                        Console.print(f"Against schema: {json.dumps(schema, indent=2)}")
                     jsonschema.validate(yaml_data, schema)
                     if not self.silent():
                         Console.ok("YAML file is valid.")

@@ -1,28 +1,42 @@
-name: Maestro Tests
+name: Maestro Run Tests
+
 on:
   push:
-    branches: [ 'main' ]
+    branches: [ "main" ]
+    paths:
+    - '**'
   pull_request:
-    branches: [ 'main' ]
+    branches: [ "main" ]
+    paths:
+    - '**'
+
 jobs:
-  run-tests:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python & Poetry
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: |
-          pipx ensurepath
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          pipx install poetry
-          poetry self add poetry-plugin-shell
-      - name: Bootstrap Maestro (deps + venv)
-        shell: bash
-        run: |
-          chmod +x ./tools/setup_maestro.sh
-          source ./tools/setup_maestro.sh
-      - name: Run unit tests
-        run: |
-          poetry run pytest --ignore=tests/integration/deploys
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - name: Install uv
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+    - name: Install dependencies
+      run: |
+        uv venv --python 3.12
+        uv pip install -r requirements.txt
+        uv pip install python-dotenv
+        uv pip install pytest-mock crewai
+        uv pip install -e .
+    - name: Bootstrap Maestro (deps + venv)
+      shell: bash
+      run: |
+        chmod +x ./tools/setup_maestro.sh
+        source ./tools/setup_maestro.sh
+    - name: Run tests
+      run: |
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+        export PATH=$PATH:$(pwd)/.venv/bin
+        uv run pytest -v

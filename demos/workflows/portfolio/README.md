@@ -16,7 +16,7 @@ portfolio->>portfolio: portfolio
 
 ## Getting Started
 
-* Install [maestro](https://github.com/i-am-bee/beeai-labs) dependencies: `cd ../../../maestro && poetry shell && poetry install && cd -`
+* Install [maestro](https://github.com/AI4quantum/maestro) dependencies: `cd ../../../maestro && poetry shell && poetry install && cd -`
 
 * Configure environmental variables: `cp example.env .env`
 
@@ -27,5 +27,23 @@ portfolio->>portfolio: portfolio
 Assuming you are in maestro top level:
 
 `maestro deploy demos/workflows/portfolio/agent.yaml demos/workflows/portfolio/workflow.yaml` 
+
+# Portfolio Demo
+
+This demo shows how to use Maestro to create a portfolio management system.
+
+## Setup
+
+1. Install dependencies:
+```bash
+cd maestro
+uv pip install -e .
+cd -
+```
+
+2. Run the demo:
+```bash
+uv run maestro run agents.yaml workflow.yaml
+```
 
 

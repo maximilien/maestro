@@ -1,8 +1,12 @@
-#! /bin/bash
+#!/bin/bash
+
+# Create and activate virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# Install dependencies
+uv pip install -e .
+
+# Copy environment files
 cp example.env .env
 cp .env ./../common/src
-cd ../../../maestro
-poetry env activate
-poetry install
-cd -
-./../common/src/create_agents.py ./agents.yaml

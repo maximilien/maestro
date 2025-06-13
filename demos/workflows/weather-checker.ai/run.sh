@@ -11,10 +11,11 @@ then
 fi
 
 echo "📝 Validating agents.yaml..."
-PYTHONPATH=$PYTHONPATH maestro validate ./schemas/agent_schema.json ./demos/workflows/weather-checker.ai/agents.yaml
+SCHEMA_DIR="$(pwd)/schemas"
+PYTHONPATH=$PYTHONPATH maestro validate "$SCHEMA_DIR/agent_schema.json" ./demos/workflows/weather-checker.ai/agents.yaml
 
 echo "📝 Validating workflow.yaml..."
-PYTHONPATH=$PYTHONPATH maestro validate ./schemas/workflow_schema.json ./demos/workflows/weather-checker.ai/workflow.yaml
+PYTHONPATH=$PYTHONPATH maestro validate "$SCHEMA_DIR/workflow_schema.json" ./demos/workflows/weather-checker.ai/workflow.yaml
 
 echo "🚀 Running workflow..."
 PYTHONPATH=$PYTHONPATH maestro run ./demos/workflows/weather-checker.ai/agents.yaml ./demos/workflows/weather-checker.ai/workflow.yaml

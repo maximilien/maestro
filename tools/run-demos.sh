@@ -20,22 +20,22 @@ fi
 echo "🔍 Verifying Maestro installation..."
 cd "$REPO_ROOT/maestro"
 
-if command -v poetry &>/dev/null; then
-    echo "Poetry found, checking for maestro..."
-    if poetry run which maestro &>/dev/null; then
-        MAESTRO_CMD="poetry run maestro"
-        echo "✅ Found maestro via poetry"
-    elif poetry run python -m maestro --help &>/dev/null; then
-        MAESTRO_CMD="poetry run python -m maestro"
-        echo "✅ Found maestro module via poetry"
+if command -v uv &>/dev/null; then
+    echo "uv found, checking for maestro..."
+    if uv run which maestro &>/dev/null; then
+        MAESTRO_CMD="uv run maestro"
+        echo "✅ Found maestro via uv"
+    elif uv run python -m maestro --help &>/dev/null; then
+        MAESTRO_CMD="uv run python -m maestro"
+        echo "✅ Found maestro module via uv"
     else
-        echo "🔄 Installing maestro via poetry..."
-        poetry install
-        if poetry run which maestro &>/dev/null; then
-            MAESTRO_CMD="poetry run maestro"
-            echo "✅ Successfully installed maestro via poetry"
+        echo "🔄 Installing maestro via uv..."
+        uv pip install -e .
+        if uv run which maestro &>/dev/null; then
+            MAESTRO_CMD="uv run maestro"
+            echo "✅ Successfully installed maestro via uv"
         else
-            echo "❌ Error: Could not install maestro via poetry"
+            echo "❌ Error: Could not install maestro via uv"
             exit 1
         fi
     fi
@@ -43,8 +43,8 @@ elif command -v maestro &>/dev/null; then
     MAESTRO_CMD="maestro"
     echo "✅ Found maestro in PATH"
 else
-    echo "❌ Error: Neither poetry nor maestro found in PATH"
-    echo "Please install maestro or poetry first."
+    echo "❌ Error: Neither uv nor maestro found in PATH"
+    echo "Please install maestro or uv first."
     exit 1
 fi
 

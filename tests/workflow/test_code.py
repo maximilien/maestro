@@ -17,7 +17,7 @@
 import os, yaml, io, sys
 import pytest
 from unittest import TestCase
-from src.workflow import Workflow
+from maestro.workflow import Workflow
 import asyncio
 
 def parse_yaml(file_path):

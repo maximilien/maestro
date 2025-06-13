@@ -5,7 +5,7 @@ import asyncio
 import pytest
 import litellm
 
-from src.agents.scoring_agent import ScoringAgent
+from maestro.agents.scoring_agent import ScoringAgent
 from opik.evaluation.metrics import AnswerRelevance, Hallucination
 
 @pytest.fixture(autouse=True)

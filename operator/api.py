@@ -8,7 +8,7 @@ import asyncio
 import threading
 
 import yaml
-from src.workflow import Workflow, create_agents
+from maestro.workflow import Workflow, create_agents
 
 app = Flask(__name__)
 output = io.StringIO()

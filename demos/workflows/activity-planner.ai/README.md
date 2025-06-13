@@ -1,8 +1,56 @@
 TODO the demo does not currently function out of the box as the workflow schema / automation are not supported by the demo as of yet.  Merging this early and will address after we've moved name/repos.
 
-# Activity-Planner example
+# Activity Planner Demo
 
-A multi-agent workflow using Maestro to check if the current temperature in a location is hotter or colder than average and recommend activities to do based on the weather.
+This demo shows how to use Maestro to create an activity planner.
+
+## Prerequisites
+
+* Python 3.12 or higher
+* [uv](https://github.com/astral-sh/uv) package manager
+* [maestro](https://github.com/AI4quantum/maestro) installed
+
+## Setup
+
+1. Install dependencies:
+```bash
+cd maestro
+uv pip install -e .
+cd -
+```
+
+2. Run the demo:
+```bash
+uv run maestro run agents.yaml workflow.yaml
+```
+
+## Usage
+
+1. Run the workflow:
+```bash
+uv run maestro run workflows/activity-planner.ai
+```
+
+2. The workflow will:
+   * Collect user preferences
+   * Generate activity suggestions
+   * Create a schedule
+   * Save the results to `output/activity_plan.txt`
+
+## Output
+
+The output will be saved in `output/activity_plan.txt` and will contain:
+* Activity suggestions
+* Schedule
+* Required resources
+* Alternative options
+
+## Customization
+
+You can modify the workflow by editing the YAML files in the `workflows/activity-planner.ai` directory:
+* `workflow.yaml`: Main workflow configuration
+* `agents/`: Directory containing agent configurations
+* `tools/`: Directory containing tool configurations
 
 ## Mermaid Diagram
 
@@ -33,7 +81,7 @@ hot_activities->>hot_activities: exit
 
 * Verify a valid llm is available to bee-stack
 
-* Install [maestro](https://github.com/i-am-bee/beeai-labs) dependencies: `cd ../../../maestro && poetry shell && poetry install && cd -`
+* Install [maestro](https://github.com/AI4quantum/maestro) dependencies: `cd ../../../maestro && poetry shell && poetry install && cd -`
 
 * Configure environmental variables: `cp example.env .env`
 

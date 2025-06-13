@@ -16,12 +16,12 @@ import os, dotenv, yaml
 import asyncio
 
 from unittest import TestCase
-from pytest_mock import mocker
+import pytest
 
-from cli.common import parse_yaml
+from maestro.cli.common import parse_yaml
 
-from src.workflow import Workflow
-from src.agents.beeai_agent import BeeAIAgent, BeeAILocalAgent
+from maestro.workflow import Workflow
+from maestro.agents.beeai_agent import BeeAIAgent, BeeAILocalAgent
 
 dotenv.load_dotenv()
 
@@ -32,10 +32,10 @@ class BeeAIAgentMock:
     async def run(self, prompt: str) -> str:
         return 'OK:'+prompt
 
-def test_agent_runs(mocker) -> None:
+def test_agent_runs(monkeypatch) -> None:
     # setup mocks
     mock_beeai=BeeAIAgentMock()
-    mocker.patch.object(BeeAILocalAgent, "__new__", return_value = mock_beeai)
+    monkeypatch.setattr(BeeAILocalAgent, "__new__", lambda *args, **kwargs: mock_beeai)
 
     agents_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"agents.yaml"))
     workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"workflow.yaml"))

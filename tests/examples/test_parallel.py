@@ -19,7 +19,7 @@ import asyncio
 
 from openai import OpenAI
 
-from src.workflow import Workflow
+from maestro.workflow import Workflow
 
 dotenv.load_dotenv()
 

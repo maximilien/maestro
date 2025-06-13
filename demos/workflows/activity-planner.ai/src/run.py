@@ -2,10 +2,10 @@
 
 import sys
 import yaml
-from src.workflow import Workflow
-import dotenv
+from maestro.workflow import Workflow
+from dotenv import load_dotenv
 
-dotenv.load_dotenv()
+load_dotenv()
 
 # TODO: dd crewai agent path to path explicitly - this should be found on path, but may require base change
 sys.path.append("agents/crewai/activity_planner")

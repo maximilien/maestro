@@ -20,7 +20,7 @@ import requests
 
 import pytest
 from unittest import TestCase
-from src.deploy import Deploy
+from maestro.deploy import Deploy
 
 # `deploy` tests
 class TestDeploy(TestCase):

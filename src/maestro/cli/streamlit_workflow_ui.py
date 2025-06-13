@@ -13,8 +13,8 @@ import yaml
 import streamlit as st
 import streamlit_mermaid as stmd
 
-from src.workflow import Workflow
-from cli.common import parse_yaml, read_file
+from maestro.workflow import Workflow
+from maestro.cli.common import parse_yaml, read_file
 
 sys_stdout = sys.stdout
 

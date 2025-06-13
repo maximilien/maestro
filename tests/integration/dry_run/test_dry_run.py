@@ -41,8 +41,9 @@ class TestCommand(TestCase):
     def setUp(self):
         self.agents_yaml_file = 'tests/yamls/agents/simple_agent.yaml'
         self.workflow_yaml_file = 'tests/yamls/workflows/simple_workflow.yaml'
-        self.agent_schema_file = 'schemas/agent_schema.json'
-        self.workflow_schema_file = 'schemas/workflow_schema.json'
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
+        self.agent_schema_file = os.path.join(project_root, 'schemas/agent_schema.json')
+        self.workflow_schema_file = os.path.join(project_root, 'schemas/workflow_schema.json')
     
     def tearDown(self):
         self.agents_yaml_file = None

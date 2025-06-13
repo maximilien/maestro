@@ -38,16 +38,44 @@ WORKDIR /usr/src/app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install pip
-RUN python3.11 -m ensurepip --upgrade
-# Install dependencies and update then uninstall pip (not needed in final image)
-RUN python3.11 -m pip install openai pyyaml python-dotenv requests flask jsonschema docopt-ng langchain-community duckduckgo-search streamlit streamlit-mermaid psutil openai-agents opik pycron beeai-framework slack_sdk nest-asyncio pydantic-ai logfire litellm --no-cache-dir --upgrade && \
-    python3.11 -m pip uninstall -y pip
+# Install pip and dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install dependencies
+RUN pip3 install --no-cache-dir --upgrade \
+    openai \
+    pyyaml \
+    python-dotenv \
+    requests \
+    flask \
+    jsonschema \
+    docopt-ng \
+    langchain-community \
+    duckduckgo-search \
+    streamlit \
+    streamlit-mermaid \
+    psutil \
+    openai-agents \
+    opik \
+    pycron \
+    beeai-framework \
+    slack_sdk \
+    nest-asyncio \
+    pydantic-ai \
+    logfire \
+    litellm
 
 COPY ./src ./src
 COPY ./operator/entrypoint_api.sh .
 COPY ./operator/api.py .
 COPY ./deployments/maestro.html ./templates/index.html
+
+# Install maestro package
+RUN cd /usr/src/app && \
+    pip3 install -e .
 
 RUN chown -R 1000:100 /usr/src/app &&\
     mkdir /usr/src/app/media && chown 1000:100 /usr/src/app/media

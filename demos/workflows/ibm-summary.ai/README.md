@@ -1,6 +1,41 @@
-# IBM Summary.ai Example
+# IBM Summary Demo
 
-A multi-agent workflow using Maestro: Allows user to retrieve the latests ArXiV papers published by IBM specified by category (arxiv tags), and release time period from today. Then, generates a summary from metadata and abstract that is retrieved to send to slack.
+This demo shows how to use Maestro to create a summary of IBM's business.
+
+## Setup
+
+1. Install dependencies:
+```bash
+cd maestro
+uv pip install -e .
+cd -
+```
+
+2. Run the demo:
+```bash
+uv run maestro run agents.yaml workflow.yaml
+```
+
+2. The workflow will:
+   * Download IBM's latest financial report
+   * Extract key information
+   * Generate a summary
+   * Save the results to `output/ibm_summary.txt`
+
+## Output
+
+The output will be saved in `output/ibm_summary.txt` and will contain:
+* Company overview
+* Financial highlights
+* Key metrics
+* Future outlook
+
+## Customization
+
+You can modify the workflow by editing the YAML files in the `workflows/ibm-summary.ai` directory:
+* `workflow.yaml`: Main workflow configuration
+* `agents/`: Directory containing agent configurations
+* `tools/`: Directory containing tool configurations
 
 ## Mermaid Diagram
 
@@ -28,11 +63,11 @@ end
 
 ## Getting Started
 
-* Run a local instance of the [bee-stack](https://github.com/i-am-bee/bee-stack/blob/main/README.md)
+* Run a local instance of the [bee-stack](https://github.com/AI4quantum/bee-stack/blob/main/README.md)
 
 * Verify a valid llm is available to bee-stack
 
-* Install [maestro](https://github.com/i-am-bee/beeai-labs) dependencies: `cd ../../../maestro && poetry shell && poetry install && cd -`
+* Install [maestro](https://github.com/AI4Quantum/maestro) dependencies: `cd ../../../maestro && poetry shell && poetry install && cd -`
 
 * Configure environmental variables: `cp example.env .env`
 

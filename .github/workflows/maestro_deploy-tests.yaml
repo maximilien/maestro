@@ -1,46 +1,32 @@
-name: Maestro Tests
+name: Deploy Tests
+
 on:
   push:
-    branches: [ 'main' ]
-    paths:
-    - '**'
+    branches: [ main ]
   pull_request:
-    branches: [ 'main' ]
-    paths:
-    - '**'
+    branches: [ main ]
+
 jobs:
-  run-deploy-tests:
+  deploy-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Install Kind
-        run: |
-          curl -Lo ./kind "https://github.com/kubernetes-sigs/kind/releases/download/v0.20.0/kind-$(uname)-amd64"
-          chmod +x ./kind
-          sudo mv kind /usr/local/bin
-          which kind
-      - name: Create Kind cluster
-        run: |
-          kind create cluster --config tests/integration/deploys/kind-config.yaml 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Setup poetry
-        run: |
-          pipx ensurepath
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          pipx install poetry
-          poetry self add poetry-plugin-shell
-      - name: Install dependencies
-        run: |
-          poetry install
-          poetry run pip install crewai
-      - name: Run deploy integration tests/
-        run: |
-          export IMAGE_PUSH_CMD='kind load docker-image docker.io/library/maestro:latest'
-          export IMAGE_TAG_CMD='docker tag localhost/maestro:latest docker.io/library/maestro:latest'
-          export DEPLOY_DOCKER_TEST=1
-          export DEPLOY_KUBERNETES_TEST=1
-          export IN_GITHUB_ACTION=1
-          poetry run pytest tests/integration/deploys
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Install uv
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+    - name: Install dependencies
+      run: |
+        uv venv --python 3.12
+        uv pip install -r requirements.txt
+        uv pip install python-dotenv pytest-mock crewai litellm==1.67.0.post1
+        uv pip install -e .
+    - name: Run deploy tests
+      run: |
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+        uv pip install pytest-mock crewai litellm==1.67.0.post1
+        uv run pytest tests/integration/deploys

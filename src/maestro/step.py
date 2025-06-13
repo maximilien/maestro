@@ -1,12 +1,12 @@
 #! /usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
 
-import dotenv
+from dotenv import load_dotenv
 import asyncio
 import ast
-from src.utils import eval_expression, convert_to_list
+from maestro.utils import eval_expression, convert_to_list
 
-dotenv.load_dotenv()
+load_dotenv()
 
 class Step:
     """

@@ -58,8 +58,7 @@ import sys
 
 from docopt import docopt
 
-from cli.commands import CLI
-from cli.common import Console
+from maestro.cli.common import Console
 
 def __execute(command):
     try:
@@ -72,10 +71,11 @@ def __execute(command):
         return 1
 
 def __run_cli():
+    from maestro.cli.commands import CLI
+    from maestro.cli.common import Console
     args = docopt(__doc__, version='Maestro CLI v0.0.4')
     command = CLI(args).command()
-    rc = __execute(command)
-    sys.exit(rc)
+    return __execute(command)
         
 if __name__ == '__main__':
     __run_cli()

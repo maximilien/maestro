@@ -1,6 +1,100 @@
-# Contributing
+# Contributing to Maestro
 
-Bee Hive is an open-source project committed to bringing LLM agents to people of all backgrounds. This page describes how you can join the Bee community in this goal.
+Thank you for your interest in contributing to Maestro! This document provides guidelines and instructions for contributing to the project.
+
+## Development Setup
+
+1. Clone the repository:
+```bash
+git clone https://github.com/AI4quantum/maestro.git
+cd maestro
+```
+
+2. Install dependencies:
+```bash
+uv pip install -e .
+```
+
+3. Activate the virtual environment:
+```bash
+uv venv
+source .venv/bin/activate  # On Unix/macOS
+# or
+.venv\Scripts\activate  # On Windows
+```
+
+## Development Workflow
+
+1. Create a new branch for your feature or bugfix:
+```bash
+git checkout -b feature/your-feature-name
+```
+
+2. Make your changes and commit them:
+```bash
+git add .
+git commit -m "feat: your feature description"
+```
+
+3. Push your changes and create a pull request:
+```bash
+git push origin feature/your-feature-name
+```
+
+## Code Style
+
+We use [black](https://github.com/psf/black) for code formatting and [flake8](https://flake8.pycqa.org/) for linting. To ensure your code meets our style guidelines:
+
+1. Install development dependencies:
+```bash
+uv pip install -e ".[dev]"
+```
+
+2. Run the linter:
+```bash
+uv run lint
+```
+
+## Commit Messages
+
+We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification for commit messages. The format is:
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+Types:
+- `feat`: A new feature
+- `fix`: A bug fix
+- `docs`: Documentation changes
+- `style`: Code style changes (formatting, etc.)
+- `refactor`: Code changes that neither fix bugs nor add features
+- `perf`: Performance improvements
+- `test`: Adding or modifying tests
+- `chore`: Changes to the build process or auxiliary tools
+
+Example:
+```bash
+uv run commit "feat(agent): add new agent type"
+```
+
+## Pull Request Process
+
+1. Ensure all dependencies are installed (`uv pip install -e .`).
+2. Run the test suite (`uv run test`).
+3. Run the linter (`uv run lint`).
+4. Update documentation if necessary.
+5. Create a pull request with a clear description of the changes.
+
+## Additional Resources
+
+- [Issue Tracker](https://github.com/AI4quantum/maestro/issues)
+- [Documentation](https://github.com/AI4quantum/maestro/wiki)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
 
 ## Before you start
 

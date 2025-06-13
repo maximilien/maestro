@@ -12,21 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import dotenv
+"""CLI module initialization and path configuration."""
 
-dotenv.load_dotenv()
+import os
+import sys
+from dotenv import load_dotenv
 
-from .workflow import Workflow
+load_dotenv()
 
-from .agents.beeai_agent import BeeAIAgent
-from .agents.crewai_agent import CrewAIAgent
-from .agents.openai_agent import OpenAIAgent
-from .agents.remote_agent import RemoteAgent
-
-from .agents.agent import save_agent, restore_agent, remove_agent
-from .deploy import Deploy
-
-__all__ = {
-    "Workflow",
-    "Deploy"
-}
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../src")
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + "/../cli")
