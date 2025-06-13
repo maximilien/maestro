@@ -9,5 +9,6 @@
 
 uv sync
 
-VENV_PATH=$(uv venv --python 3.12 --with crewai litellm==1.67.0.post1)
+VENV_PATH=$(uv venv --python 3.12)
 source "$VENV_PATH/bin/activate"
+uv pip install crewai litellm==1.67.0.post1
