@@ -34,10 +34,10 @@ class OpenAIAgentMock:
     async def run(self, prompt: str) -> str:
         return 'OK:'+prompt
 
-def test_agent_runs(mocker) -> None:
+def test_agent_runs(monkeypatch) -> None:
     # setup mocks
     mock_openai=OpenAIAgentMock()
-    mocker.patch.object(OpenAIAgent, "__new__", return_value = mock_openai)
+    monkeypatch.setattr(OpenAIAgent, "__new__", lambda *args, **kwargs: mock_openai)
 
     agents_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"agents.yaml"))
     workflow_yaml = parse_yaml(os.path.join(os.path.dirname(__file__),"workflow.yaml"))
