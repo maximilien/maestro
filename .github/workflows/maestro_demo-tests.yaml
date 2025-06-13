@@ -28,4 +28,4 @@ jobs:
     - name: Run demo tests
       run: |
         export PYTHONPATH=$PYTHONPATH:$(pwd)/src
-        uv run pytest tests/integration/demos
+        uv run pytest tests/integration
