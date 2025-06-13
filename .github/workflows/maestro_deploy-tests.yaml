@@ -28,4 +28,5 @@ jobs:
     - name: Run deploy tests
       run: |
         export PYTHONPATH=$PYTHONPATH:$(pwd)/src
+        uv pip install pytest-mock
         uv run pytest tests/integration/deploys
