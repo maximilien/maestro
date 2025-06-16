@@ -24,9 +24,9 @@ import streamlit.web.cli as st_cli
 from streamlit import runtime
 from streamlit.runtime.scriptrunner import add_script_run_ctx,get_script_run_ctx
 
-from cli.common import parse_yaml
+from maestro.cli.common import parse_yaml
 
-from streamlit_workflow_ui import StreamlitWorkflowUI
+from maestro.cli.streamlit_workflow_ui import StreamlitWorkflowUI
 
 sys_stdout = sys.stdout
 

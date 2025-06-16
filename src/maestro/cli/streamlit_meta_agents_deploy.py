@@ -12,7 +12,7 @@ from streamlit.runtime.scriptrunner import add_script_run_ctx,get_script_run_ctx
 
 from maestro.cli.streamlit_workflow_ui import StreamlitWorkflowUI
 
-from maestro.common import Console, read_file
+from maestro.cli.common import Console, read_file
 
 def deploy_meta_agents_streamlit(prompt_text_file):
     """Deploy and run meta-agents workflow using Streamlit UI.
