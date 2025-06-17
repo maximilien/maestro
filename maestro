@@ -6,4 +6,6 @@ else
   PYTHON="python3"
 fi
 
-$PYTHON -m src.maestro.cli.maestro "$@"
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+
+$PYTHON "$SCRIPT_DIR/src/maestro.py" "$@"

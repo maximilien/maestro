@@ -28,9 +28,9 @@ import psutil
 
 from jsonschema.exceptions import ValidationError, SchemaError
 
-from maestro.deploy import Deploy
+from common import Console, parse_yaml
 from maestro.workflow import Workflow, create_agents
-from maestro.cli.common import Console, parse_yaml
+from maestro.deploy import Deploy
 
 # Root CLI class
 class CLI:
@@ -158,7 +158,7 @@ class ValidateCmd(Command):
         if isinstance(yaml_data, list) and len(yaml_data) > 0:
             yaml_data = yaml_data[0]
         kind = yaml_data.get('kind')
-        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../'))
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         if kind == 'Agent':
             return os.path.join(project_root, 'schemas/agent_schema.json')
         elif kind == 'Tool':
@@ -178,7 +178,7 @@ class ValidateCmd(Command):
         Console.print(f"validating {yaml_file} with schema {schema_file}")
         if schema_file is None:
             # Try to discover the schema file based on the yaml file
-            project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../'))
+            project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
             if "agents.yaml" in yaml_file:
                 schema_file = os.path.join(project_root, "schemas/agent_schema.json")
             elif "workflow.yaml" in yaml_file:
@@ -343,7 +343,7 @@ class DeployCmd(Command):
     
     def __deploy_agents_workflow_streamlit(self):
         try:
-            sys.argv = ["streamlit", "run", "--ui.hideTopBar", "True", "--client.toolbarMode", "minimal", f"{os.getcwd()}/src/maestro/cli/streamlit_deploy.py", self.AGENTS_FILE(), self.WORKFLOW_FILE()]
+            sys.argv = ["streamlit", "run", "--ui.hideTopBar", "True", "--client.toolbarMode", "minimal", f"{os.getcwd()}/src/streamlit_deploy.py", self.AGENTS_FILE(), self.WORKFLOW_FILE()]
             process = subprocess.Popen(sys.argv)
         except Exception as e:
             self._check_verbose()
@@ -490,7 +490,7 @@ class MetaAgentsCmd(Command):
     # private    
     def __meta_agents(self, text_file) -> int:
         try:
-            sys.argv = ["streamlit", "run", "--ui.hideTopBar", "True", "--client.toolbarMode", "minimal", f"{os.getcwd()}/src/maestro/cli/streamlit_meta_agents_deploy.py", text_file]
+            sys.argv = ["streamlit", "run", "--ui.hideTopBar", "True", "--client.toolbarMode", "minimal", f"{os.getcwd()}/src/streamlit_meta_agents_deploy.py", text_file]
             process = subprocess.Popen(sys.argv)
         except Exception as e:
             self._check_verbose()

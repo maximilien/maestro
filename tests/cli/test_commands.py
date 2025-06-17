@@ -18,7 +18,7 @@ import os
 import unittest
 from unittest import TestCase, mock
 
-from maestro.cli.commands import CLI
+from commands import CLI
 
 class TestCommand(TestCase):
     TEST_FIXTURES_ROOT_PATH = os.path.join(os.path.dirname(__file__), "..")

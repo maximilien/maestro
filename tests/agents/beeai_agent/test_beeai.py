@@ -18,7 +18,7 @@ import asyncio
 from unittest import TestCase
 import pytest
 
-from maestro.cli.common import parse_yaml
+from common import parse_yaml
 
 from maestro.workflow import Workflow
 from maestro.agents.beeai_agent import BeeAIAgent, BeeAILocalAgent

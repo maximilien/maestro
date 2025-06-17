@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 
 from unittest import TestCase
 
-from maestro.cli.common import parse_yaml
+from common import parse_yaml
 
 from maestro.workflow import Workflow
 
