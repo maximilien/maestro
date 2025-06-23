@@ -149,7 +149,59 @@ spec:
     output = json_all
 
 ---
+apiVersion: maestro/v1alpha1
+kind: Agent
+metadata:
+  name: get security tickers
+  labels:
+    app: portfolio optimizer
+spec:
+  framework: code
+  mode: local
+  description: |
+    Resolves stock/company/bond names or tickers into valid trading symbols using Yahoo Finance API.
+  instructions: |
+    Input is a comma-separated string of company names, tickers, or bond names.
+    Output is a clean comma-separated string of resolved ticker symbols.
+  code: |
+    import requests
+    import json
 
+    def search_yahoo_finance(query):
+        url = f"https://query2.finance.yahoo.com/v1/finance/search?q={query}"
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        try:
+            response = requests.get(url, headers=headers, timeout=5)
+            if response.status_code == 200:
+                results = response.json().get("quotes", [])
+                if results:
+                    return results[0].get("symbol", None)
+        except:
+            pass
+        return None
+
+    user_input = input[0] if isinstance(input, (list, tuple)) and len(input) > 0 else input
+    items = [x.strip() for x in user_input.split(",")]
+    output_symbols = []
+    for item in items:
+        url = f"https://query1.finance.yahoo.com/v10/finance/quoteSummary/{item}?modules=price"
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        try:
+            r = requests.get(url, headers=headers, timeout=5)
+            if r.status_code == 200:
+                json_data = r.json()
+                if json_data.get("quoteSummary", {}).get("result"):
+                    output_symbols.append(item.upper())
+                    continue
+        except:
+            pass
+
+        resolved = search_yahoo_finance(item)
+        if resolved:
+            output_symbols.append(resolved.upper())
+    output = ",".join(output_symbols)
+
+---
 apiVersion: maestro/v1alpha1
 kind: Agent
 metadata:
