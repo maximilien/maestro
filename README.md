@@ -49,12 +49,12 @@ uv pip install -e ".[dev]"
 
 2. Run tests:
 ```bash
-uv run test
+uv run pytest
 ```
 
 3. Run linter:
 ```bash
-uv run lint
+uv run pylint src/
 ```
 
 ## Contributing
@@ -63,4 +63,4 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 ## License
 
-This project is licensed under the Apache license- see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License - see the [LICENSE](LICENSE) file for details.
