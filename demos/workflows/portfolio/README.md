@@ -16,7 +16,7 @@ portfolio->>portfolio: portfolio
 
 ## Getting Started
 
-* Install [maestro](https://github.com/AI4quantum/maestro) dependencies: `cd ../../../maestro && poetry shell && poetry install && cd -`
+* Install [maestro](https://github.com/AI4quantum/maestro) dependencies: `cd ../../../maestro && uv venv && source .venv/bin/activate && uv pip install -e . && cd -`
 
 * Configure environmental variables: `cp example.env .env`
 
