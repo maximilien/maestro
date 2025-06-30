@@ -17,7 +17,7 @@ uv pip install -e .
 
 3. Activate the virtual environment:
 ```bash
-uv venv
+uv venv --python 3.12
 source .venv/bin/activate  # On Unix/macOS
 # or
 .venv\Scripts\activate  # On Windows
@@ -43,16 +43,16 @@ git push origin feature/your-feature-name
 
 ## Code Style
 
-We use [black](https://github.com/psf/black) for code formatting and [pylint](https://pylint.pycqa.org/) for linting. To ensure your code meets our style guidelines:
+We use [black](https://github.com/psf/black) for code formatting. To ensure your code meets our style guidelines:
 
 1. Install development dependencies:
 ```bash
-uv pip install -e ".[dev]"
+uv pip install -e .
 ```
 
-2. Run the linter:
+2. Run the formatter:
 ```bash
-uv run pylint src/
+uv run black
 ```
 
 ## Commit Messages
@@ -86,7 +86,7 @@ git commit -m "feat(agent): add new agent type"
 
 1. Ensure all dependencies are installed (`uv pip install -e .`).
 2. Run the test suite (`uv run pytest`).
-3. Run the linter (`uv run pylint src/`).
+3. Run the linter (`uv run black`).
 4. Update documentation if necessary.
 5. Create a pull request with a clear description of the changes.
 
@@ -107,7 +107,6 @@ Maestro uses the following tools to meet code quality standards and ensure a uni
 
 We use the following libs to check the Python code: 
 - [Black](https://black.readthedocs.io/) - Code Formatter
-- [Pylint](https://pylint.pycqa.org/) - Python linter
 
 ## Issues and pull requests
 
@@ -137,7 +136,7 @@ python --version
 2. **Activate a virtual environment:** Activate a new virtual environment:
 
 ```bash
-uv venv
+uv venv --python 3.12
 source .venv/bin/activate  # On Unix/macOS
 # or
 .venv\Scripts\activate  # On Windows
@@ -236,3 +235,24 @@ There are a number of tools that make it easier for developers to manage DCO sig
 - GitHub UI integrations for adding the signoff automatically ( <https://github.com/scottrigby/dco-gh-ui> )
 - Chrome - <https://chrome.google.com/webstore/detail/dco-github-ui/onhgmjhnaeipfgacbglaphlmllkpoijo>
 - Firefox - <https://addons.mozilla.org/en-US/firefox/addon/scott-rigby/?src=search>
+
+
+## Releases
+
+A GitHub release of maestro is automatically created when a tag of the format `v*` is pushed.
+
+The CI will automatically generate the build artifacts and changelog for the release, but will not make commits to the repo.
+
+### Preparation
+
+Prior to creating a new release tag, the version needs to be updated in the `pyproject.toml` and `README.md` to match the version of the release tag.
+
+### Testing the release
+
+To test the python package prior to release run the following command:
+
+```bash
+uv build
+```
+
+This will generate an installable package in `dist/` that can be pip installed in a clean python environment for testing.
