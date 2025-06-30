@@ -3,6 +3,7 @@ import { Sidebar } from './components/Sidebar'
 import { ChatCanvas } from './components/ChatCanvas'
 import { YamlPanel } from './components/YamlPanel'
 import { ChatInput } from './components/ChatInput'
+import { apiService } from './services/api'
 
 export interface Message {
   id: string
@@ -40,6 +41,8 @@ function App() {
     }
   ])
 
+  const [isLoading, setIsLoading] = useState(false)
+
   const handleSendMessage = async (content: string) => {
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -49,52 +52,51 @@ function App() {
     }
     
     setMessages(prev => [...prev, userMessage])
+    setIsLoading(true)
     
-    // Simulate AI response (replace with actual API call)
-    setTimeout(() => {
+    try {
+      // Send message to API
+      const apiResponse = await apiService.sendMessage(content)
+      
+      // Create assistant message from API response
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
+        content: apiResponse.response,
         role: 'assistant',
-        content: `I understand you want to: "${content}". I'll help you build the appropriate Maestro configuration. Let me analyze your requirements and update the YAML files accordingly.`,
         timestamp: new Date()
       }
+      
       setMessages(prev => [...prev, assistantMessage])
       
-      // Update YAML files based on the conversation
-      // This is where you'd integrate with the Maestro API
-      setYamlFiles(prev => prev.map(file => {
-        if (file.name === 'agents.yaml') {
+      // Update YAML files from API response
+      const updatedYamlFiles = yamlFiles.map(file => {
+        const apiFile = apiResponse.yaml_files.find(apiFile => apiFile.name === file.name)
+        if (apiFile) {
           return {
             ...file,
-            content: `# Agents configuration generated from conversation
-agents:
-  example_agent:
-    type: openai
-    config:
-      model: gpt-4
-      api_key: ${process.env.OPENAI_API_KEY || 'your-api-key-here'}
-    description: "Agent created based on: ${content}"
-`
-          }
-        }
-        if (file.name === 'workflow.yaml') {
-          return {
-            ...file,
-            content: `# Workflow configuration generated from conversation
-workflow:
-  name: "Generated Workflow"
-  description: "Workflow created based on: ${content}"
-  steps:
-    - name: "example_step"
-      agent: "example_agent"
-      input:
-        prompt: "Process the request"
-`
+            content: apiFile.content
           }
         }
         return file
-      }))
-    }, 1000)
+      })
+      
+      setYamlFiles(updatedYamlFiles)
+      
+    } catch (error) {
+      console.error('Error sending message:', error)
+      
+      // Add error message
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'Sorry, I encountered an error while processing your request. Please try again.',
+        timestamp: new Date()
+      }
+      
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -106,17 +108,17 @@ workflow:
       <div className="flex-1 flex flex-col min-w-0">
         {/* Chat Canvas */}
         <div className="flex-1 overflow-hidden">
-          <ChatCanvas messages={messages} />
+          <ChatCanvas messages={messages} isLoading={isLoading} />
         </div>
         
         {/* Chat Input */}
         <div className="border-t border-gray-100 p-6">
-          <ChatInput onSendMessage={handleSendMessage} />
+          <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
         </div>
       </div>
       
       {/* Right Panel - YAML Files */}
-      <YamlPanel yamlFiles={yamlFiles} />
+      <YamlPanel yamlFiles={yamlFiles} isLoading={isLoading} />
     </div>
   )
 }

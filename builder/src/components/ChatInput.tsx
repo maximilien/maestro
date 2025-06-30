@@ -5,9 +5,10 @@ import { cn } from '../lib/utils'
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void
+  disabled?: boolean
 }
 
-export function ChatInput({ onSendMessage }: ChatInputProps) {
+export function ChatInput({ onSendMessage, disabled = false }: ChatInputProps) {
   const [message, setMessage] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -35,7 +36,7 @@ export function ChatInput({ onSendMessage }: ChatInputProps) {
   }, [])
 
   const handleSend = () => {
-    if (message.trim()) {
+    if (message.trim() && !disabled) {
       onSendMessage(message.trim())
       setMessage('')
       setIsTyping(false)
@@ -43,32 +44,41 @@ export function ChatInput({ onSendMessage }: ChatInputProps) {
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !disabled) {
       e.preventDefault()
       handleSend()
     }
   }
 
   const handleSuggestionClick = (suggestion: string) => {
-    onSendMessage(suggestion)
-    setShowSuggestions(false)
+    if (!disabled) {
+      onSendMessage(suggestion)
+      setShowSuggestions(false)
+    }
   }
 
   return (
     <div className="w-full">
       <div className="relative">
-        <div className="flex items-end gap-3 p-4 bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+        <div className={cn(
+          "flex items-end gap-3 p-4 bg-white border border-gray-200 rounded-2xl shadow-sm transition-shadow",
+          disabled ? "opacity-50 cursor-not-allowed" : "hover:shadow-md"
+        )}>
           {/* Attachment Button */}
-          <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-50">
+          <button 
+            className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={disabled}
+          >
             <Paperclip size={20} />
           </button>
 
           {/* Suggestions Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
-              onClick={() => setShowSuggestions(!showSuggestions)}
-              className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-50 flex items-center gap-1"
+              onClick={() => !disabled && setShowSuggestions(!showSuggestions)}
+              className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-50 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
               title="Show suggestions"
+              disabled={disabled}
             >
               <Lightbulb size={22} />
               <ChevronDown size={18} className={cn("transition-transform", showSuggestions && "rotate-180")} />
@@ -82,7 +92,8 @@ export function ChatInput({ onSendMessage }: ChatInputProps) {
                     <button
                       key={suggestion}
                       onClick={() => handleSuggestionClick(suggestion)}
-                      className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                      className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={disabled}
                     >
                       {suggestion}
                     </button>
@@ -97,28 +108,34 @@ export function ChatInput({ onSendMessage }: ChatInputProps) {
             <textarea
               value={message}
               onChange={(e) => {
-                setMessage(e.target.value)
-                setIsTyping(e.target.value.length > 0)
+                if (!disabled) {
+                  setMessage(e.target.value)
+                  setIsTyping(e.target.value.length > 0)
+                }
               }}
               onKeyDown={handleKeyDown}
-              placeholder="Ask me to help you build your Maestro workflow..."
-              className="w-full h-full min-h-[44px] max-h-32 resize-none bg-transparent border-none outline-none text-xs placeholder:text-gray-400 leading-relaxed"
+              placeholder={disabled ? "Processing..." : "Ask me to help you build your Maestro workflow..."}
+              className="w-full h-full min-h-[44px] max-h-32 resize-none bg-transparent border-none outline-none text-xs placeholder:text-gray-400 leading-relaxed disabled:opacity-50 disabled:cursor-not-allowed"
               rows={1}
+              disabled={disabled}
             />
           </div>
 
           {/* Voice Button */}
-          <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-50">
+          <button 
+            className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={disabled}
+          >
             <Mic size={20} />
           </button>
 
           {/* Send Button */}
           <button
             onClick={handleSend}
-            disabled={!message.trim()}
+            disabled={!message.trim() || disabled}
             className={cn(
               "p-2 rounded-xl transition-all duration-200",
-              message.trim()
+              message.trim() && !disabled
                 ? "bg-blue-600 text-white hover:bg-blue-700 shadow-sm hover:shadow-md"
                 : "bg-gray-100 text-gray-400 cursor-not-allowed"
             )}
@@ -128,7 +145,7 @@ export function ChatInput({ onSendMessage }: ChatInputProps) {
         </div>
 
         {/* Typing Indicator */}
-        {isTyping && (
+        {isTyping && !disabled && (
           <div className="absolute -top-8 left-4 text-xs text-gray-400 bg-white px-2 py-1 rounded">
             Press Enter to send, Shift+Enter for new line
           </div>

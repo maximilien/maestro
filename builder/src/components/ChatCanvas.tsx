@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react'
-import { Bot, User, Code, FileText } from 'lucide-react'
+import { Bot, User, Code, FileText, Loader2 } from 'lucide-react'
 import type { Message } from '../App'
 import { cn } from '../lib/utils'
 
 interface ChatCanvasProps {
   messages: Message[]
+  isLoading?: boolean
 }
 
-export function ChatCanvas({ messages }: ChatCanvasProps) {
+export function ChatCanvas({ messages, isLoading = false }: ChatCanvasProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -104,6 +105,24 @@ export function ChatCanvas({ messages }: ChatCanvasProps) {
         ) : (
           <div className="divide-y divide-gray-100">
             {messages.map(renderMessage)}
+            
+            {/* Loading indicator */}
+            {isLoading && (
+              <div className="flex gap-4 p-6 bg-gray-50">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center">
+                  <Bot size={16} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="font-medium text-xs text-gray-900">Maestro AI</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>Thinking...</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
         <div ref={messagesEndRef} />

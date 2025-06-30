@@ -1,146 +1,159 @@
-# Maestro AI Builder
+# Maestro Builder
 
-A modern TypeScript React application for building Maestro workflows with AI assistance. The interface is inspired by Google Gemini and provides an intuitive way to create `agents.yaml` and `workflow.yaml` files through natural language conversation.
+A modern web-based interface for building Maestro agents and workflows using AI assistance.
 
 ## Features
 
-- **Chat Interface**: Natural language conversation with AI to build workflows
-- **Real-time YAML Generation**: See your `agents.yaml` and `workflow.yaml` files being built in real-time
-- **Collapsible Sidebar**: Navigation menu with search functionality (collapsed by default)
-- **YAML Syntax Highlighting**: Beautiful color-coded YAML display with Prism.js
-- **File Management**: Copy, download, and manage generated YAML files
-- **Line Numbers**: Toggle line numbers for better code navigation
-- **Modern UI**: Clean, responsive design inspired by Google Gemini
-- **TypeScript**: Full type safety and modern development experience
-- **Smart Suggestions**: Dropdown menu with suggested prompts for quick workflow creation
+- **AI-Powered Chat Interface**: Chat with an AI assistant to help you create Maestro configurations
+- **Real-time YAML Generation**: Automatically generates and updates `agents.yaml` and `workflow.yaml` files
+- **Live Preview**: See your YAML configurations update in real-time as you chat
+- **Modern UI**: Clean, responsive interface built with React and Tailwind CSS
+- **API Integration**: Connects to the Maestro Builder API for intelligent responses
 
-## Layout
+## Quick Start
 
-The application features a three-pane layout:
-
-1. **Left Sidebar**: Collapsible navigation with search and menu items (Agents, Workflows, Templates, History, Favorites, Settings)
-2. **Center Canvas**: Chat interface showing conversation history and YAML building process
-3. **Right Panel**: Generated YAML files with syntax highlighting, line numbers, and file management tools
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ 
-- npm or yarn
-
-### Installation
-
-1. Navigate to the builder directory:
-   ```bash
-   cd builder
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-4. Open your browser and navigate to `http://localhost:5173`
-
-### Building for Production
+### Option 1: Start Both API and Frontend (Recommended)
 
 ```bash
-npm run build
+# From the builder directory
+./start-dev.sh
 ```
 
-The built files will be in the `dist` directory.
+This will start both the API server and the frontend development server automatically.
+
+### Option 2: Start Components Separately
+
+#### Start the API Server
+
+```bash
+# From the api directory
+cd ../api
+./run.sh
+```
+
+The API will be available at `http://localhost:8000`
+
+#### Start the Frontend
+
+```bash
+# From the builder directory
+npm install
+npm run dev
+```
+
+The frontend will be available at `http://localhost:5173`
+
+## Usage
+
+1. **Open the Builder**: Navigate to `http://localhost:5173` in your browser
+2. **Start Chatting**: Type your requirements in the chat input at the bottom
+3. **Watch YAML Generation**: See your `agents.yaml` and `workflow.yaml` files update in real-time
+4. **Use Suggestions**: Click the lightbulb icon for quick suggestions
+5. **Download Files**: Use the download buttons in the YAML panel to save your configurations
+
+## Example Conversations
+
+### Creating an OpenAI Agent
+```
+User: "Create an OpenAI agent for text summarization"
+AI: "I'll help you create an OpenAI agent for text summarization. Here's the configuration..."
+```
+
+### Building a Workflow
+```
+User: "Build a workflow that processes data and generates reports"
+AI: "I'll create a workflow with multiple steps for data processing and report generation..."
+```
+
+### Complex Requirements
+```
+User: "Create a multi-agent system with a data processor, analyzer, and reporter"
+AI: "I'll design a comprehensive multi-agent system with specialized roles..."
+```
+
+## API Integration
+
+The builder connects to the Maestro Builder API which provides:
+
+- **Intelligent Responses**: AI-powered chat responses using OpenAI (when API key is configured)
+- **Fallback Mode**: Works without OpenAI API key using keyword-based responses
+- **Session Management**: Maintains conversation context across messages
+- **YAML Validation**: Ensures generated configurations follow Maestro schemas
+
+### API Endpoints
+
+- `POST /api/chat_builder_agent` - Send chat messages and get responses
+- `GET /api/get_yamls/{chat_id}` - Retrieve YAML files for a session
+- `GET /api/chat_history` - Get chat history
+
+## Configuration
+
+### Environment Variables
+
+Set these in the API directory:
+
+```bash
+export OPENAI_API_KEY="your-openai-api-key"
+```
+
+### API Configuration
+
+The API runs on `http://localhost:8000` by default. You can modify the URL in `src/services/api.ts` if needed.
 
 ## Development
 
 ### Project Structure
 
 ```
-src/
-├── components/          # React components
-│   ├── Sidebar.tsx     # Left navigation sidebar with search
-│   ├── ChatCanvas.tsx  # Main chat interface with message history
-│   ├── ChatInput.tsx   # Message input with suggestions dropdown
-│   └── YamlPanel.tsx   # Right panel for YAML files with syntax highlighting
-├── lib/
-│   └── utils.ts        # Utility functions (cn helper)
-├── App.tsx             # Main application component with state management
-├── main.tsx           # Application entry point
-└── index.css          # Global styles and Tailwind imports
+builder/
+├── src/
+│   ├── components/
+│   │   ├── ChatCanvas.tsx      # Chat message display
+│   │   ├── ChatInput.tsx       # Message input component
+│   │   ├── Sidebar.tsx         # Left sidebar
+│   │   └── YamlPanel.tsx       # YAML file display
+│   ├── services/
+│   │   └── api.ts             # API integration service
+│   └── App.tsx                # Main application
+├── start-dev.sh               # Development startup script
+└── package.json
 ```
 
-### Key Technologies
+### Available Scripts
 
-- **React 19** with TypeScript
-- **Vite** for fast development and building
-- **Tailwind CSS v4** for styling
-- **Lucide React** for icons
-- **Radix UI** components for accessibility
-- **Prism.js** for YAML syntax highlighting
-- **class-variance-authority** and **clsx** for conditional styling
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `./start-dev.sh` - Start both API and frontend
 
-### Current Functionality
+## Troubleshooting
 
-The application currently includes:
+### API Connection Issues
 
-- **Simulated AI Responses**: Placeholder AI responses that update YAML files based on user input
-- **YAML File Generation**: Real-time generation of `agents.yaml` and `workflow.yaml` files
-- **File Operations**: Copy to clipboard and download functionality for generated files
-- **Syntax Highlighting**: Beautiful YAML syntax highlighting with line numbers
-- **Responsive Design**: Optimized for different screen sizes
-- **Modern UI Components**: Dropdown menus, collapsible sidebar, and clean typography
+1. Ensure the API server is running on `http://localhost:8000`
+2. Check that CORS is properly configured in the API
+3. Verify the API endpoint in `src/services/api.ts`
 
-### API Integration
+### YAML Not Updating
 
-The application is designed to integrate with a Maestro API (to be built). The chat interface will send messages to the API and receive responses that update the YAML files in real-time.
+1. Check the browser console for errors
+2. Verify the API response format
+3. Ensure the YAML panel is properly connected
 
-Current placeholder functionality:
-- Simulated AI responses with 1-second delay
-- Basic YAML file generation based on user input
-- File download and copy functionality
-- Syntax highlighting for YAML content
+### OpenAI Integration
 
-## UI Features
-
-### Chat Interface
-- Clean message bubbles with user/assistant avatars
-- Timestamp display for each message
-- Auto-scroll to latest messages
-- YAML preview in messages when applicable
-
-### YAML Panel
-- Syntax highlighting with Prism.js
-- Toggle line numbers on/off
-- Copy to clipboard functionality
-- Download files as .yaml
-- Tabbed interface for multiple files
-- Compact 7px font size for maximum content visibility
-
-### Sidebar
-- Collapsible design (collapsed by default)
-- Search functionality with proper spacing
-- Navigation menu items with icons
-- Smooth transitions and hover effects
-
-### Chat Input
-- Clean input field with send button
-- Suggestions dropdown with lightbulb icon
-- Attach file button
-- Responsive design
+1. Set your `OPENAI_API_KEY` environment variable
+2. Restart the API server after setting the key
+3. Check API logs for authentication errors
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
+4. Test the integration
 5. Submit a pull request
 
 ## License
 
-This project is part of the Maestro ecosystem and follows the same licensing terms.
+This project is part of the Maestro framework and follows the same license terms.
