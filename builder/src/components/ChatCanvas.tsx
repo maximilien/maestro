@@ -55,7 +55,7 @@ export function ChatCanvas({ messages, isLoading = false }: ChatCanvasProps) {
             </span>
           </div>
           
-          <div className="text-xs text-gray-700 leading-relaxed">
+          <div className="text-sm text-gray-700 leading-relaxed">
             {message.content}
           </div>
 
@@ -68,7 +68,7 @@ export function ChatCanvas({ messages, isLoading = false }: ChatCanvasProps) {
                   Generated YAML
                 </span>
               </div>
-              <pre className="text-xs bg-gray-50 p-4 rounded-lg overflow-x-auto border font-['Courier_New']">
+              <pre className="text-sm bg-gray-50 p-4 rounded-lg overflow-x-auto border font-['Courier_New']">
                 <code className="text-gray-800">{message.content.replace(/```yaml\n?|\n?```/g, '')}</code>
               </pre>
             </div>

@@ -1,35 +1,78 @@
-import { useState, useEffect } from 'react'
-import { FileText, Copy, Download, Eye, EyeOff, Check } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { FileText, Copy, Download, Eye, EyeOff, Check, Save, GitCompare } from 'lucide-react'
 import type { YamlFile } from '../App'
 import { cn } from '../lib/utils'
 import Prism from 'prismjs'
 import 'prismjs/components/prism-yaml'
 import 'prismjs/themes/prism.css'
+// @ts-ignore
+import DiffMatchPatch from 'diff-match-patch'
 
 interface YamlPanelProps {
   yamlFiles: YamlFile[]
   isLoading?: boolean
 }
 
+interface DiffLine {
+  type: 'equal' | 'insert' | 'delete'
+  text: string
+}
+
+function computeDiffLines(oldText: string, newText: string): DiffLine[] {
+  const dmp = new DiffMatchPatch()
+  const diff = dmp.diff_main(oldText, newText)
+  dmp.diff_cleanupSemantic(diff)
+  
+  const lines: DiffLine[] = []
+  diff.forEach(([op, data]: [number, string]) => {
+    const split = data.split('\n')
+    // Remove last empty string if data ends with \n
+    if (split.length > 1 && split[split.length - 1] === '') split.pop()
+    split.forEach((line: string) => {
+      if (op === DiffMatchPatch.DIFF_INSERT) lines.push({ type: 'insert', text: line })
+      else if (op === DiffMatchPatch.DIFF_DELETE) lines.push({ type: 'delete', text: line })
+      else lines.push({ type: 'equal', text: line })
+    })
+  })
+  return lines
+}
+
 export function YamlPanel({ yamlFiles, isLoading = false }: YamlPanelProps) {
   const [activeFile, setActiveFile] = useState(0)
   const [showLineNumbers, setShowLineNumbers] = useState(true)
   const [copiedFile, setCopiedFile] = useState<string | null>(null)
+  const [showDiff, setShowDiff] = useState(true)
+  const prevYamlRef = useRef<{ [name: string]: string }>({})
+  const lastUpdateRef = useRef<{ [name: string]: string }>({})
 
   // Highlight syntax when content changes
   useEffect(() => {
     Prism.highlightAll()
-  }, [yamlFiles, activeFile])
+  }, [yamlFiles, activeFile, showDiff])
 
-  // Auto-switch to first file with content when files are updated
+  // Always keep both files in the panel
+  const allFileNames = ['agents.yaml', 'workflow.yaml']
+  const filesToShow: YamlFile[] = allFileNames.map(name =>
+    yamlFiles.find(f => f.name === name) || { name, content: '', language: 'yaml' as const }
+  )
+
+  // Track changes for diff - store the previous version before updating
   useEffect(() => {
-    if (yamlFiles.length > 0 && yamlFiles[activeFile]?.content.trim() === '') {
-      const firstFileWithContent = yamlFiles.findIndex(file => file.content.trim() !== '')
-      if (firstFileWithContent !== -1) {
-        setActiveFile(firstFileWithContent)
+    filesToShow.forEach(file => {
+      const currentContent = file.content.trim()
+      const lastContent = lastUpdateRef.current[file.name] || ''
+      
+      // If content changed and we had previous content, store it for diff
+      if (currentContent !== lastContent && lastContent !== '') {
+        prevYamlRef.current[file.name] = lastContent
       }
-    }
-  }, [yamlFiles])
+      
+      // Update the last known content
+      if (currentContent !== '') {
+        lastUpdateRef.current[file.name] = currentContent
+      }
+    })
+  }, [filesToShow.map(f => f.content).join('')])
 
   const handleCopy = async (content: string, fileName: string) => {
     try {
@@ -57,7 +100,7 @@ export function YamlPanel({ yamlFiles, isLoading = false }: YamlPanelProps) {
     const lines = content.split('\n')
     return (
       <div className="flex">
-        <div className="w-12 flex-shrink-0 bg-gray-100 text-gray-500 text-[9px] font-mono p-4 border-r border-gray-200 font-['Courier_New']">
+        <div className="w-12 flex-shrink-0 bg-gray-100 text-gray-500 text-sm font-mono p-4 border-r border-gray-200 font-['Courier_New']">
           {lines.map((_, index) => (
             <div key={index} className="text-right">
               {index + 1}
@@ -65,7 +108,7 @@ export function YamlPanel({ yamlFiles, isLoading = false }: YamlPanelProps) {
           ))}
         </div>
         <div className="flex-1">
-          <pre className="text-[7px] font-mono p-4 overflow-x-auto bg-white font-['Courier_New'] whitespace-pre">
+          <pre className="text-sm font-mono p-4 overflow-x-auto bg-white font-['Courier_New'] whitespace-pre">
             <code className="language-yaml whitespace-pre">{content}</code>
           </pre>
         </div>
@@ -73,7 +116,48 @@ export function YamlPanel({ yamlFiles, isLoading = false }: YamlPanelProps) {
     )
   }
 
-  const hasContent = yamlFiles.some(file => file.content.trim() !== '')
+  const renderDiff = (oldContent: string, newContent: string) => {
+    if (oldContent === newContent || oldContent === '') {
+      // No diff to show, just render the new content
+      return (
+        <pre className="text-sm font-mono p-4 overflow-x-auto bg-white font-['Courier_New'] whitespace-pre">
+          <code className="language-yaml whitespace-pre">{newContent}</code>
+        </pre>
+      )
+    }
+
+    const lines = computeDiffLines(oldContent, newContent)
+    console.log('Diff lines:', lines) // Debug log
+    
+    return (
+      <div>
+        <div className="px-4 py-2 bg-blue-50 border-b border-blue-200 text-xs text-blue-700 font-medium">
+          Showing changes (green = added, red = removed)
+        </div>
+        <div className="text-sm font-mono p-4 overflow-x-auto bg-white font-['Courier_New'] whitespace-pre">
+          {lines.map((line, idx) => {
+            const lineStyle = line.type === 'insert' 
+              ? { backgroundColor: '#dcfce7', color: '#166534' } // green-100 bg, green-800 text
+              : line.type === 'delete' 
+              ? { backgroundColor: '#fee2e2', color: '#991b1b' } // red-100 bg, red-800 text
+              : { color: '#1f2937' } // gray-800 text
+            
+            return (
+              <div 
+                key={idx} 
+                style={lineStyle}
+                className="w-full"
+              >
+                {line.type === 'insert' ? '+' : line.type === 'delete' ? '-' : ' '} {line.text}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  const hasContent = filesToShow.some(file => file.content.trim() !== '')
 
   return (
     <div className="w-1/3 border-l border-gray-100 bg-white flex flex-col">
@@ -88,6 +172,13 @@ export function YamlPanel({ yamlFiles, isLoading = false }: YamlPanelProps) {
             </div>
           )}
           <button
+            onClick={() => setShowDiff(!showDiff)}
+            className="p-2 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-colors"
+            title={showDiff ? 'Show full YAML' : 'Show diff'}
+          >
+            <GitCompare size={18} className={showDiff ? 'text-blue-600' : ''} />
+          </button>
+          <button
             onClick={() => setShowLineNumbers(!showLineNumbers)}
             className="p-2 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-colors"
             title={showLineNumbers ? 'Hide line numbers' : 'Show line numbers'}
@@ -99,7 +190,7 @@ export function YamlPanel({ yamlFiles, isLoading = false }: YamlPanelProps) {
 
       {/* File Tabs */}
       <div className="flex border-b border-gray-100">
-        {yamlFiles.map((file, index) => {
+        {filesToShow.map((file, index) => {
           const hasFileContent = file.content.trim() !== ''
           return (
             <button
@@ -125,28 +216,28 @@ export function YamlPanel({ yamlFiles, isLoading = false }: YamlPanelProps) {
 
       {/* File Content */}
       <div className="flex-1 overflow-hidden">
-        {yamlFiles.length > 0 && hasContent ? (
+        {filesToShow.length > 0 && hasContent ? (
           <div className="h-full flex flex-col">
             {/* File Actions */}
             <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
               <span className="text-xs text-gray-500 font-medium">
-                {yamlFiles[activeFile].name}
-                {yamlFiles[activeFile].content.trim() !== '' && (
+                {filesToShow[activeFile].name}
+                {filesToShow[activeFile].content.trim() !== '' && (
                   <span className="ml-2 text-green-600">• Generated</span>
                 )}
               </span>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => handleCopy(yamlFiles[activeFile].content, yamlFiles[activeFile].name)}
+                  onClick={() => handleCopy(filesToShow[activeFile].content, filesToShow[activeFile].name)}
                   className={cn(
                     "p-2 rounded-lg transition-colors flex items-center gap-1",
-                    copiedFile === yamlFiles[activeFile].name
+                    copiedFile === filesToShow[activeFile].name
                       ? "bg-green-100 text-green-700"
                       : "hover:bg-white hover:text-gray-700"
                   )}
                   title="Copy to clipboard"
                 >
-                  {copiedFile === yamlFiles[activeFile].name ? (
+                  {copiedFile === filesToShow[activeFile].name ? (
                     <>
                       <Check size={16} />
                       <span className="text-xs">Copied!</span>
@@ -156,18 +247,25 @@ export function YamlPanel({ yamlFiles, isLoading = false }: YamlPanelProps) {
                   )}
                 </button>
                 <button
-                  onClick={() => handleDownload(yamlFiles[activeFile])}
+                  onClick={() => handleDownload(filesToShow[activeFile])}
                   className="p-2 rounded-lg hover:bg-white hover:text-gray-700 transition-colors"
                   title="Download file"
                 >
                   <Download size={16} />
+                </button>
+                <button
+                  onClick={() => handleDownload(filesToShow[activeFile])}
+                  className="p-2 rounded-lg hover:bg-white hover:text-gray-700 transition-colors"
+                  title="Save file"
+                >
+                  <Save size={16} />
                 </button>
               </div>
             </div>
 
             {/* YAML Content */}
             <div className="flex-1 overflow-auto">
-              {yamlFiles[activeFile].content.trim() === '' ? (
+              {filesToShow[activeFile].content.trim() === '' ? (
                 <div className="flex items-center justify-center h-full text-gray-400">
                   <div className="text-center max-w-sm">
                     <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -177,11 +275,13 @@ export function YamlPanel({ yamlFiles, isLoading = false }: YamlPanelProps) {
                     <p className="text-xs text-gray-500">Ask the AI to generate content for this file</p>
                   </div>
                 </div>
+              ) : showDiff ? (
+                renderDiff(prevYamlRef.current[filesToShow[activeFile].name] || '', filesToShow[activeFile].content)
               ) : showLineNumbers ? (
-                renderLineNumbers(yamlFiles[activeFile].content)
+                renderLineNumbers(filesToShow[activeFile].content)
               ) : (
-                <pre className="text-[7px] font-mono p-6 overflow-x-auto bg-gray-50 font-['Courier_New'] whitespace-pre">
-                  <code className="language-yaml whitespace-pre">{yamlFiles[activeFile].content}</code>
+                <pre className="text-sm font-mono p-6 overflow-x-auto bg-gray-50 font-['Courier_New'] whitespace-pre">
+                  <code className="language-yaml whitespace-pre">{filesToShow[activeFile].content}</code>
                 </pre>
               )}
             </div>

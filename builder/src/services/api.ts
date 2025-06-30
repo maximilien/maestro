@@ -11,6 +11,7 @@ export interface ChatResponse {
     name: string
     content: string
   }>
+  chat_id: string
 }
 
 export interface YamlFile {
@@ -19,10 +20,33 @@ export interface YamlFile {
   language: 'yaml'
 }
 
-class ApiService {
-  private chatId: string | null = null
+export interface ChatSession {
+  id: string
+  name: string
+  created_at: string
+  updated_at: string
+  message_count: number
+  messages: Array<{
+    id: number
+    role: string
+    content: string
+    timestamp: string
+  }>
+  yaml_files: Record<string, string>
+}
 
-  async sendMessage(message: string): Promise<ChatResponse> {
+export interface ChatHistory {
+  id: string
+  name: string
+  created_at: string
+  last_message: string
+  message_count: number
+}
+
+class ApiService {
+  private currentChatId: string | null = null
+
+  async sendMessage(message: string, chatId?: string): Promise<ChatResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/api/chat_builder_agent`, {
         method: 'POST',
@@ -31,8 +55,9 @@ class ApiService {
         },
         body: JSON.stringify({
           content: message,
-          role: 'user'
-        } as ChatMessage)
+          role: 'user',
+          chat_id: chatId || this.currentChatId
+        } as ChatMessage & { chat_id?: string })
       })
 
       if (!response.ok) {
@@ -40,6 +65,9 @@ class ApiService {
       }
 
       const data: ChatResponse = await response.json()
+      
+      // Store the chat ID for future messages
+      this.currentChatId = data.chat_id
       
       // Ensure YAML files have proper formatting
       data.yaml_files = data.yaml_files.map(file => ({
@@ -73,6 +101,126 @@ class ApiService {
       console.error('Error fetching YAML files:', error)
       return []
     }
+  }
+
+  async getChatHistory(): Promise<ChatHistory[]> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/chat_history`)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching chat history:', error)
+      return []
+    }
+  }
+
+  async getChatSession(chatId: string): Promise<ChatSession | null> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/chat_session/${chatId}`)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Error fetching chat session:', error)
+      return null
+    }
+  }
+
+  async createChatSession(name?: string): Promise<string> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/chat_sessions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name })
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      this.currentChatId = data.chat_id
+      return data.chat_id
+    } catch (error) {
+      console.error('Error creating chat session:', error)
+      throw error
+    }
+  }
+
+  async deleteChatSession(chatId: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/chat_sessions/${chatId}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      // If we're deleting the current chat, clear it
+      if (this.currentChatId === chatId) {
+        this.currentChatId = null
+      }
+
+      return true
+    } catch (error) {
+      console.error('Error deleting chat session:', error)
+      return false
+    }
+  }
+
+  async deleteAllChatSessions(): Promise<boolean> {
+    try {
+      console.log('API: Calling delete all chat sessions endpoint...')
+      const response = await fetch(`${API_BASE_URL}/api/delete_all_chats`, {
+        method: 'DELETE'
+      })
+
+      console.log('API: Delete all response status:', response.status)
+      
+      if (!response.ok) {
+        console.error('API: Delete all failed with status:', response.status)
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const result = await response.json()
+      console.log('API: Delete all response:', result)
+
+      // Clear current chat ID since all chats are deleted
+      this.currentChatId = null
+
+      return true
+    } catch (error) {
+      console.error('API: Error deleting all chat sessions:', error)
+      return false
+    }
+  }
+
+  async healthCheck(): Promise<boolean> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/health`)
+      return response.ok
+    } catch (error) {
+      console.error('Health check failed:', error)
+      return false
+    }
+  }
+
+  getCurrentChatId(): string | null {
+    return this.currentChatId
+  }
+
+  setCurrentChatId(chatId: string | null) {
+    this.currentChatId = chatId
   }
 
   private formatYamlContent(content: string): string {
@@ -162,7 +310,8 @@ workflow:
 
     return {
       response,
-      yaml_files: yamlFiles
+      yaml_files: yamlFiles,
+      chat_id: 'fallback-session'
     }
   }
 }
