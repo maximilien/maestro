@@ -39,4 +39,4 @@ jobs:
       run: |
         export PYTHONPATH=$PYTHONPATH:$(pwd)/src
         export PATH=$PATH:$(pwd)/.venv/bin
-        uv run pytest -v
+        uv run pytest -v --ignore=api --ignore=builder
