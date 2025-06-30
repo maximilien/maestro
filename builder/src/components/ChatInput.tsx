@@ -87,12 +87,12 @@ export function ChatInput({ onSendMessage, disabled = false }: ChatInputProps) {
             {showSuggestions && (
               <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-xl shadow-lg z-10">
                 <div className="p-2">
-                  <div className="text-xs font-medium text-gray-500 mb-2 px-2">Suggestions</div>
+                  <div className="text-sm font-medium text-gray-500 mb-2 px-2">Suggestions</div>
                   {suggestions.map((suggestion) => (
                     <button
                       key={suggestion}
                       onClick={() => handleSuggestionClick(suggestion)}
-                      className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={disabled}
                     >
                       {suggestion}
@@ -115,7 +115,7 @@ export function ChatInput({ onSendMessage, disabled = false }: ChatInputProps) {
               }}
               onKeyDown={handleKeyDown}
               placeholder={disabled ? "Processing..." : "Ask me to help you build your Maestro workflow..."}
-              className="w-full h-full min-h-[44px] max-h-32 resize-none bg-transparent border-none outline-none text-xs placeholder:text-gray-400 leading-relaxed disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-full min-h-[44px] max-h-32 resize-none bg-transparent border-none outline-none text-base placeholder:text-gray-400 leading-relaxed disabled:opacity-50 disabled:cursor-not-allowed font-['Inter',-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif]"
               rows={1}
               disabled={disabled}
             />
@@ -146,7 +146,7 @@ export function ChatInput({ onSendMessage, disabled = false }: ChatInputProps) {
 
         {/* Typing Indicator */}
         {isTyping && !disabled && (
-          <div className="absolute -top-8 left-4 text-xs text-gray-400 bg-white px-2 py-1 rounded">
+          <div className="absolute -top-8 left-4 text-sm text-gray-400 bg-white px-2 py-1 rounded">
             Press Enter to send, Shift+Enter for new line
           </div>
         )}
