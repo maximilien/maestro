@@ -5,7 +5,6 @@ Test script for the Maestro Builder API
 
 import requests
 import json
-import time
 
 API_BASE_URL = "http://localhost:8000"
 
