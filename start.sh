@@ -75,8 +75,8 @@ if check_port 8000; then
     print_warning "API service is already running on port 8000"
 fi
 
-if check_port 5173; then
-    print_warning "Builder frontend is already running on port 5173"
+if check_port 5174 || check_port 5173; then
+    print_warning "Builder frontend is already running on port 5174 or 5173"
 fi
 
 # Start API service
@@ -115,7 +115,7 @@ fi
 mkdir -p storage
 
 # Start API server in background
-print_status "Starting API server on http://localhost:8000"
+print_status "Starting API server on http://localhost:5174"
 nohup python main.py > ../logs/api.log 2>&1 &
 API_PID=$!
 echo $API_PID > ../logs/api.pid
@@ -155,7 +155,7 @@ if [ ! -d "node_modules" ]; then
 fi
 
 # Start the development server in background
-print_status "Starting Builder frontend on http://localhost:5173"
+print_status "Starting Builder frontend on http://localhost:5174"
 nohup npm run dev > ../logs/builder.log 2>&1 &
 BUILDER_PID=$!
 echo $BUILDER_PID > ../logs/builder.pid
@@ -168,16 +168,16 @@ cd ..
 # Wait for services to be ready
 print_status "Waiting for services to be ready..."
 
-if wait_for_service "http://localhost:8000" "API service"; then
-    print_success "API service is ready at http://localhost:8000"
-    print_status "API documentation available at http://localhost:8000/docs"
+if wait_for_service "http://localhost:5174" "API service"; then
+    print_success "API service is ready at http://localhost:5174"
+    print_status "API documentation available at http://localhost:5174/docs"
 else
     print_error "API service failed to start properly"
     exit 1
 fi
 
-if wait_for_service "http://localhost:5173" "Builder frontend"; then
-    print_success "Builder frontend is ready at http://localhost:5173"
+if wait_for_service "http://localhost:5174" "Builder frontend"; then
+    print_success "Builder frontend is ready at http://localhost:5174"
 else
     print_error "Builder frontend failed to start properly"
     exit 1
@@ -188,7 +188,7 @@ echo ""
 echo "Services:"
 echo "  - API: http://localhost:8000"
 echo "  - API Docs: http://localhost:8000/docs"
-echo "  - Builder Frontend: http://localhost:5173"
+echo "  - Builder Frontend: http://localhost:5174"
 echo ""
 echo "Logs:"
 echo "  - API logs: logs/api.log"
