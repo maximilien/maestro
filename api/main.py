@@ -7,12 +7,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
-import json
-import yaml
 from datetime import datetime
-import uuid
-import os
-from pathlib import Path
 
 # Import our AI agent and database
 from ai_agent import MaestroBuilderAgent
@@ -28,7 +23,7 @@ app = FastAPI(
 # Add CORS middleware to allow frontend to communicate with API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:3000"],  # Vite default ports
+    allow_origins=["http://localhost:5174", "http://localhost:3000"],  # Vite default ports
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -296,4 +291,4 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    uvicorn.run(app, host="0.0.0.0", port=5174) 
