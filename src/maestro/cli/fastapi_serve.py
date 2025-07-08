@@ -4,6 +4,7 @@
 """FastAPI server module for serving Maestro agents via HTTP endpoints."""
 
 import json
+import os
 from datetime import datetime
 from typing import Optional
 
@@ -16,6 +17,10 @@ from pydantic import BaseModel
 from maestro.workflow import create_agents, Workflow
 from maestro.agents.agent import restore_agent
 from maestro.cli.common import parse_yaml, Console
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class ChatRequest(BaseModel):
@@ -58,6 +63,14 @@ class FastAPIServer:
             title="Maestro Agent Server",
             description="HTTP API for serving Maestro agents",
             version="1.0.0",
+        )
+        allowed_origins = [
+            x.strip() for x in os.getenv("CORS_ALLOW_ORIGINS", "").split(",")
+        ]
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=allowed_origins,
+            allow_methods=["GET", "POST"],
         )
         self._setup_routes()
         self._load_agents()
@@ -219,7 +232,7 @@ class FastAPIWorkflowServer:
 
         Args:
             agents_file: Path to the agents YAML file
-            workfloe_file: Path to the workflow YAML file
+            workflow_file: Path to the workflow YAML file
         """
         self.agents_file = agents_file
         self.workflow_file = workflow_file
@@ -229,9 +242,13 @@ class FastAPIWorkflowServer:
             description="HTTP API for serving Maestro workflow",
             version="1.0.0",
         )
+        allowed_origins = [
+            x.strip() for x in os.getenv("CORS_ALLOW_ORIGINS", "").split(",")
+        ]
         self.app.add_middleware(
             CORSMiddleware,
-            allow_origins=["*"],
+            allow_origins=allowed_origins,
+            allow_methods=["GET", "POST"],
         )
         self._setup_routes()
         self._load_workflow()
