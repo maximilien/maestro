@@ -3,6 +3,7 @@
 
 from maestro.agents.agent import Agent
 from opik.evaluation.metrics import AnswerRelevance, Hallucination
+from opik import Opik
 
 from dotenv import load_dotenv
 
@@ -18,11 +19,13 @@ class ScoringAgent(Agent):
 
     def __init__(self, agent: dict) -> None:
         super().__init__(agent)
+        self.name = agent.get("name", "scoring-agent")
         raw_model = agent["spec"]["model"]
         if raw_model.startswith("ollama/") or raw_model.startswith("openai/"):
             self._litellm_model = raw_model
         else:
             self._litellm_model = f"ollama/{raw_model}"
+        self._opik = Opik()
 
     async def run(
         self, prompt: str, response: str, context: list[str] | None = None
@@ -46,19 +49,30 @@ class ScoringAgent(Agent):
         ctx = context or [prompt]
 
         try:
-            rel_res = AnswerRelevance(model=self._litellm_model).score(
-                input=prompt, output=response_text, context=ctx
-            )
-            hall_res = Hallucination(model=self._litellm_model).score(
-                input=prompt, output=response_text, context=ctx
-            )
+            answer_relevance = AnswerRelevance(model=self._litellm_model)
+            hallucination = Hallucination(model=self._litellm_model)
 
-            rel = getattr(rel_res, "value", rel_res)
-            hall = getattr(hall_res, "value", hall_res)
+            rel = answer_relevance.score(prompt, response_text, context=ctx).value
+            hall = hallucination.score(prompt, response_text, context=ctx).value
 
             metrics_line = f"relevance: {rel:.2f}, hallucination: {hall:.2f}"
             self.print(f"{response_text}\n[{metrics_line}]")
-        except Exception as e:
-            self.print(f"[ScoringAgent] Warning: could not calculate metrics: {e}")
 
+            trace = self._opik.trace()
+            trace.end(
+                input={"input": prompt},
+                output={"output": response_text},
+                metadata={
+                    "model": self._litellm_model,
+                    "agent": self.name,
+                    "provider": "ollama",
+                    "relevance": rel,
+                    "hallucination": hall,
+                },
+            )
+
+        except Exception as e:
+            self.print(
+                f"[ScoringAgent] Warning: could not calculate metrics or log trace: {e}"
+            )
         return response
