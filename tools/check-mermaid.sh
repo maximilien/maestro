@@ -9,7 +9,7 @@ fi
 
 declare -i fail=0
 WORKFLOW_FILES=$(find . -path "./.venv" -prune -o -path "./.github/workflows" -prune -o -name '*workflow*.yaml' -print)
-AGENT_FILES=$(find . -path "./.venv" -prune -o -name '*agents*.yaml' -print)
+AGENT_FILES=$(find . -path "./.venv" -prune -o -path "./.github/workflows" -prune -o -name '*agents*.yaml' -print)
 EXCLUDE_FILES=("./tests/yamls/workflowrun/simple_workflow_run.yaml"
 	       "./operator/config/crd/bases/maestro.ai4quantum.com_workflowruns.yaml"
 	       "./operator/config/crd/bases/maestro.ai4quantum.com_workflows.yaml"
