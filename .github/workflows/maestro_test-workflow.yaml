@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4 # TODO: replace with demo repo once its created
         with:
-          sparse-checkout: |
+          repository: AI4quantum/maestro-demos
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
