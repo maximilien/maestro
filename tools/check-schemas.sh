@@ -8,9 +8,9 @@ then
 fi
 
 declare -i fail=0
-WORKFLOW_FILES=$(find . -path "./.venv" -prune -o -name '*workflow*.yaml' -print)
-AGENT_FILES=$(find . -path "./.venv" -prune -o -name '*agents*.yaml' -print)
-TOOL_FILES=$(find . -path "./.venv" -prune -o -name '*tools*.yaml' -print)
+WORKFLOW_FILES=$(find . -path "./.venv" -prune -o -path "./.github/workflows" -prune -o -name '*workflow*.yaml' -print)
+AGENT_FILES=$(find . -path "./.venv" -prune -o -path "./.github/workflows" -prune -o -name '*agents*.yaml' -print)
+TOOL_FILES=$(find . -path "./.venv" -prune -o -path "./.github/workflows" -prune -o -name '*tools*.yaml' -print)
 
 
 echo "|Filename|Type|Stats|" >> "$GITHUB_STEP_SUMMARY"
@@ -36,7 +36,7 @@ for f in $WORKFLOW_FILES
       done
       if ! $EXCLUDE
       then
-        if ! ./maestro validate "$f"
+        if ! uv run maestro validate "$f"
         then
           RESULT="FAIL ❌"
           fail+=1
@@ -60,7 +60,7 @@ for f in $AGENT_FILES
       done
       if ! $EXCLUDE
       then
-        if ! ./maestro validate "$f"
+        if ! uv run maestro validate "$f"
         then
           RESULT="FAIL ❌"
           fail+=1
@@ -84,7 +84,7 @@ for f in $TOOL_FILES
       done
       if ! $EXCLUDE
       then
-        if ! ./maestro validate "$f"
+        if ! uv run maestro validate "$f"
         then
           RESULT="FAIL ❌"
           fail+=1
