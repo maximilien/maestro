@@ -78,7 +78,6 @@ jobs:
       - name: Install maestro
         run: pip install dist/*.whl
       - name: Test distribution
-        working-directory: .
         run: maestro run workflows/simple/agents.yaml workflows/simple/workflow.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
