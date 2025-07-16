@@ -149,9 +149,9 @@ if [ -f ".maestro-builder.pid" ]; then
     for pid in "${pids[@]}"; do
         if is_process_running "$pid"; then
             # Try to determine service name based on port
-            if lsof -p "$pid" | grep -q ":8000\|:8001"; then
+            if lsof -p "$pid" | grep -q ":8001"; then
                 service_name="API service"
-                port="8000/8001"
+                port="8001"
             elif lsof -p "$pid" | grep -q ":5173\|:5174"; then
                 service_name="Builder frontend"
                 port="5173/5174"
@@ -169,7 +169,7 @@ if [ -f ".maestro-builder.pid" ]; then
     print_success "Removed .maestro-builder.pid file"
 else
     print_warning ".maestro-builder.pid file not found, checking ports..."
-    kill_process_by_port 8000 "API service"
+    kill_process_by_port 8001 "API service"
     kill_process_by_port 5174 "Builder frontend"
 fi
 
@@ -180,8 +180,8 @@ print_status "Verifying services are stopped..."
 api_stopped=true
 builder_stopped=true
 
-if check_port 8000; then
-    print_error "API service is still running on port 8000"
+if check_port 8001; then
+    print_error "API service is still running on port 8001"
     api_stopped=false
 fi
 
