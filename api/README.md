@@ -2,6 +2,8 @@
 
 A FastAPI application that provides backend services for the Maestro Builder frontend application. This API enables intelligent YAML generation for Maestro agents and workflows through conversational AI.
 
+> **Note**: The Maestro Builder frontend has been moved to a separate repository: [maestro-builder](https://github.com/AI4quantum/maestro-builder)
+
 ## Features
 
 - **Chat Builder Agent**: Conversational AI interface for creating Maestro YAML configurations
@@ -254,7 +256,7 @@ Health check available at: http://127.0.0.1:8000/health
 ```
 
 2. Start the FastAPI Builder API (Port 8001)
-From the project root: ```./start.sh```
+From the maestro-builder directory: ```./start.sh```
 
 You should see: ```Uvicorn running on http://0.0.0.0:8000```
 
