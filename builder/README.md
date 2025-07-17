@@ -20,7 +20,7 @@ A modern web-based interface for building Maestro agents and workflows using AI 
 
 ```bash
 # From the builder directory
-./start-dev.sh
+./start.sh
 ```
 
 This will start both the API server and the frontend development server automatically.
@@ -46,6 +46,15 @@ npm run dev
 ```
 
 The frontend will be available at `http://localhost:5173`
+
+### Stop All Services
+
+```bash
+# From the builder directory
+./stop.sh
+```
+
+This will safely stop both the API server and the frontend development server.
 
 ## Usage
 
@@ -157,7 +166,8 @@ builder/
 │   ├── services/
 │   │   └── api.ts             # API integration service
 │   └── App.tsx                # Main application
-├── start-dev.sh               # Development startup script
+├── start.sh                   # Development startup script
+├── stop.sh                    # Development stop script
 └── package.json
 ```
 
@@ -166,7 +176,8 @@ builder/
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
-- `./start-dev.sh` - Start both API and frontend
+- `./start.sh` - Start both API and frontend
+- `./stop.sh` - Stop all services
 
 ## Troubleshooting
 

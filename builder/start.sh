@@ -20,6 +20,9 @@ print_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# Change to the parent directory (maestro root) for API access
+cd ..
+
 mkdir -p logs
 
 check_port() {
@@ -58,7 +61,7 @@ check_port 8000 && print_warning "API already running on port 8000"
 print_status "Starting Maestro API service..."
 
 if [ ! -d "api" ]; then
-    print_error "API directory not found. Run this script from the Maestro root directory."
+    print_error "API directory not found. Make sure you're running this script from the builder directory."
     exit 1
 fi
 
@@ -97,7 +100,7 @@ cd ..
 print_status "Starting Maestro Builder frontend..."
 
 if [ ! -d "builder" ]; then
-    print_error "Builder directory not found. Run this script from the Maestro root directory."
+    print_error "Builder directory not found. Make sure you're running this script from the builder directory."
     exit 1
 fi
 
@@ -121,7 +124,7 @@ fi
 print_status "Starting Builder frontend on http://localhost:5174"
 nohup npm run dev > ../logs/builder.log 2>&1 &
 BUILDER_PID=$!
-echo $BUILDER_PID >> .maestro-builder.pid
+echo $BUILDER_PID >> ../.maestro-builder.pid
 
 print_success "Builder frontend started with PID: $BUILDER_PID"
 

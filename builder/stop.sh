@@ -33,6 +33,9 @@ print_error() {
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# Change to the parent directory (maestro root) for PID file access
+cd ..
+
 # Function to check if a process is running
 is_process_running() {
     local pid=$1
@@ -207,4 +210,4 @@ if [ -f "logs/builder.log" ]; then
 fi
 
 echo ""
-echo "To start services again, run: ./start.sh" 
+echo "To start services again, run: cd builder && ./start.sh" 

@@ -58,6 +58,17 @@ uv run ruff format
 uv run ruff check --fix
 ```
 
+## Builder Development
+
+For the Maestro Builder (web interface), see the [builder/README.md](builder/README.md) for detailed instructions.
+
+Quick start for the builder:
+```bash
+cd builder
+./start.sh    # Start both API and frontend
+./stop.sh     # Stop all services
+```
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.

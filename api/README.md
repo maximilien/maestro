@@ -254,7 +254,7 @@ Health check available at: http://127.0.0.1:8000/health
 ```
 
 2. Start the FastAPI Builder API (Port 8001)
-From the project root: ```./start.sh```
+From the builder directory: ```./start.sh```
 
 You should see: ```Uvicorn running on http://0.0.0.0:8000```
 
