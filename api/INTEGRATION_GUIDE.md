@@ -63,7 +63,7 @@ import MaestroBuilderAPI from './api/MaestroBuilderAPI';
 
 ### Step 2: Update App.tsx
 
-Replace the mock `handleSendMessage` function in `builder/src/App.tsx`:
+Replace the mock `handleSendMessage` function in your frontend's App.tsx (in the maestro-builder repository):
 
 ```typescript
 import MaestroBuilderAPI from '../api/frontend_integration_example';
@@ -204,9 +204,9 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
    python main.py
    ```
 
-2. **Start the frontend**:
+2. **Start the frontend** (from the maestro-builder repository):
    ```bash
-   cd builder
+   cd maestro-builder
    npm run dev
    ```
 
