@@ -65,7 +65,6 @@ function App() {
       const session = await apiService.getChatSession(chatId)
       
       if (session) {
-        // Convert session messages to app format
         const sessionMessages: Message[] = session.messages.map(msg => ({
           id: msg.id.toString(),
           role: msg.role as 'user' | 'assistant',
@@ -78,12 +77,12 @@ function App() {
           {
             name: 'agents.yaml',
             content: session.yaml_files['agents.yaml'] || '# Agents configuration will be generated here\nagents:\n  # Your agents will appear here',
-            language: 'yaml' as const
+            language: 'yaml'
           },
           {
             name: 'workflow.yaml',
             content: session.yaml_files['workflow.yaml'] || '# Workflow configuration will be generated here\nworkflow:\n  # Your workflow will appear here',
-            language: 'yaml' as const
+            language: 'yaml'
           }
         ]
 
@@ -181,24 +180,36 @@ function App() {
       content,
       timestamp: new Date()
     }
-    
+
     setMessages(prev => [...prev, userMessage])
     setIsLoading(true)
-    
+
     try {
       // Send message to API with current chat ID (pass undefined if null)
       const apiResponse = await apiService.sendMessage(content, currentChatId || undefined)
-      
-      // Create assistant message from API response
+
+      // Parse AI response (final_prompt if available)
+      let parsedText = apiResponse.response
+      try {
+        const parsedJSON = JSON.parse(parsedText)
+        if (parsedJSON.final_prompt) {
+          parsedText = parsedJSON.final_prompt
+        }
+      } catch (e) {
+        // Not JSON — ignore
+      }
+
+      parsedText = parsedText.replace(/^```yaml\s*/i, '').replace(/```$/, '')
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: apiResponse.response,
+        content: parsedText,
         role: 'assistant',
         timestamp: new Date()
       }
-      
+
       setMessages(prev => [...prev, assistantMessage])
-      
+
       // Update YAML files from API response, merging with existing files
       const updatedYamlFiles = yamlFiles.map(file => {
         const apiFile = apiResponse.yaml_files.find(apiFile => apiFile.name === file.name)
@@ -210,15 +221,15 @@ function App() {
         }
         return file
       })
-      
+
       setYamlFiles(updatedYamlFiles)
-      
+
       // Update current chat ID if this is a new session
       if (apiResponse.chat_id !== currentChatId) {
         setCurrentChatId(apiResponse.chat_id)
         await loadChatHistory()
       }
-      
+
     } catch (error) {
       console.error('Error sending message:', error)
       
@@ -229,7 +240,6 @@ function App() {
         content: 'Sorry, I encountered an error while processing your request. Please try again.',
         timestamp: new Date()
       }
-      
       setMessages(prev => [...prev, errorMessage])
     } finally {
       setIsLoading(false)
@@ -247,21 +257,19 @@ function App() {
         onDeleteChat={deleteChat}
         onDeleteAllChats={deleteAllChats}
       />
-      
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Chat Canvas */}
-        <div className="flex-1 overflow-hidden">
+
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        <div className="flex-1">
           <ChatCanvas messages={messages} isLoading={isLoading} />
         </div>
-        
         {/* Chat Input */}
-        <div className="border-t border-gray-100 p-6">
+        <div className="border-t border-gray-100 p-6 shrink-0">
           <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
         </div>
       </div>
-      
-      {/* Right Panel - YAML Files */}
+
+      {/* Right Panel - YAML */}
       <YamlPanel yamlFiles={yamlFiles} isLoading={isLoading} />
     </div>
   )
