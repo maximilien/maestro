@@ -7,7 +7,9 @@ import tempfile
 import requests
 import json
 
+from beeai_framework.adapters.ollama import OllamaChatModel
 from beeai_framework.agents.tool_calling import ToolCallingAgent
+from beeai_framework.backend import ChatModel
 from beeai_framework.tools.code import PythonTool, LocalPythonStorage, SandboxTool
 from openai import AssistantEventHandler, OpenAI
 from openai.types.beta import AssistantStreamEvent
@@ -16,7 +18,6 @@ from openai.types.beta.threads.runs import RunStep, RunStepDelta, ToolCall
 from typing import Any, Callable
 from pydantic import BaseModel
 
-from beeai_framework.adapters.ollama import OllamaChatModel
 from beeai_framework.agents import AgentExecutionConfig, AgentMeta
 from beeai_framework.emitter import Emitter, EmitterOptions, EventMeta
 from beeai_framework.errors import FrameworkError
@@ -46,7 +47,9 @@ class BeeAIAgent(Agent):
         """
         super().__init__(agent)
 
-        url = f"{os.getenv('BEE_API')}/v1/assistants"
+        self.base_url = f"{agent['spec'].get('url', os.getenv('BEE_API'))}/v1"
+
+        url = f"{self.base_url}/assistants"
         headers = {
             "accept": "application/json",
             "Authorization": "Bearer sk-proj-testkey",
@@ -85,7 +88,8 @@ class BeeAIAgent(Agent):
         """
         self.print(f"Running {self.agent_name}...\n")
         client = OpenAI(
-            base_url=f"{os.getenv('BEE_API')}/v1", api_key=os.getenv("BEE_API_KEY")
+            base_url=f"{self.base_url}/v1",
+            api_key=os.getenv("BEE_API_KEY", "dummy_key"),
         )
         # TODO: Unused currently
         # assistant = client.beta.assistants.retrieve(self.agent_id)
@@ -108,7 +112,8 @@ class BeeAIAgent(Agent):
         """
         self.print(f"Running {self.agent_name}...\n")
         client = OpenAI(
-            base_url=f"{os.getenv('BEE_API')}/v1", api_key=os.getenv("BEE_API_KEY")
+            base_url=f"{self.base_url}/v1",
+            api_key=os.getenv("BEE_API_KEY", "dummy_key"),
         )
         # TODO: Unused currently
         # assistant = client.beta.assistants.retrieve(self.agent_id)
@@ -241,7 +246,14 @@ class BeeAILocalAgent(Agent):
         self.agent = None
 
     async def _create_agent(self):
-        llm = OllamaChatModel(self.agent_model)
+        if len(self.agent_model.split("/")) < 2:
+            llm = OllamaChatModel(
+                self.agent_model, base_url=self.agent["spec"].get("url")
+            )
+        else:
+            llm = ChatModel.from_name(
+                self.agent_model, base_url=self.agent["spec"].get("url")
+            )
 
         templates: dict[str, Any] = {
             "user": user_template_func,
