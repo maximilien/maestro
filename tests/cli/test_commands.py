@@ -6,19 +6,21 @@
 import os
 import unittest
 from unittest import TestCase, mock
+from importlib.resources import files
+
+import pytest
 
 from maestro.cli.commands import CLI
 
 
 class TestCommand(TestCase):
     TEST_FIXTURES_ROOT_PATH = os.path.join(os.path.dirname(__file__), "..")
-    SCHEMAS_ROOT_PATH = os.path.join(os.path.dirname(__file__), "../../schemas")
 
     def get_fixture(self, file_name):
         return os.path.join(self.TEST_FIXTURES_ROOT_PATH, file_name)
 
     def get_schema(self, file_name):
-        return os.path.join(self.SCHEMAS_ROOT_PATH, file_name)
+        return str(files("maestro").joinpath(f"schemas/{file_name}"))
 
 
 # `deploy` commmand tests
@@ -52,18 +54,27 @@ class DeployCommandTest(TestCommand):
         self.args = {}
         self.command = None
 
+    @pytest.mark.skipif(
+        os.getenv("DEPLOY_KUBERNETES_TEST") != "1", reason="Kubernetes deploy skipped"
+    )
     def test_deploy__dry_run_k8s(self):
         self.args["--k8s"] = True
         self.command = CLI(self.args).command()
         self.assertTrue(self.command.name() == "deploy")
         self.assertTrue(self.command.execute() == 0)
 
+    @pytest.mark.skipif(
+        os.getenv("DEPLOY_KUBERNETES_TEST") != "1", reason="Kubernetes deploy skipped"
+    )
     def test_deploy__dry_run_kubernetes(self):
         self.args["--kubernetes"] = True
         self.command = CLI(self.args).command()
         self.assertTrue(self.command.name() == "deploy")
         self.assertTrue(self.command.execute() == 0)
 
+    @pytest.mark.skipif(
+        os.getenv("DEPLOY_DOCKER_TEST") != "1", reason="Docker deploy skipped"
+    )
     def test_deploy__dry_run_docker(self):
         self.args["--docker"] = True
         self.command = CLI(self.args).command()
